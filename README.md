@@ -1,0 +1,112 @@
+# Wellspring (Breakthrough take-home)
+
+**Loom walkthrough:** _[Add your 5–7 minute Loom URL here before submission.]_
+
+Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. Full brief and quality bars live in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
+
+This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each directory as below (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
+
+---
+
+## Prerequisites
+
+- **Node.js** 20+ (LTS recommended)
+- **pnpm** 9+ (`corepack enable` then `corepack prepare pnpm@9.15.0 --activate`, or install pnpm globally)
+- **PostgreSQL** 14+ (local or Docker) for the API
+
+---
+
+## Setup
+
+1. **Clone** the repository.
+
+2. **Install dependencies** (once per package):
+
+   ```bash
+   cd backend && pnpm install
+   cd ../frontend && pnpm install
+   ```
+
+3. **Environment files**
+
+   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`).
+   - Admin UI: copy `frontend/.env.example` to `frontend/.env.local` and set `NEXT_PUBLIC_API_URL` to your API base URL (e.g. `http://localhost:4000`).
+
+4. **Database & Prisma** (from `backend/`):
+
+   ```bash
+   cd backend
+   pnpm db:generate
+   ```
+
+   After migration files exist in `backend/prisma/migrations/`, apply them:
+
+   ```bash
+   pnpm db:migrate
+   ```
+
+   For **first-time schema authoring** on your machine you may use `pnpm exec prisma migrate dev --name <description>` until migrations are checked in; CI and production use `pnpm db:migrate` (`prisma migrate deploy`).
+
+5. **Seed** (from `backend/`; implements rubric counts when finished):
+
+   ```bash
+   pnpm db:seed
+   ```
+
+---
+
+## Run
+
+Use **two terminals** — API and web run separately.
+
+```bash
+# Terminal 1 — API (default port 4000)
+cd backend && pnpm dev
+
+# Terminal 2 — Admin UI (port 3000)
+cd frontend && pnpm dev
+```
+
+- **API:** `http://localhost:4000` (e.g. `GET /health`)
+- **Admin:** `http://localhost:3000`
+
+---
+
+## Test
+
+```bash
+cd backend && pnpm test
+cd ../frontend && pnpm test
+```
+
+API integration tests (including names containing **`rejects cross-tenant`**) live under `backend/tests/`.
+
+---
+
+## Build (production-style)
+
+```bash
+cd frontend && pnpm build && pnpm start
+```
+
+The API can be run with `tsx` in development; add a production start command (e.g. `node dist/...`) when you compile the server to `dist/`.
+
+---
+
+## Project layout
+
+| Path | Purpose |
+|------|---------|
+| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest |
+| `frontend/` | Next.js App Router admin |
+| `docs/` | Requirements copy, code summary, architecture review |
+| `ai-history/` | Exported AI sessions (chronological, uncurated) |
+
+---
+
+## Submission checklist
+
+- [ ] Public GitHub repo + email per [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
+- [ ] Loom URL at **top of this README**
+- [ ] `docs/CODE_SUMMARY.md` and `docs/ARCHITECTURE_REVIEW.md` completed
+- [ ] `/ai-history` populated

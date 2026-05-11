@@ -25,6 +25,7 @@ This repo is the **Wellspring** multi-tenant admin CMS take-home. Optimize for *
 - Public repo: **README** (setup, run, test, seed), **`.env.example`** in `backend/` and `frontend/` as applicable, **pnpm scripts** on each package: `backend` exposes `dev`, `test`, `db:migrate`, `db:seed`; `frontend` exposes `dev`, `test` (document running two terminals or a process manager).
 - Seed: **2 creators**, **3 programs** each, **~10 sessions** per program.
 - **`/ai-history`** — Raw AI session exports, chronological filenames; do not sanitize to look polished.
+- **`docs/REQUIREMENTS.md`** — In-repo copy of the take-home brief for reading and validation.
 - **`docs/CODE_SUMMARY.md`** — Module-by-module, 3–6 sentences per major area.
 - **`docs/ARCHITECTURE_REVIEW.md`** — ~1000 words, honest self-review per brief.
 - **Loom** URL at **top of README** (placeholder until recorded).
