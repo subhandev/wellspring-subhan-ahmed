@@ -1,0 +1,36 @@
+---
+description: Next.js admin — RHF + Zod, env, API client, functional UI
+globs: frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# `frontend` conventions
+
+## Locked tooling
+
+- **Forms:** React Hook Form with **Zod** resolvers (`@hookform/resolvers/zod`).
+- **Shared validation:** Prefer the same Zod shapes as the API where types are duplicated, or a small shared package later if extracted.
+
+## Purpose
+
+The **creator Admin Panel** only (not a public consumer site unless explicitly added later).
+
+## API communication
+
+- Read API base URL from **environment variables** (e.g. `NEXT_PUBLIC_API_URL` for browser calls, or server-only `API_URL` — document the choice in README).
+- Send **JWT** on authenticated requests (`Authorization: Bearer …` or httpOnly cookie — document the choice).
+
+## UI expectations
+
+- **Functional over pretty** — Tailwind or plain HTML is fine; clear labels, validation messages, loading/error states.
+- Required flows: auth (signup/login/reset), programs CRUD, sessions list with **drag-reorder**, session create/edit with **S3 presigned upload**, **CSV bulk upload** with visible per-row failures, **audit log** with date and action-type filters.
+
+## Uploads
+
+- **Media:** presign from API → `PUT` to S3 → persist URL/key via API.
+- **CSV:** display server-returned row errors (row index + reason).
+
+## Security
+
+- No secrets in client bundles; only public env vars where required.
+- Never send another creator’s `tenant_id` from the browser; tenant is derived from the token server-side.

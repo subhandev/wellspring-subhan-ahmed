@@ -1,0 +1,41 @@
+---
+description: Breakthrough Wellspring take-home rubric — non-negotiables and deliverables
+alwaysApply: true
+---
+
+# Wellspring take-home (Breakthrough)
+
+This repo is the **Wellspring** multi-tenant admin CMS take-home. Optimize for **reviewability and honest scope**, not feature sprawl.
+
+## Non-negotiable quality bars
+
+- **Tenant isolation at the data layer** — Every read/write for tenant-owned data must be scoped by `tenant_id` derived from the authenticated creator (JWT), enforced in repositories / query helpers, **not only** in route handlers. Reviewers will try to forge `tenant_id`.
+- **Migrations only** — Schema changes via **Prisma Migrate** (`prisma/migrations`). No ad-hoc DDL in app startup.
+- **Structured JSON logs** — Every log line must be JSON and include **`tenant_id`** and **`request_id`** (omit or use a sentinel only for pre-auth routes; document that).
+- **S3 presigned uploads** — URLs must be **time-limited**, **scoped** (key prefix or bucket policy tied to tenant), and issued only for the **authenticated tenant**.
+- **CSV bulk import** — Row-level validation errors returned to the client; **idempotent** using a **client-provided ID** so retries do not duplicate rows.
+- **Audit log** — Log **admin write** actions with actor, action, target entity, timestamp; support filters by date range and action type.
+
+## Tests
+
+- At least **three** integration (or API) tests whose names include **`rejects cross-tenant`** (e.g. `rejects cross-tenant program access`). Reviewers grep for this.
+
+## Mandatory deliverables (do not drop)
+
+- Public repo: **README** (setup, run, test, seed), **`.env.example`** in `backend/` and `frontend/` as applicable, **pnpm scripts** on each package: `backend` exposes `dev`, `test`, `db:migrate`, `db:seed`; `frontend` exposes `dev`, `test` (document running two terminals or a process manager).
+- Seed: **2 creators**, **3 programs** each, **~10 sessions** per program.
+- **`/ai-history`** — Raw AI session exports, chronological filenames; do not sanitize to look polished.
+- **`docs/CODE_SUMMARY.md`** — Module-by-module, 3–6 sentences per major area.
+- **`docs/ARCHITECTURE_REVIEW.md`** — ~1000 words, honest self-review per brief.
+- **Loom** URL at **top of README** (placeholder until recorded).
+
+## Stack (locked)
+
+- **Repo layout:** sibling **`backend/`** (Express API) and **`frontend/`** (Next.js admin), each its own pnpm package (no root `package.json`).
+- **API:** Node.js, Express, TypeScript, PostgreSQL, **Prisma**, **Zod**, **Pino** (JSON logs). **Feature modules** under `backend/src/modules/<domain>/`.
+- **Tests (API):** **Jest** + **Supertest** in `backend/tests/`.
+- **Admin UI:** Next.js, **React Hook Form** + **Zod** resolvers, functional UI (Tailwind or plain HTML is fine). Client tests live under `frontend/tests/` when added.
+
+## AI usage
+
+Use AI tools throughout; keep **`/ai-history`** updated with exports as you work.

@@ -1,0 +1,40 @@
+---
+description: Express API — Prisma, feature modules, tenant scope, Pino, Jest
+globs: backend/**/*.ts
+alwaysApply: false
+---
+
+# `backend` conventions
+
+## Locked tooling
+
+- **ORM:** Prisma (PostgreSQL). Schema in `backend/prisma/schema.prisma`; schema changes only via **Prisma migrations** (`prisma migrate`).
+- **Validation:** Zod for request bodies, query params, and CSV row shapes where applicable.
+- **Logging:** Pino — one **JSON object per line** with `request_id`, `tenant_id` (when known), level, message, metadata.
+- **Tests:** Jest + Supertest in `backend/tests/` (integration/API tests; include names containing **`rejects cross-tenant`** per rubric).
+
+## Layout (feature modules)
+
+Organize by domain under `src/modules/<feature>/`, for example:
+
+- `routes.ts` (or `*.routes.ts`) — mount on the app in a central `src/app.ts` or `src/server.ts`
+- `service.ts` — orchestration (optional but keep routes thin)
+- `repository.ts` — Prisma access; **every query must scope `tenant_id`** from context, never from untrusted client input
+- `schemas.ts` — Zod schemas for that feature’s HTTP payloads
+
+Shared cross-cutting code: `src/middleware/`, `src/lib/` (logger factory, S3 helpers), `src/types/`.
+
+## Tenant isolation
+
+- Resolve **`tenantId`** from the **verified JWT** after auth middleware.
+- Repositories accept **`tenantId`** (or `TenantContext`) explicitly and **always** include it in `where` for tenant-owned rows (programs, sessions, audit, import idempotency keys).
+- Never trust `tenant_id` from the request body or query string for authorization.
+
+## Auth
+
+- JWT for authenticated admin routes; signup / login / password reset as required by the brief.
+
+## S3 & CSV
+
+- Presign only after verifying the resource belongs to the tenant; short expiry, scoped keys.
+- CSV: per-row validation errors; idempotent via **client-provided import id**.
