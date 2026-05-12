@@ -1,49 +1,41 @@
 # Code summary
 
-This file is a **module-by-module** tour of the codebase for a new hire on day 1. Replace each section as features land; until then it reflects the scaffold only.
+Module-by-module tour for a new hire on day 1.
 
 ---
 
 ## `backend/` (Express API)
 
-**What it does today:** [`src/app.ts`](../backend/src/app.ts) builds the Express app (`createApp`) with **request ID** + **pino-http** JSON logs (`request_id`, `tenant_id: "pre_auth"` until JWT exists), mounts versioned routes under **`/v1`**, and exposes **`GET /health`**. [`src/index.ts`](../backend/src/index.ts) listens on `PORT`. Domain code lives under [`src/modules/<domain>/`](../backend/src/modules/) with **`routes.ts` → `controller.ts` → `service.ts`** (stubs return **501** `not_implemented`). Shared pieces: [`src/config/`](../backend/src/config/) (env, logger, Prisma singleton), [`src/middleware/`](../backend/src/middleware/), [`src/types/`](../backend/src/types/) (Express augmentation).
+**What it does:** [`src/app.ts`](../backend/src/app.ts) builds the app with **request ID**, **pino-http** (`request_id`, `tenant_id` with `"pre_auth"` until JWT runs), **`app.set("env")`**, JSON body, **`GET /health`**, **`createJwtAuthMiddleware`** (public auth routes + Bearer JWT for other `/v1/*`), and domain routers under **`/v1`**. Feature modules: **`auth`**, **`programs`**, **`sessions`**, **`uploads`**, **`import`**, **`audit`**. Shared: [`lib/httpError.ts`](../backend/src/lib/httpError.ts), [`lib/auditWriter.ts`](../backend/src/lib/auditWriter.ts).
 
-**Design choices:** Express + TypeScript; **Prisma** for PostgreSQL; **Zod** for env parsing; **Pino** for structured JSON logs. Repositories (tenant-scoped Prisma queries) are not scaffolded yet—add `repository.ts` per module when implementing writes.
+**Design choices:** **Zod** on inputs; **tenant isolation** in services/repositories via `tenantId` from `req` (never from client-supplied tenant fields). Programs/sessions use explicit Prisma `where` with `tenantId`; sessions verify `programId` ownership before writes.
 
-**Extend:** Implement real handlers in services/controllers; enforce **`tenantId`** from JWT in repositories, never from the client body.
+**Extend:** Add repository files if you want thinner services; keep all tenant scopes in data layer.
 
 ---
 
 ## `backend/src/prisma/`
 
-**What it does:** [`schema.prisma`](../backend/src/prisma/schema.prisma) defines `Creator`, `Program`, `Session`, `AuditLog`, and `SessionImportKey` (CSV idempotency). Migrations live under [`migrations/`](../backend/src/prisma/migrations/); [`seed.ts`](../backend/src/prisma/seed.ts) is a stub until rubric seed counts are implemented.
+**What it does:** [`schema.prisma`](../backend/src/prisma/schema.prisma) — `Creator` (incl. password reset fields), `Program`, `Session`, `AuditLog`, `SessionImportKey`. Migrations under [`migrations/`](../backend/src/prisma/migrations/). [`seed.ts`](../backend/src/prisma/seed.ts) — 2 creators × 3 programs × 10 sessions.
 
-**Design choices:** Schema changes **only** through Prisma Migrate. All CLI scripts use **`--schema src/prisma/schema.prisma`**.
-
-**Extend:** Run `pnpm db:generate` and `pnpm db:migrate:dev` from `backend/`; keep `tenantId` on tenant-owned rows and enforce in repositories.
+**Design choices:** All CLI uses **`--schema src/prisma/schema.prisma`**.
 
 ---
 
 ## `backend/tests/`
 
-**What it does:** Jest + Supertest smoke tests import **`createApp`** and hit **`/health`** and a stub **`/v1/*`** route. [`jest.config.cjs`](../backend/jest.config.cjs) maps `*.js` imports to TypeScript sources for **NodeNext** compatibility.
-
-**Design choices:** Tests live under `tests/`, not inside `src/`.
-
-**Extend:** Add integration tests whose names include **`rejects cross-tenant`** per requirements.
+**What it does:** Jest + Supertest against **`createApp()`**; [`tests/setup.ts`](../backend/tests/setup.ts) loads `.env` and default `JWT_SECRET`. Includes **`rejects cross-tenant program access`**, **`rejects cross-tenant session access`**, **`rejects cross-tenant import into another program`**.
 
 ---
 
 ## `frontend/` (Next.js Admin)
 
-**What it does today:** Next.js 15 App Router with **Tailwind CSS v4** + **shadcn/ui** (base-nova). Route groups [`(auth)/`](../frontend/src/app/(auth)/) and [`(dashboard)/`](../frontend/src/app/(dashboard)/) hold scaffold pages (login, programs, sessions, import, audit). [`components/ui/button.tsx`](../frontend/src/components/ui/button.tsx) and [`lib/utils.ts`](../frontend/src/lib/utils.ts) come from shadcn; [`lib/api.ts`](../frontend/src/lib/api.ts) exposes `getApiBase()` / `apiFetch()` for the versioned API.
+**What it does:** App Router with **`(auth)/`** (login, signup, forgot/reset password) and **`(dashboard)/`** gated by [`DashboardGate`](../frontend/src/components/DashboardGate.tsx) (JWT in `localStorage`). [`lib/api.ts`](../frontend/src/lib/api.ts) — **`apiFetch`** to `/v1` with Bearer token. Programs CRUD, sessions list with **@dnd-kit** reorder calling **`POST /v1/sessions/reorder`**, session edit with **presigned S3 upload** flow, CSV import UI, audit log filters.
 
-**Design choices:** **React Hook Form** + **Zod** are dependencies for upcoming forms; API base URL from **`NEXT_PUBLIC_API_URL`**.
-
-**Extend:** Wire forms to `/v1` endpoints; keep server-only secrets out of the client bundle.
+**Design choices:** **RHF + Zod** on forms; **Tailwind** + shadcn-style **`Button`**; `NEXT_PUBLIC_API_URL` for API origin only.
 
 ---
 
-## Cross-cutting (next)
+## Cross-cutting
 
-**Still to implement:** **auth/JWT**, **tenant context** on `req`, **audit writer**, **S3 presign**, **CSV import pipeline**, and row-level **tenant isolation** in Prisma repositories.
+**Implemented:** JWT auth, audit append on mutating operations and import, S3 presign (`tenant/...` key prefix + `publicUrl`), CSV import with **`SessionImportKey`** idempotency and per-row results, structured JSON logs with **`tenant_id`** after auth.

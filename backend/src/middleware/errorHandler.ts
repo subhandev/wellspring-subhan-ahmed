@@ -1,10 +1,20 @@
 import type { ErrorRequestHandler } from "express";
 import type { Logger } from "pino";
+import { HttpError } from "../lib/httpError.js";
 
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (err, req, res, next) => {
     if (res.headersSent) {
       next(err);
+      return;
+    }
+
+    if (err instanceof HttpError) {
+      res.status(err.status).json({
+        error: err.code ?? "error",
+        message: err.message,
+        requestId: req.requestId
+      });
       return;
     }
 

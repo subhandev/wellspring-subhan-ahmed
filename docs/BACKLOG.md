@@ -62,7 +62,7 @@ Per domain: `routes` (+ optional `service`, `repository`, `schemas`). Repositori
 - [ ] At least **three** integration/API tests in `backend/tests/` whose names include **`rejects cross-tenant`** (reviewers grep for this).
 - [ ] **`backend/.env.example`** and **`frontend/.env.example`** kept accurate.
 - [ ] **README** — setup, run, test, seed; **Loom URL** at top before submission.
-- [ ] **`/ai-history`** — chronological raw AI exports.
+- [x] **`/ai-history`** — chronological raw AI exports.
 - [ ] **`docs/CODE_SUMMARY.md`** — update as modules land.
 - [ ] **`docs/ARCHITECTURE_REVIEW.md`** — update for tenant isolation, import idempotency, S3 flow.
 

@@ -2,4 +2,9 @@ import { Router, type IRouter } from "express";
 import * as controller from "./controller.js";
 
 export const authRouter: IRouter = Router();
-authRouter.all("*", controller.notImplemented);
+
+authRouter.post("/signup", controller.signup);
+authRouter.post("/login", controller.login);
+authRouter.post("/forgot-password", controller.forgotPassword);
+authRouter.post("/reset-password", controller.resetPassword);
+authRouter.get("/me", controller.me);

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { LogoutButton } from "@/components/layout/LogoutButton";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -18,6 +19,9 @@ export function DashboardNav() {
           {l.label}
         </Link>
       ))}
+      <div className="ml-auto">
+        <LogoutButton />
+      </div>
     </nav>
   );
 }
