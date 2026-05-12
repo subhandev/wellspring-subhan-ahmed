@@ -32,18 +32,22 @@ async function main() {
           title: `Creator ${i + 1} — Program ${p + 1}`,
           description: `Seed program ${p + 1} for creator ${i + 1}.`,
           sessions: {
-            create: Array.from({ length: SESSIONS_PER_PROGRAM }, (_, s) => ({
-              tenantId: creator.id,
-              title: `Session ${s + 1}`,
-              durationSeconds: 600 + s * 120,
-              position: s,
-              instructorName: instructors[s % instructors.length],
-              tags: ["seed", ["breathwork", "movement", "sleep"][s % 3]],
-              mediaUrl:
+            create: Array.from({ length: SESSIONS_PER_PROGRAM }, (_, s) => {
+              const mediaUrl =
                 s % 4 === 0
                   ? `https://example.com/seed-media/${creator.id}/p${p + 1}-s${s + 1}.mp3`
-                  : null,
-            })),
+                  : null;
+              return {
+                tenantId: creator.id,
+                title: `Session ${s + 1}`,
+                durationSeconds: 600 + s * 120,
+                position: s,
+                instructorName: instructors[s % instructors.length],
+                tags: ["seed", ["breathwork", "movement", "sleep"][s % 3]],
+                mediaUrl,
+                mediaType: mediaUrl ? "audio/mpeg" : null,
+              };
+            }),
           },
         },
       });

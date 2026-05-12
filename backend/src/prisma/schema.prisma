@@ -16,7 +16,6 @@ model Creator {
   updatedAt    DateTime @updatedAt
 
   programs           Program[]
-  sessions           Session[]
   auditLogsAsActor   AuditLog[]          @relation("AuditLogActor")
   auditLogsAsTenant  AuditLog[]          @relation("AuditLogTenant")
   sessionImportKeys  SessionImportKey[]
@@ -46,10 +45,10 @@ model Session {
   instructorName  String
   tags            String[] @default([])
   mediaUrl        String?
+  mediaType       String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  tenant     Creator            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   program    Program            @relation(fields: [programId], references: [id], onDelete: Cascade)
   importKeys SessionImportKey[]
 
@@ -82,6 +81,8 @@ model SessionImportKey {
   clientImportId String
   clientRowId    String
   sessionId      String?
+  status         String   @default("success")
+  errorMsg       String?
   createdAt      DateTime @default(now())
 
   tenant  Creator  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
