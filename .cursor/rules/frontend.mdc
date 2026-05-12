@@ -9,7 +9,10 @@ alwaysApply: false
 ## Locked tooling
 
 - **Forms:** React Hook Form with **Zod** resolvers (`@hookform/resolvers/zod`).
-- **Shared validation:** Prefer the same Zod shapes as the API where types are duplicated, or a small shared package later if extracted.
+- **Validation:** Use Zod schemas close to the form/page. Keep schema + form defaults + submit mapping in the same module unless reused.
+- **UI primitives:** Prefer `shadcn/ui` components (`frontend/src/components/ui/*`) and Tailwind for layout.
+- **Formatting/linting:** `pnpm lint`, `pnpm typecheck`, `pnpm format` should stay clean.
+- **Tests:** Jest (`pnpm test`) for client-side unit/behavior tests when added.
 
 ## Purpose
 
@@ -17,13 +20,60 @@ The **creator Admin Panel** only (not a public consumer site unless explicitly a
 
 ## API communication
 
-- Read API base URL from **environment variables** (e.g. `NEXT_PUBLIC_API_URL` for browser calls, or server-only `API_URL` — document the choice in README).
-- Send **JWT** on authenticated requests (`Authorization: Bearer …` or httpOnly cookie — document the choice).
+- **Base URL**: use `NEXT_PUBLIC_API_URL` (fallback `http://localhost:4000`) via `frontend/src/lib/api.ts`.
+- **API helper**: prefer `apiFetch()` + `v1()` from `frontend/src/lib/api.ts` instead of ad-hoc `fetch()` URLs.
+- **Auth header**: `apiFetch()` attaches `Authorization: Bearer …` by default using `getAccessToken()` from `frontend/src/lib/auth.ts`.
 
 ## UI expectations
 
 - **Functional over pretty** — Tailwind or plain HTML is fine; clear labels, validation messages, loading/error states.
+- Prefer App Router patterns: keep page-level data loading and navigation in `app/*`, reusable UI/logic in `components/*` + `lib/*`.
 - Required flows: auth (signup/login/reset), programs CRUD, sessions list with **drag-reorder**, session create/edit with **S3 presigned upload**, **CSV bulk upload** with visible per-row failures, **audit log** with date and action-type filters.
+
+## File naming conventions
+
+- **Pages:** `app/(auth)/login/page.tsx`, `app/(dashboard)/programs/page.tsx`
+- **Components:** PascalCase — `ProgramForm.tsx`, `SessionList.tsx`, `CsvUploader.tsx`
+- **Hooks:** camelCase prefixed with `use` — `usePrograms.ts`, `useAuth.ts`
+- **Lib files:** camelCase — `api.ts`, `auth.ts`
+- **Types:** `types/index.ts` — keep shared frontend types centralized
+- **Zod schemas:** camelCase + `Schema` suffix — `createProgramSchema`, `loginSchema`
+
+## Folder structure
+
+`frontend/src/`
+
+- **`app/`**
+  - **`(auth)/`**: login/signup/reset pages (no dashboard chrome)
+  - **`(dashboard)/`**: protected pages + shared layout/nav
+- **`components/`**
+  - **`ui/`**: generic reusable primitives (Button, Input, Table, Modal, Toast)
+  - **`programs/`**: Program-specific components (e.g. ProgramForm, ProgramCard)
+  - **`sessions/`**: Session components (drag reorder list lives here)
+  - **`audit/`**: Audit UI (e.g. AuditLogTable)
+  - **`import/`**: Import UI (e.g. CsvUploader)
+- **`hooks/`**: custom hooks (`useAuth`, `usePrograms`, `useSessions`) when needed
+- **`lib/`**: shared utilities (`api.ts`, `auth.ts`)
+- **`types/`**: `index.ts`
+
+## Auth & protected routes
+
+- Token stored in localStorage via `getAccessToken()` / `setAccessToken()` in `frontend/src/lib/auth.ts` (clearing is `setAccessToken(null)`).
+- Protected dashboard pages should check for a token at the layout/gate level and redirect to `/login` if missing.
+- After login/signup: store token then redirect to `/programs`.
+- After logout: clear token then redirect to `/login`.
+
+## Loading and error states
+
+- Every API call shows a loading state: disable submit buttons and show a spinner where appropriate.
+- API errors should be shown as a friendly message (toast + inline callout when appropriate). Never show raw error objects to users.
+- Form validation errors must show inline below each field via RHF.
+
+## Drag and drop
+
+- Use `@dnd-kit/*` for session reorder (already in `package.json`). Avoid introducing another DnD library unless there is a clear need.
+- On drop: call `POST /v1/sessions/reorder` with `orderedSessionIds` in the new order.
+- Optimistic update: reorder the UI immediately; revert if the API call fails.
 
 ## Uploads
 
