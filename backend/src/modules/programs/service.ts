@@ -28,7 +28,7 @@ export async function createProgram(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.create",
+    action: "program.created",
     targetType: "program",
     targetId: p.id,
     metadata: { title: p.title }
@@ -52,7 +52,7 @@ export async function updateProgram(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.update",
+    action: "program.updated",
     targetType: "program",
     targetId: p.id
   });
@@ -71,7 +71,7 @@ export async function removeProgram(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.delete",
+    action: "program.deleted",
     targetType: "program",
     targetId: id
   });

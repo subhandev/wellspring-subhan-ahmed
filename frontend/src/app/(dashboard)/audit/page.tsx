@@ -77,7 +77,7 @@ export default function AuditPage() {
             className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            placeholder="program.create"
+            placeholder="program.created"
           />
         </div>
         <Button type="button" onClick={load}>

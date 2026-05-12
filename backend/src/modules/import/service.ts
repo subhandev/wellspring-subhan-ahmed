@@ -162,7 +162,7 @@ export async function importSessionsFromCsv(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "import.sessions",
+    action: "sessions.imported",
     targetType: "import",
     targetId: body.clientImportId,
     metadata: {

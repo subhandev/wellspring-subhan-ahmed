@@ -57,7 +57,7 @@ export async function createSession(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.create",
+    action: "session.created",
     targetType: "session",
     targetId: session.id,
     metadata: { programId: body.programId, title: session.title }
@@ -79,7 +79,7 @@ export async function updateSession(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.update",
+    action: "session.updated",
     targetType: "session",
     targetId: id
   });
@@ -98,7 +98,7 @@ export async function removeSession(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.delete",
+    action: "session.deleted",
     targetType: "session",
     targetId: id
   });
@@ -158,7 +158,7 @@ export async function reorderSessions(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.reorder",
+    action: "session.reordered",
     targetType: "program",
     targetId: body.programId
   });

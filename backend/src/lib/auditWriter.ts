@@ -1,9 +1,15 @@
 import { prisma } from "../config/database.js";
 import type { TenantId } from "../types/tenant.js";
 
+/**
+ * Persist an audit row for an admin write. `action` must use **past-tense**
+ * verbs after `domain.` or `resource.` — e.g. `program.created`, `sessions.imported`.
+ * See backend Cursor rule (`backend.mdc`) § Audit log actions.
+ */
 export async function appendAuditLog(input: {
   tenantId: TenantId;
   actorId: string;
+  /** Past-tense dotted identifier, e.g. `program.updated`. */
   action: string;
   targetType: string;
   targetId?: string | null;

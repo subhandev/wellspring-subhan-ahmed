@@ -74,7 +74,7 @@ export async function createPresignedPut(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "media.presign",
+    action: "media.presigned",
     targetType: "s3_object",
     targetId: key,
     metadata: { contentType: body.contentType }
