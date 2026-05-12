@@ -41,8 +41,20 @@ export function apiDocsEnabled(env: Env): boolean {
   return env.NODE_ENV !== "production";
 }
 
+/** Normalize alternate env names some hosts use for S3 uploads. */
+function normalizeProcessEnv(input: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const out = { ...input };
+  if (!out.S3_BUCKET?.trim() && out.AWS_S3_BUCKET?.trim()) {
+    out.S3_BUCKET = out.AWS_S3_BUCKET.trim();
+  }
+  if (out.PRESIGN_EXPIRES_SECONDS === undefined && out.S3_PRESIGNED_URL_EXPIRES !== undefined) {
+    out.PRESIGN_EXPIRES_SECONDS = out.S3_PRESIGNED_URL_EXPIRES;
+  }
+  return out;
+}
+
 export function loadEnv(): Env {
-  const parsed = envSchema.safeParse(process.env);
+  const parsed = envSchema.safeParse(normalizeProcessEnv(process.env));
   if (!parsed.success) {
     throw new Error(`Invalid environment: ${parsed.error.message}`);
   }
