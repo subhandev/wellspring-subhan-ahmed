@@ -6,6 +6,11 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 
 This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each directory as below (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
 
+### Package scripts
+
+- **Backend (`backend/`)**: `pnpm dev`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`)
+- **Frontend (`frontend/`)**: `pnpm dev`, `pnpm test` (also `pnpm build`, `pnpm start`)
+
 ---
 
 ## Prerequisites
