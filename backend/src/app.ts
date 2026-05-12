@@ -6,8 +6,8 @@ import { buildOpenApiDocument } from "./openapi/openapiDocument.js";
 import { createRootLogger } from "./config/logger.js";
 import { createErrorHandler } from "./middleware/errorHandler.js";
 import { requestIdMiddleware } from "./middleware/requestId.js";
-import { createJwtAuthMiddleware } from "./middleware/auth.js";
-import { authRouter } from "./modules/auth/routes.js";
+import { createAuthenticateMiddleware } from "./middleware/authenticate.js";
+import { authRouter } from "./modules/auth/auth.routes.js";
 import { programsRouter } from "./modules/programs/routes.js";
 import { sessionsRouter } from "./modules/sessions/routes.js";
 import { uploadsRouter } from "./modules/uploads/routes.js";
@@ -62,9 +62,9 @@ export function createApp(env: Env = loadEnv()): Application {
     });
   }
 
-  app.use(createJwtAuthMiddleware(() => app.get("env") as Env));
+  app.use(createAuthenticateMiddleware(() => app.get("env") as Env));
 
-  app.use("/v1/auth", authRouter);
+  app.use("/api/auth", authRouter);
   app.use("/v1/programs", programsRouter);
   app.use("/v1/sessions", sessionsRouter);
   app.use("/v1/uploads", uploadsRouter);

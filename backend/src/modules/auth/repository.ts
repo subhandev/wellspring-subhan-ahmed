@@ -32,22 +32,3 @@ export async function updatePassword(
   });
 }
 
-export async function setPasswordResetFields(
-  id: string,
-  tokenHash: string,
-  expiresAt: Date
-): Promise<void> {
-  await prisma.creator.update({
-    where: { id },
-    data: {
-      passwordResetTokenHash: tokenHash,
-      passwordResetExpiresAt: expiresAt
-    }
-  });
-}
-
-export async function findCreatorByResetTokenHash(tokenHash: string): Promise<Creator | null> {
-  return prisma.creator.findFirst({
-    where: { passwordResetTokenHash: tokenHash }
-  });
-}

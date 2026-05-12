@@ -9,6 +9,8 @@ const envSchema = z.object({
   /** HS256 signing secret; required when issuing or verifying JWTs. */
   JWT_SECRET: z.string().min(16).optional(),
   JWT_EXPIRES_IN: z.string().default("7d"),
+  /** Short-lived HS256 token for password reset (signed with secret derived from password hash). */
+  JWT_RESET_EXPIRES_IN: z.string().default("15m"),
   /** In dev/test without SMTP, log reset URL at `debug` when issuing password reset. */
   PASSWORD_RESET_DEBUG_LOG: z.enum(["0", "1"]).optional(),
 
