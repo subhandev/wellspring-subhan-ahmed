@@ -48,15 +48,21 @@ export function createApp(env: Env = loadEnv()): Application {
   } else {
     app.get("/openapi.json", (req, res) => {
       res.status(404).json({
-        error: "not_found",
-        message: "API documentation is disabled",
+        success: false,
+        error: {
+          code: "not_found",
+          message: "API documentation is disabled"
+        },
         requestId: req.requestId
       });
     });
     app.use("/api-docs", (req, res) => {
       res.status(404).json({
-        error: "not_found",
-        message: "API documentation is disabled",
+        success: false,
+        error: {
+          code: "not_found",
+          message: "API documentation is disabled"
+        },
         requestId: req.requestId
       });
     });

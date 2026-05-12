@@ -11,8 +11,11 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
 
     if (err instanceof HttpError) {
       res.status(err.status).json({
-        error: err.code ?? "error",
-        message: err.message,
+        success: false,
+        error: {
+          code: err.code ?? "error",
+          message: err.message
+        },
         requestId: req.requestId
       });
       return;
@@ -38,8 +41,11 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
     );
 
     res.status(status).json({
-      error: status === 500 ? "internal_error" : "error",
-      message: status === 500 ? "Internal Server Error" : message,
+      success: false,
+      error: {
+        code: status === 500 ? "internal_error" : "error",
+        message: status === 500 ? "Internal Server Error" : message
+      },
       requestId: req.requestId
     });
   };

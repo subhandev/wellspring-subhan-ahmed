@@ -37,14 +37,36 @@ const AuthTokenResponseSchema = z
   })
   .openapi("AuthTokenResponse");
 
-const ForgotPasswordAcceptedSchema = z
-  .object({ ok: z.literal(true) })
-  .openapi("ForgotPasswordAccepted");
+const AuthSignupSuccessSchema = z
+  .object({
+    success: z.literal(true),
+    data: AuthTokenResponseSchema
+  })
+  .openapi("AuthSignupSuccess");
+
+const ForgotPasswordSuccessSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({
+      resetToken: z.string().nullable()
+    })
+  })
+  .openapi("ForgotPasswordSuccess");
+
+const AuthMeSuccessSchema = z
+  .object({
+    success: z.literal(true),
+    data: CreatorPublicSchema
+  })
+  .openapi("AuthMeSuccess");
 
 const ErrorBodySchema = z
   .object({
-    error: z.string(),
-    message: z.string(),
+    success: z.literal(false),
+    error: z.object({
+      code: z.string(),
+      message: z.string()
+    }),
     requestId: z.string().optional()
   })
   .openapi("ErrorBody");
@@ -171,7 +193,8 @@ export function buildOpenApiDocument(): ReturnType<
     type: "http",
     scheme: "bearer",
     bearerFormat: "JWT",
-    description: "HS256 JWT; `sub` is the creator id (tenant)."
+    description:
+      "HS256 JWT. Claims include `sub` and `tenantId` (both equal creator id) and `email`."
   });
 
   registry.registerPath({
@@ -187,7 +210,7 @@ export function buildOpenApiDocument(): ReturnType<
 
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/signup",
+    path: "/api/auth/signup",
     tags: ["Auth"],
     security: [],
     summary: "Register a creator account",
@@ -197,7 +220,7 @@ export function buildOpenApiDocument(): ReturnType<
       }
     },
     responses: {
-      201: jsonOk(AuthTokenResponseSchema, "Registered; returns bearer token"),
+      201: jsonOk(AuthSignupSuccessSchema, "Registered; returns bearer token"),
       400: err("Validation error"),
       409: err("Email already registered"),
       503: err("JWT_SECRET not configured")
@@ -206,7 +229,7 @@ export function buildOpenApiDocument(): ReturnType<
 
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/login",
+    path: "/api/auth/login",
     tags: ["Auth"],
     security: [],
     summary: "Login",
@@ -216,7 +239,7 @@ export function buildOpenApiDocument(): ReturnType<
       }
     },
     responses: {
-      200: jsonOk(AuthTokenResponseSchema, "Access token issued"),
+      200: jsonOk(AuthSignupSuccessSchema, "Access token issued"),
       400: err("Validation error"),
       401: err("Invalid email or password"),
       503: err("JWT_SECRET not configured")
@@ -225,10 +248,12 @@ export function buildOpenApiDocument(): ReturnType<
 
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/forgot-password",
+    path: "/api/auth/forgot-password",
     tags: ["Auth"],
     security: [],
-    summary: "Request password reset email (opaque success shape)",
+    summary: "Request password reset JWT (no email sent)",
+    description:
+      "Returns a short-lived JWT tied to the current password hash, or `resetToken: null` if the email is unknown.",
     request: {
       body: {
         content: {
@@ -237,17 +262,18 @@ export function buildOpenApiDocument(): ReturnType<
       }
     },
     responses: {
-      202: jsonOk(ForgotPasswordAcceptedSchema, "Request accepted"),
-      400: err("Validation error")
+      200: jsonOk(ForgotPasswordSuccessSchema, "Reset token issued when email exists"),
+      400: err("Validation error"),
+      503: err("JWT_SECRET not configured")
     }
   });
 
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/reset-password",
+    path: "/api/auth/reset-password",
     tags: ["Auth"],
     security: [],
-    summary: "Complete reset with emailed token",
+    summary: "Complete reset using JWT from forgot-password",
     request: {
       body: {
         content: {
@@ -256,7 +282,7 @@ export function buildOpenApiDocument(): ReturnType<
       }
     },
     responses: {
-      200: jsonOk(AuthTokenResponseSchema, "Password updated"),
+      200: jsonOk(AuthSignupSuccessSchema, "Password updated"),
       400: err("Validation error"),
       401: err("Invalid or expired reset token"),
       503: err("JWT_SECRET not configured")
@@ -265,11 +291,11 @@ export function buildOpenApiDocument(): ReturnType<
 
   registry.registerPath({
     method: "get",
-    path: "/v1/auth/me",
+    path: "/api/auth/me",
     tags: ["Auth"],
     summary: "Current creator profile",
     responses: {
-      200: jsonOk(CreatorPublicSchema, "Creator identity"),
+      200: jsonOk(AuthMeSuccessSchema, "Creator identity"),
       401: bearer401,
       404: err("User not found")
     }
