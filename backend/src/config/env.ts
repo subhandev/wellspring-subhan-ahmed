@@ -26,7 +26,9 @@ const envSchema = z.object({
    * `1` = expose `GET /openapi.json` and `GET /api-docs` without auth.
    * `0` = hide docs. Default: hidden in production unless set to `1`.
    */
-  ENABLE_API_DOCS: z.enum(["0", "1"]).optional()
+  ENABLE_API_DOCS: z.enum(["0", "1"]).optional(),
+  /** Comma-separated allowed browser `Origin` values. In development/test, `http(s)://localhost:*` and 127.0.0.1 are allowed if unset. */
+  CORS_ORIGIN: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;

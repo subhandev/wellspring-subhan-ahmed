@@ -5,6 +5,7 @@ import { apiDocsEnabled, loadEnv, type Env } from "./config/env.js";
 import { buildOpenApiDocument } from "./openapi/openapiDocument.js";
 import { createRootLogger } from "./config/logger.js";
 import { createErrorHandler } from "./middleware/errorHandler.js";
+import { createCorsMiddleware } from "./middleware/cors.js";
 import { requestIdMiddleware } from "./middleware/requestId.js";
 import { createAuthenticateMiddleware } from "./middleware/authenticate.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
@@ -21,6 +22,7 @@ export function createApp(env: Env = loadEnv()): Application {
   app.disable("x-powered-by");
   app.set("env", env);
 
+  app.use(createCorsMiddleware(env));
   app.use(requestIdMiddleware);
   app.use(
     pinoHttp({

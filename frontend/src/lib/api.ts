@@ -6,9 +6,15 @@ export function getApiBase(): string {
   return base;
 }
 
-/** Path under `/v1`, e.g. `/programs` or `programs`. */
-export function v1(path: string): string {
+/**
+ * Resolves a path for `fetch`: `/auth/*` and `/auth/me` → `/api/auth/*` (Express mount);
+ * all other paths → `/v1/...`.
+ */
+export function apiUrl(path: string): string {
   const p = path.startsWith("/") ? path : `/${path}`;
+  if (p === "/auth/me" || p.startsWith("/auth/")) {
+    return `${getApiBase()}/api/auth${p.slice("/auth".length)}`;
+  }
   return `${getApiBase()}/v1${p}`;
 }
 
@@ -28,5 +34,5 @@ export async function apiFetch(path: string, init?: ApiFetchOpts): Promise<Respo
       headers.set("Authorization", `Bearer ${t}`);
     }
   }
-  return fetch(v1(path), { ...rest, headers });
+  return fetch(apiUrl(path), { ...rest, headers });
 }
