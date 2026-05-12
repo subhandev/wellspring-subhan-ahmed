@@ -20,7 +20,7 @@ export function AppBrandLink({ className }: { className?: string }) {
     <Link
       href={href}
       className={cn(
-        "text-lg font-semibold tracking-tight text-foreground underline-offset-4 hover:underline",
+        "cursor-default text-lg font-semibold tracking-tight text-foreground no-underline hover:no-underline",
         className
       )}
     >
