@@ -38,20 +38,20 @@ export async function createPresignedPut(
   actorId: string,
   body: PresignBody
 ) {
-  if (!s3Configured(env)) {
-    throw new HttpError(
-      503,
-      "S3 uploads are not configured (set AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET)",
-      "uploads_unconfigured"
-    );
-  }
-
   const ct = body.contentType.toLowerCase();
   if (!ALLOWED_CONTENT_PREFIXES.some((p) => ct.startsWith(p))) {
     throw new HttpError(
       400,
       "contentType must be audio/*, video/*, or image/*",
       "validation_error"
+    );
+  }
+
+  if (!s3Configured(env)) {
+    throw new HttpError(
+      503,
+      "S3 uploads are not configured (set AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET)",
+      "uploads_unconfigured"
     );
   }
 

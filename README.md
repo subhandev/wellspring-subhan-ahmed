@@ -88,6 +88,28 @@ When the API is running and docs are enabled (default in non-production environm
 
 Protected operations use **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or capture a token from login).
 
+### S3 session media (browser uploads)
+
+Session media uses **`POST /v1/uploads/presign`** (JWT required), then the browser **`PUT`s the file directly to S3**. Configure `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `S3_BUCKET` in `backend/.env` (see [`backend/.env.example`](backend/.env.example)). Optional: `S3_PUBLIC_BASE_URL` for CDN or a stable GET origin, `S3_ENDPOINT` for MinIO.
+
+1. **Bucket CORS** — The S3 bucket must allow browser **`PUT`** from your admin origin (e.g. `http://localhost:3000`), including the **`Content-Type`** header the client sends. Example CORS rules (adjust origins; use HTTPS in production):
+
+```json
+[
+  {
+    "AllowedHeaders": ["Content-Type"],
+    "AllowedMethods": ["PUT", "GET", "HEAD"],
+    "AllowedOrigins": ["http://localhost:3000"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3000
+  }
+]
+```
+
+2. **Public GET for playback** — `<audio>` / `<video>` `src` uses the **`publicUrl`** returned by presign. Objects must be readable via that URL (e.g. bucket policy allowing `s3:GetObject` on `arn:aws:s3:::your-bucket/tenants/*`, or CloudFront in front of the bucket with `S3_PUBLIC_BASE_URL` pointing at the distribution).
+
+3. **IAM** — Use an IAM user or role limited to **`s3:PutObject`** (and **`s3:GetObject`** if the same principal must read) on the bucket or `tenants/` prefix.
+
 ---
 
 ## Bruno (API testing)

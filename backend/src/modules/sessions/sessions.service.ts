@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
+import { assertSessionMediaUrlForTenant } from "../../lib/sessionMediaUrl.js";
 import { prisma } from "../../config/database.js";
 import type { TenantId } from "../../types/tenant.js";
 import type { CreateSessionBody, ReorderSessionsBody, UpdateSessionBody } from "./schemas.js";
@@ -40,6 +41,8 @@ export async function createSession(tenantId: TenantId, actorId: string, body: C
   const position =
     body.position !== undefined ? body.position : await repo.nextPosition(tenantId, body.programId);
 
+  assertSessionMediaUrlForTenant(tenantId, body.mediaUrl);
+
   try {
     const session = await repo.createSession(tenantId, {
       programId: body.programId,
@@ -74,6 +77,10 @@ export async function updateSession(
   id: string,
   body: UpdateSessionBody
 ) {
+  if (body.mediaUrl !== undefined) {
+    assertSessionMediaUrlForTenant(tenantId, body.mediaUrl);
+  }
+
   try {
     const session = await repo.updateSession(tenantId, id, body);
     if (!session) {

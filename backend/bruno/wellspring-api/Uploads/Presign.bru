@@ -20,3 +20,16 @@ body:json {
     "contentType": "audio/mpeg"
   }
 }
+
+tests {
+  test("presign succeeds with S3 env, or 503 when uploads unconfigured", function() {
+    if (res.status === 503) {
+      expect(res.body.error.code).to.equal("uploads_unconfigured");
+      return;
+    }
+    expect(res.status).to.equal(201);
+    expect(res.body.key).to.match(/^tenants\/.+\/media\//);
+    expect(res.body.uploadUrl).to.be.a("string");
+    expect(res.body.publicUrl).to.be.a("string");
+  });
+}

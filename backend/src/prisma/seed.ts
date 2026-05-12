@@ -51,7 +51,7 @@ async function main() {
             create: Array.from({ length: SESSIONS_PER_PROGRAM }, (_, s) => {
               const mediaUrl =
                 s % 4 === 0
-                  ? `https://example.com/seed-media/${creator.id}/p${p + 1}-s${s + 1}.mp3`
+                  ? `https://example.com/tenants/${creator.id}/media/seed-p${p + 1}-s${s + 1}.mp3`
                   : null;
               return {
                 tenantId: creator.id,
