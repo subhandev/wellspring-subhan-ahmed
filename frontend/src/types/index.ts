@@ -4,6 +4,8 @@ export type Program = {
   id: string;
   title: string;
   description: string | null;
+  createdAt: string;
+  sessionCount: number;
 };
 
 export type SessionRow = {
@@ -14,6 +16,7 @@ export type SessionRow = {
   instructorName: string;
   tags: string[];
   mediaUrl?: string | null;
+  mediaType?: string | null;
 };
 
 export type AuditLogRow = {

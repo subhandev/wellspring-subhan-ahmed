@@ -42,7 +42,7 @@ export default function AuditPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Audit log</h1>
+      <h1 className="text-2xl font-semibold">Audit</h1>
       <div className="flex max-w-3xl flex-wrap items-end gap-3">
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">From (ISO date)</label>

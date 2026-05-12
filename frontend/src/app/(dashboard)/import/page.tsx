@@ -43,7 +43,7 @@ export default function ImportPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">CSV import</h1>
+      <h1 className="text-2xl font-semibold">Import</h1>
       <p className="text-sm text-muted-foreground">
         Required columns: <code className="text-xs">client_row_id</code>,{" "}
         <code className="text-xs">program_id</code>, <code className="text-xs">title</code>,{" "}

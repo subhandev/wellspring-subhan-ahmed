@@ -1,19 +1,58 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
-import type { Program } from "@/types";
+import { formatProgramCreatedAt } from "@/lib/formatDisplay";
 import { cn } from "@/lib/utils";
+import type { Program } from "@/types";
 
-export default function ProgramsPage() {
+function ProgramsFallback() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-20">
+      <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
+      <p className="text-sm text-muted-foreground">Loading programs…</p>
+    </div>
+  );
+}
+
+function ProgramsInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [programs, setPrograms] = useState<Program[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [banner, setBanner] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Program | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const created = searchParams.get("created");
+    const saved = searchParams.get("saved");
+    if (created) {
+      setBanner("Program created.");
+    } else if (saved) {
+      setBanner("Changes saved.");
+    }
+    if (created || saved) {
+      router.replace("/programs", { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  useEffect(() => {
+    if (!banner) {
+      return;
+    }
+    const t = window.setTimeout(() => setBanner(null), 5000);
+    return () => window.clearTimeout(t);
+  }, [banner]);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       const res = await apiFetch("/programs");
       const body = await res.json().catch(() => ({}));
       if (cancelled) {
@@ -24,78 +63,137 @@ export default function ProgramsPage() {
         return;
       }
       const data = body as { programs?: Program[] };
-      setPrograms(data.programs ?? []);
+      const rows = (data.programs ?? []).map((p) => ({
+        ...p,
+        sessionCount: typeof p.sessionCount === "number" ? p.sessionCount : 0,
+        createdAt: p.createdAt ?? ""
+      }));
+      setPrograms(rows);
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
+  async function onConfirmDeleteProgram() {
+    if (!deleteTarget) {
+      return;
+    }
+    setDeleteError(null);
+    const res = await apiFetch(`/programs/${deleteTarget.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setDeleteError(readApiErrorMessage(body, "Delete failed"));
+      throw new Error("delete failed");
+    }
+    setPrograms((prev) => (prev ? prev.filter((p) => p.id !== deleteTarget.id) : prev));
+  }
+
   if (error) {
     return <p className="text-sm text-red-600">{error}</p>;
   }
   if (!programs) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="h-9 w-40 animate-pulse rounded-md bg-muted" />
-          <div className="h-9 w-28 animate-pulse rounded-md bg-muted" />
-        </div>
-        <ul className="divide-y rounded-md border">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className="px-4 py-3">
-              <div className="h-5 w-1/2 max-w-xs animate-pulse rounded bg-muted" />
-              <div className="mt-2 h-4 w-2/3 max-w-sm animate-pulse rounded bg-muted/70" />
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
+    return <ProgramsFallback />;
   }
 
   return (
     <div className="space-y-4">
+      {banner ? (
+        <div
+          className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-100"
+          role="status"
+        >
+          {banner}
+        </div>
+      ) : null}
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Programs</h1>
         <Link href="/programs/new" className={cn(buttonVariants())}>
-          New program
+          New Program
         </Link>
       </div>
       {programs.length === 0 ? (
         <div className="rounded-md border border-dashed bg-muted/20 px-6 py-10 text-center">
-          <p className="text-muted-foreground">No programs yet. Create one to add sessions and media.</p>
+          <p className="text-muted-foreground">No programs yet. Create your first program.</p>
           <Link href="/programs/new" className={cn(buttonVariants(), "mt-4 inline-flex")}>
             Create your first program
           </Link>
         </div>
       ) : (
         <ul className="divide-y rounded-md border">
-          {programs.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <p className="font-medium">{p.title}</p>
-                {p.description ? (
-                  <p className="text-sm text-muted-foreground">{p.description}</p>
-                ) : null}
-              </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/programs/${p.id}/edit`}
-                  className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-                >
-                  Edit
-                </Link>
-                <Link
-                  href={`/programs/${p.id}/sessions`}
-                  className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-                >
-                  Sessions
-                </Link>
-              </div>
-            </li>
-          ))}
+          {programs.map((p) => {
+            const created = formatProgramCreatedAt(p.createdAt);
+            const count = p.sessionCount;
+            const countLabel = `${count} session${count === 1 ? "" : "s"}`;
+            return (
+              <li
+                key={p.id}
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+              >
+                <div className="min-w-0 flex-1 space-y-1">
+                  <Link
+                    href={`/programs/${p.id}/sessions`}
+                    className="block font-medium hover:underline"
+                  >
+                    {p.title}
+                  </Link>
+                  <p className="text-sm text-muted-foreground">
+                    {created ? `${created} · ` : null}
+                    {countLabel}
+                  </p>
+                  {p.description ? (
+                    <p className="text-sm text-muted-foreground line-clamp-2">{p.description}</p>
+                  ) : null}
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <Link
+                    href={`/programs/${p.id}/edit`}
+                    className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    className={cn(buttonVariants({ variant: "destructive", size: "sm" }))}
+                    onClick={() => setDeleteTarget(p)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+            setDeleteError(null);
+          }
+        }}
+        title="Delete program?"
+        description={
+          deleteTarget
+            ? `This will permanently delete “${deleteTarget.title}” and all its sessions.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        confirmVariant="destructive"
+        onConfirm={onConfirmDeleteProgram}
+      />
+      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
     </div>
+  );
+}
+
+export default function ProgramsPage() {
+  return (
+    <Suspense fallback={<ProgramsFallback />}>
+      <ProgramsInner />
+    </Suspense>
   );
 }

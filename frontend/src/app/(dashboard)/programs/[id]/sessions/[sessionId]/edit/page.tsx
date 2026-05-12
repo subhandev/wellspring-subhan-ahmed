@@ -9,6 +9,8 @@ import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { fileAcceptForMediaKind, mimeToMediaKind, type MediaKind } from "@/lib/mediaKind";
+import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -16,6 +18,7 @@ const schema = z.object({
   durationSeconds: z.coerce.number().int().positive(),
   instructorName: z.string().min(1),
   tags: z.string().optional(),
+  mediaKind: z.enum(["none", "audio", "video"]),
   mediaUrl: z.string().optional().nullable(),
   mediaType: z.string().optional().nullable()
 });
@@ -42,10 +45,12 @@ export default function EditSessionPage() {
   const form = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
+      mediaKind: "none",
       mediaUrl: "",
       mediaType: ""
     }
   });
+  const mediaKind = form.watch("mediaKind") as MediaKind;
 
   useEffect(() => {
     if (!sessionId) {
@@ -75,13 +80,15 @@ export default function EditSessionPage() {
         mediaUrl?: string | null;
         mediaType?: string | null;
       };
+      const mt = data.mediaType ?? "";
       form.reset({
         title: data.title ?? "",
         durationSeconds: data.durationSeconds ?? 0,
         instructorName: data.instructorName ?? "",
         tags: (data.tags ?? []).join(", "),
         mediaUrl: data.mediaUrl ?? "",
-        mediaType: data.mediaType ?? ""
+        mediaType: mt,
+        mediaKind: mimeToMediaKind(mt || undefined)
       });
       setLoadState("ready");
     })();
@@ -99,13 +106,13 @@ export default function EditSessionPage() {
         durationSeconds: data.durationSeconds,
         instructorName: data.instructorName,
         tags: tagsFromString(data.tags),
-        mediaUrl: data.mediaUrl || null,
-        mediaType: data.mediaType || null
+        mediaUrl: data.mediaUrl?.trim() || null,
+        mediaType: data.mediaUrl?.trim() ? data.mediaType?.trim() || null : null
       })
     });
-    const body = await res.json().catch(() => ({}));
+    const resBody = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(readApiErrorMessage(body, "Update failed"));
+      setError(readApiErrorMessage(resBody, "Update failed"));
       return;
     }
     router.refresh();
@@ -119,42 +126,20 @@ export default function EditSessionPage() {
     }
     setUploading(true);
     try {
-      const presign = await apiFetch("/uploads/presign", {
-        method: "POST",
-        body: JSON.stringify({
-          fileName: file.name,
-          contentType: file.type || "application/octet-stream"
-        })
-      });
-      const pBody = await presign.json().catch(() => ({}));
-      if (!presign.ok) {
-        setUploadMsg(readApiErrorMessage(pBody, "Presign failed (configure S3 on the API)"));
+      const result = await presignAndPutFile(file);
+      if (!result.ok) {
+        setUploadMsg(result.message);
         return;
       }
-      const p = pBody as {
-        uploadUrl?: string;
-        publicUrl?: string;
-        contentType?: string;
-      };
-      if (!p.uploadUrl || !p.publicUrl) {
-        setUploadMsg("Invalid presign response");
-        return;
-      }
-      const put = await fetch(p.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": (p.contentType ?? file.type) || "application/octet-stream"
-        }
-      });
-      if (!put.ok) {
-        setUploadMsg("Upload to storage failed");
-        return;
-      }
-      const mediaUrl = p.publicUrl;
-      const mediaType = (p.contentType ?? file.type) || null;
+      const mediaUrl = result.publicUrl;
+      const mediaType = result.contentType;
       form.setValue("mediaUrl", mediaUrl);
       form.setValue("mediaType", mediaType);
+      if (mediaType.startsWith("audio/")) {
+        form.setValue("mediaKind", "audio");
+      } else if (mediaType.startsWith("video/")) {
+        form.setValue("mediaKind", "video");
+      }
 
       const v = form.getValues();
       const patchRes = await apiFetch(`/sessions/${sessionId}`, {
@@ -191,6 +176,8 @@ export default function EditSessionPage() {
     router.push(`/programs/${programId}/sessions`);
   }
 
+  const mediaUrl = form.watch("mediaUrl")?.trim();
+
   if (loadState === "loading") {
     return (
       <div className="max-w-lg space-y-4">
@@ -207,88 +194,149 @@ export default function EditSessionPage() {
 
   return (
     <div className="max-w-lg space-y-4">
-      <h1 className="text-2xl font-semibold">Edit session</h1>
+      <Link
+        href={`/programs/${programId}/sessions`}
+        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+      >
+        ← Back to Sessions
+      </Link>
+      <h1 className="text-2xl font-semibold">Edit Session</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1">
-          <label className="text-sm font-medium">Title</label>
+          <label className="text-sm font-medium" htmlFor="es-title">
+            Title <span className="text-red-600">*</span>
+          </label>
           <input
+            id="es-title"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("title")}
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Duration (sec)</label>
+          <label className="text-sm font-medium" htmlFor="es-instructor">
+            Instructor Name <span className="text-red-600">*</span>
+          </label>
           <input
+            id="es-instructor"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            {...form.register("instructorName")}
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-sm font-medium" htmlFor="es-duration">
+            Duration (seconds) <span className="text-red-600">*</span>
+          </label>
+          <input
+            id="es-duration"
             type="number"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("durationSeconds", { valueAsNumber: true })}
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Instructor</label>
+          <label className="text-sm font-medium" htmlFor="es-tags">
+            Tags (comma separated)
+          </label>
           <input
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("instructorName")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Tags</label>
-          <input
+            id="es-tags"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("tags")}
           />
         </div>
+        <div className="space-y-1">
+          <label className="text-sm font-medium" htmlFor="es-media-kind">
+            Media type
+          </label>
+          <select
+            id="es-media-kind"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            {...form.register("mediaKind")}
+          >
+            <option value="none">None</option>
+            <option value="audio">Audio</option>
+            <option value="video">Video</option>
+          </select>
+        </div>
+        {mediaUrl ? (
+          <div className="space-y-2 rounded-md border p-3">
+            <p className="text-sm font-medium">Current media</p>
+            <p className="break-all text-sm">
+              <a href={mediaUrl} className="text-primary underline underline-offset-4" target="_blank" rel="noreferrer">
+                {mediaUrl}
+              </a>
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (fileRef.current) {
+                  fileRef.current.value = "";
+                }
+                fileRef.current?.click();
+              }}
+            >
+              Replace
+            </Button>
+          </div>
+        ) : null}
         <div className="space-y-2 rounded-md border p-3">
-          <p className="text-sm font-medium">Media file</p>
+          <p className="text-sm font-medium">{mediaUrl ? "Upload replacement" : "Media file"}</p>
           <input
             ref={fileRef}
             type="file"
-            accept="audio/*,video/*"
+            accept={fileAcceptForMediaKind(mediaKind)}
             className="text-sm"
             disabled={uploading}
           />
           <div className="flex gap-2">
             <Button type="button" variant="secondary" onClick={() => void onPickFile()} disabled={uploading}>
-              {uploading ? "Uploading…" : "Upload via presigned URL"}
+              {uploading ? "Uploading…" : "Upload"}
             </Button>
           </div>
           {uploadMsg ? <p className="text-xs text-muted-foreground">{uploadMsg}</p> : null}
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Media URL</label>
+          <label className="text-sm font-medium" htmlFor="es-media-url">
+            Media URL
+          </label>
           <input
+            id="es-media-url"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("mediaUrl")}
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Media type (MIME)</label>
+          <label className="text-sm font-medium" htmlFor="es-media-type">
+            Media type (MIME)
+          </label>
           <input
+            id="es-media-type"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("mediaType")}
           />
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
-            Save
-          </Button>
-          <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
-            Delete
-          </Button>
+        <div className="flex flex-wrap justify-end gap-2">
           <Link
             href={`/programs/${programId}/sessions`}
             className={cn(buttonVariants({ variant: "outline" }))}
           >
-            Back
+            Cancel
           </Link>
+          <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
+            {form.formState.isSubmitting ? "Saving…" : "Save Changes"}
+          </Button>
+          <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
+            Delete
+          </Button>
         </div>
       </form>
 
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete this session?"
+        title="Delete session?"
         description="This cannot be undone."
         confirmLabel="Delete"
         cancelLabel="Cancel"

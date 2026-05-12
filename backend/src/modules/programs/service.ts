@@ -29,7 +29,7 @@ export async function createProgram(tenantId: TenantId, actorId: string, body: C
     targetId: p.id,
     metadata: { title: p.title }
   });
-  return p;
+  return { ...p, sessionCount: 0 };
 }
 
 export async function updateProgram(

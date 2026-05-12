@@ -16,7 +16,7 @@ export default function NewProgramPage() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting, errors }
   } = useForm<NewProgramForm>({
     resolver: zodResolver(newProgramFormSchema),
     defaultValues: { title: "", description: "" }
@@ -33,39 +33,66 @@ export default function NewProgramPage() {
       setError(readApiErrorMessage(body, "Could not create program"));
       return;
     }
-    const created = body as { id?: string };
-    if (created.id) {
-      router.push(`/programs/${created.id}/edit`);
-    }
+    router.push("/programs?created=1");
   }
 
   return (
     <div className="max-w-lg space-y-4">
-      <h1 className="text-2xl font-semibold">New program</h1>
+      <Link
+        href="/programs"
+        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+      >
+        ← Back to Programs
+      </Link>
+      <h1 className="text-2xl font-semibold">Create Program</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1">
-          <label className="text-sm font-medium">Title</label>
+          <label className="text-sm font-medium" htmlFor="program-title">
+            Title <span className="text-red-600">*</span>
+          </label>
           <input
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            id="program-title"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm aria-invalid:border-destructive"
+            aria-invalid={Boolean(errors.title)}
             {...register("title")}
           />
+          {errors.title?.message ? (
+            <p className="text-sm text-red-600">{errors.title.message}</p>
+          ) : null}
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Description</label>
+          <label className="text-sm font-medium" htmlFor="program-description">
+            Description
+          </label>
           <textarea
+            id="program-description"
             rows={3}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm aria-invalid:border-destructive"
+            aria-invalid={Boolean(errors.description)}
             {...register("description")}
           />
+          {errors.description?.message ? (
+            <p className="text-sm text-red-600">{errors.description.message}</p>
+          ) : null}
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : "Create"}
-          </Button>
+        <div className="flex flex-wrap justify-end gap-2">
           <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
             Cancel
           </Link>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <span className="inline-flex items-center gap-2">
+                <span
+                  className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"
+                  aria-hidden
+                />
+                Creating…
+              </span>
+            ) : (
+              "Create Program"
+            )}
+          </Button>
         </div>
       </form>
     </div>

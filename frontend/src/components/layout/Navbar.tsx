@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/programs", label: "Programs" },
   { href: "/programs/new", label: "New program" },
-  { href: "/import", label: "CSV import" },
-  { href: "/audit", label: "Audit log" }
+  { href: "/import", label: "Import" },
+  { href: "/audit", label: "Audit" }
 ] as const;
 
 export function Navbar() {

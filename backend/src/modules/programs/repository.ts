@@ -2,17 +2,34 @@ import type { Program } from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import type { TenantId } from "../../types/tenant.js";
 
-export async function listPrograms(tenantId: TenantId): Promise<Program[]> {
-  return prisma.program.findMany({
-    where: { tenantId: tenantId as string },
-    orderBy: { createdAt: "desc" }
-  });
+/** Program row returned to HTTP clients (session count for admin UI). */
+export type ProgramDto = Program & { sessionCount: number };
+
+function mapProgramWithCount(
+  row: Program & { _count: { sessions: number } }
+): ProgramDto {
+  const { _count, ...rest } = row;
+  return { ...rest, sessionCount: _count.sessions };
 }
 
-export async function getProgramById(tenantId: TenantId, id: string): Promise<Program | null> {
-  return prisma.program.findFirst({
-    where: { id, tenantId: tenantId as string }
+export async function listPrograms(tenantId: TenantId): Promise<ProgramDto[]> {
+  const rows = await prisma.program.findMany({
+    where: { tenantId: tenantId as string },
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { sessions: true } } }
   });
+  return rows.map(mapProgramWithCount);
+}
+
+export async function getProgramById(tenantId: TenantId, id: string): Promise<ProgramDto | null> {
+  const row = await prisma.program.findFirst({
+    where: { id, tenantId: tenantId as string },
+    include: { _count: { select: { sessions: true } } }
+  });
+  if (!row) {
+    return null;
+  }
+  return mapProgramWithCount(row);
 }
 
 export async function createProgram(
@@ -32,7 +49,7 @@ export async function updateProgram(
   tenantId: TenantId,
   id: string,
   data: { title?: string; description?: string | null }
-): Promise<Program | null> {
+): Promise<ProgramDto | null> {
   const patch = {
     ...(data.title !== undefined ? { title: data.title } : {}),
     ...(data.description !== undefined ? { description: data.description } : {})

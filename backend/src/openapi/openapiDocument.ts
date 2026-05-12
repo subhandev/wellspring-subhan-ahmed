@@ -88,7 +88,8 @@ const ProgramSchema = z
     createdAt: z.union([z.string(), z.number()]).openapi({
       description: "ISO datetime string after JSON serialization"
     }),
-    updatedAt: z.union([z.string(), z.number()])
+    updatedAt: z.union([z.string(), z.number()]),
+    sessionCount: z.number().int().openapi({ description: "Number of sessions in this program" })
   })
   .openapi("Program");
 

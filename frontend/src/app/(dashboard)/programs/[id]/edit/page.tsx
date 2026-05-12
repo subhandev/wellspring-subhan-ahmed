@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { editProgramFormSchema, type EditProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
@@ -18,8 +17,6 @@ export default function ProgramDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const form = useForm<EditProgramForm>({
     resolver: zodResolver(editProgramFormSchema)
   });
@@ -33,7 +30,7 @@ export default function ProgramDetailPage() {
     let cancelled = false;
     setLoadState("loading");
     setLoadError(null);
-    (async () => {
+    void (async () => {
       const res = await apiFetch(`/programs/${programId}`);
       const data = (await res.json().catch(() => ({}))) as {
         id?: string;
@@ -73,18 +70,7 @@ export default function ProgramDetailPage() {
       setError(readApiErrorMessage(body, "Update failed"));
       return;
     }
-    router.refresh();
-  }
-
-  async function onConfirmDelete() {
-    setDeleteError(null);
-    const res = await apiFetch(`/programs/${programId}`, { method: "DELETE" });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setDeleteError(readApiErrorMessage(body, "Delete failed"));
-      throw new Error("delete failed");
-    }
-    router.push("/programs");
+    router.push("/programs?saved=1");
   }
 
   if (loadState === "loading") {
@@ -103,8 +89,14 @@ export default function ProgramDetailPage() {
 
   return (
     <div className="max-w-lg space-y-4">
+      <Link
+        href="/programs"
+        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+      >
+        ← Back to Programs
+      </Link>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">Edit program</h1>
+        <h1 className="text-2xl font-semibold">Edit Program</h1>
         <Link
           href={`/programs/${programId}/sessions`}
           className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
@@ -114,45 +106,46 @@ export default function ProgramDetailPage() {
       </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1">
-          <label className="text-sm font-medium">Title</label>
+          <label className="text-sm font-medium" htmlFor="edit-program-title">
+            Title <span className="text-red-600">*</span>
+          </label>
           <input
+            id="edit-program-title"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...form.register("title")}
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Description</label>
+          <label className="text-sm font-medium" htmlFor="edit-program-description">
+            Description
+          </label>
           <textarea
+            id="edit-program-description"
             rows={3}
             className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
             {...form.register("description")}
           />
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            Save
-          </Button>
-          <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
-            Delete
-          </Button>
+        <div className="flex flex-wrap justify-end gap-2">
           <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
-            Back
+            Cancel
           </Link>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? (
+              <span className="inline-flex items-center gap-2">
+                <span
+                  className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"
+                  aria-hidden
+                />
+                Saving…
+              </span>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
         </div>
       </form>
-
-      <ConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="Delete this program?"
-        description="All sessions in this program will be removed. This cannot be undone."
-        confirmLabel="Delete program"
-        cancelLabel="Cancel"
-        confirmVariant="destructive"
-        onConfirm={onConfirmDelete}
-      />
-      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
     </div>
   );
 }
