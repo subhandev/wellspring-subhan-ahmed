@@ -1,0 +1,1654 @@
+# Cursor agent session (Markdown export)
+
+**Source:** `08-cursor-agent-transcript-60848efb.jsonl` · **conversation id:** `60848efb`
+
+_This file is rendered from the JSONL transcript next to it: same turns, formatted for reading. The `.jsonl` is the authoritative raw export._
+
+---
+
+## Exchange 1
+
+### User
+
+<user_query>
+Lets plan swagger for API documentation and Bruno for testing.
+</user_query>
+
+---
+
+## Exchange 2
+
+### Assistant
+
+Exploring the backend API setup so we can plan Swagger (OpenAPI) and Bruno collections.
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/package.json"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/app.ts"
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend",
+  "pattern": "swagger|openapi|swagger-ui"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/middleware/auth.ts"
+}
+```
+
+
+**Tool:** `Glob`
+
+```json
+{
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules",
+  "glob_pattern": "**/routes.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/routes.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/config/env.ts",
+  "limit": 80
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/schemas.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/schemas.ts"
+}
+```
+
+
+**Tool:** `Glob`
+
+```json
+{
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed",
+  "glob_pattern": "**/bruno/**"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md",
+  "limit": 80
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/schemas.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/schemas.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/controller.ts",
+  "pattern": "safeParse|query"
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/controller.ts",
+  "pattern": "safeParse|query"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/controller.ts",
+  "limit": 120
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/controller.ts",
+  "limit": 30
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/routes.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/controller.ts",
+  "offset": 35
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/routes.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/schemas.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/schemas.ts"
+}
+```
+
+### Assistant
+
+Noting import and audit routes are implemented (workspace differs slightly from snapshot). Creating a plan that matches the Express app and JWT public-route rules.
+
+[REDACTED]
+
+**Tool:** `CreatePlan`
+
+```json
+{
+  "name": "Swagger and Bruno setup",
+  "overview": "Add Swagger UI plus an OpenAPI 3 document describing the `/v1/*` API with correct public vs Bearer-auth paths, and a Bruno collection with environments and scripted auth for day-to-day testing.",
+  "plan": "# Swagger (OpenAPI) and Bruno testing plan\n\n## Current API surface ([`backend/src/app.ts`](backend/src/app.ts))\n\n- **Public:** `GET /health` and auth body routes: `POST /v1/auth/signup|login|forgot-password|reset-password` (see [`backend/src/middleware/auth.ts`](backend/src/middleware/auth.ts) `PUBLIC_ROUTES`).\n- **Bearer JWT (`Authorization: Bearer <token>`):** everything under `/v1/programs`, `/v1/sessions`, `/v1/uploads`, `/v1/import`, `/v1/audit`, plus `GET /v1/auth/me`.\n- **Notable behaviors to document accurately:** Sessions list [`GET /v1/sessions`](backend/src/modules/sessions/controller.ts) requires query `programId`; programs list has no documented query filters in code today.\n\n---\n\n## OpenAPI + Swagger UI\n\n### 1. Dependencies\n\nAdd to [`backend/package.json`](backend/package.json):\n\n- **`swagger-ui-express`** (+ **`@types/swagger-ui-express`**) — serve Swagger UI.\n- **`@asteasolutions/zod-to-openapi`** (+ peer **`openapi3-ts`**) — generate OpenAPI from Zod request bodies/queries aligned with [`backend/src/modules/*/schemas.ts`](backend/src/modules/).\n\n### 2. Single extended Zod instance (recommended for drift control)\n\nIntroduce [`backend/src/lib/zodOpenapi.ts`](backend/src/lib/zodOpenapi.ts):\n\n- Import `z` from `zod`, call `extendZodWithOpenApi(z)`, re-export `z`.\n\nUpdate module `schemas.ts` imports from `\"zod\"` to this wrapper (same runtime validation; additive `.openapi(...)` metadata where useful). Controllers unchanged.\n\n**Trade-off:** Touches multiple schema files once. Alternative is a handwritten OpenAPI object with no Zod linkage (faster at first, drifts when validation changes).\n\n### 3. OpenAPI module\n\nAdd something like:\n\n- [`backend/src/openapi/openapiDocument.ts`](backend/src/openapi/openapiDocument.ts) — builds the spec via `OpenAPIRegistry` / `OpenAPIGeneratorV3`: register **`components.securitySchemes.bearerAuth`** (HTTP bearer JWT), **`tags`** (Auth, Programs, Sessions, Uploads, Import, Audit, System), and **paths** for every route above.\n\nFor each operation:\n\n- **Public routes:** `security: []` overrides the global Bearer requirement (so “Try it out” works without a token for signup/login, etc.).\n- **Protected routes:** inherit global `security: [{ bearerAuth: [] }]`.\n- **Sessions `GET /v1/sessions`:** document required `programId` query param (OpenAPI `required: true` on that parameter).\n- **Audit `GET /v1/audit`:** document optional `from`, `to`, `action` query params from [`auditQuerySchema`](backend/src/modules/audit/schemas.ts).\n\n**Responses:** At minimum document **success** status codes and a **shared error** schema (e.g. `{ error, message, requestId? }`) matching [`HttpError`](backend/src/lib/httpError.ts) / middleware patterns; progressively tighten success body schemas using small Zod objects or inferred types from services where worthwhile.\n\nStub / future-proofing:\n\n- Omit or explicitly mark **`501`** only if routes still delegate to `notImplemented` in your branch; align OpenAPI with actual handlers.\n\n### 4. Express wiring ([`backend/src/app.ts`](backend/src/app.ts))\n\n**Critical ordering:** Swagger must be reachable **without** JWT. Mount documentation **before** `createJwtAuthMiddleware`:\n\n1. Existing `health`, logging, JSON body middleware.\n2. **`GET /openapi.json`** — `res.json(openapiDocument)`.\n3. **`GET /api-docs`** (or **`/docs`**) — `swaggerUi.setup(openapiDocument, { explorer: true })` with `swaggerUi.serve`.\n\nDo **not** add dozens of Swagger static paths to `PUBLIC_ROUTES`; pre-auth mounting avoids that.\n\nOptional env guard (recommended for production honesty): **`ENABLE_API_DOCS`** or use `NODE_ENV !== \"production\"` to skip registering UI + spec in prod if you prefer not exposing the surface area.\n\n---\n\n## Bruno collection\n\n### 5. Repo layout\n\nAdd a Bruno collection under the API package:\n\n- **`backend/bruno/wellspring-api/`** containing `bruno.json`, environment files (e.g. `environments/local.bru`), and request folders grouped by domain (`Auth`, `Programs`, `Sessions`, etc.) mirroring OpenAPI paths.\n\nBruno stays **pnpm-agnostic**: no script required unless you want a README one-liner; developers open the folder in Bruno.\n\n### 6. Variables and flows\n\n- **Collection/environment vars:** `baseUrl` (`http://localhost:4000`), optionally `token` (Bearer access token).\n- **Auth folder:** ordered requests — e.g. `Signup` → `Login` → use Bruno’s **`script:post-response`** (or collection-level scripts) on `Login` to set `bru.setEnvVar('token', res.body.accessToken)` (field name must match your actual login JSON from [`auth` service/controller](backend/src/modules/auth/)).\n- **Protected requests:** header `Authorization: Bearer {{token}}`.\n- **`GET /v1/sessions`:** exemplify query `programId={{programId}}` with a note to create a program first or pull an id from list response.\n\nKeep **secrets** (`token`, passwords) in Bruno env or local overrides; avoid committing plaintext tokens (Bruno `.env` gitignore patterns as needed).\n\n### 7. Keeping Bruno in sync with OpenAPI\n\nManual duplication is acceptable for scope. Optional workflow: regenerate or diff Bruno from OpenAPI using Bruno’s import when you prefer (document that in README). The **source of truth** remains the running API + Zod validation; OpenAPI should follow that.\n\n---\n\n## Tests and docs\n\n- **Jest:** [`smoke.test.ts`](backend/tests/smoke.test.ts) can add an optional assertion that **`GET /openapi.json`** returns `200` and expected `openapi` version when docs are enabled in test env (or skip when disabled).\n- **README** ([`README.md`](README.md)): short subsection — URL to Swagger UI when `pnpm dev`, how to open the Bruno collection, and that protected routes need a token from Auth requests.\n\n```mermaid\nflowchart LR\n  subgraph public [No JWT]\n    Health[\"GET /health\"]\n    OpenAPI[\"GET /openapi.json\"]\n    SwaggerUI[\"GET /api-docs\"]\n    AuthBody[\"POST /v1/auth/*\"]\n  end\n  subgraph protected [Bearer JWT]\n    V1[\"/v1/* except public auth\"]\n  end\n  Client[Client or Bruno] --> OpenAPI\n  Client --> SwaggerUI\n  Client --> AuthBody\n  AuthBody --> Token[access token]\n  Token --> V1\n```\n",
+  "todos": [
+    {
+      "id": "deps-openapi",
+      "content": "Add swagger-ui-express, @asteasolutions/zod-to-openapi (+ types/peers); create zodOpenapi wrapper and migrate module schema imports"
+    },
+    {
+      "id": "openapi-spec",
+      "content": "Implement openapiDocument.ts: securitySchemes, paths, public vs secured operations, query/body from Zod",
+      "dependencies": [
+        "deps-openapi"
+      ]
+    },
+    {
+      "id": "wire-app",
+      "content": "Mount /openapi.json and /api-docs before JWT middleware; optional prod disable via env",
+      "dependencies": [
+        "openapi-spec"
+      ]
+    },
+    {
+      "id": "bruno-collection",
+      "content": "Add backend/bruno/wellspring-api with envs, Auth script for token, requests for all routes"
+    },
+    {
+      "id": "readme-tests",
+      "content": "Document Swagger + Bruno in README; optional smoke test for /openapi.json",
+      "dependencies": [
+        "wire-app",
+        "bruno-collection"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## Exchange 3
+
+### User
+
+<user_query>
+Swagger (OpenAPI) and Bruno testing plan
+
+Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+
+To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
+</user_query>
+
+---
+
+## Exchange 4
+
+### Assistant
+
+Implementing the Swagger + Bruno plan: starting with dependencies and the Zod OpenAPI wrapper.
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "deps-openapi",
+      "content": "Add swagger-ui-express, @asteasolutions/zod-to-openapi (+ types/peers); create zodOpenapi wrapper and migrate module schema imports",
+      "status": "in_progress"
+    }
+  ],
+  "merge": true
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend",
+  "pattern": "from \\\"zod\\\""
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/service.ts",
+  "limit": 80
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/lib/httpError.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/middleware/errorHandler.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tsconfig.json"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/service.ts",
+  "offset": 80
+}
+```
+
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm add swagger-ui-express @asteasolutions/zod-to-openapi openapi3-ts && pnpm add -D @types/swagger-ui-express",
+  "description": "Install Swagger UI and zod-to-openapi dependencies",
+  "required_permissions": [
+    "network"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm add @asteasolutions/zod-to-openapi@7 openapi3-ts@4 && pnpm list zod @asteasolutions/zod-to-openapi",
+  "description": "Pin zod-to-openapi v7 for Zod 3 compatibility",
+  "required_permissions": [
+    "network"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm add @asteasolutions/zod-to-openapi@7",
+  "description": "Downgrade zod-to-openapi to v7 with full permissions",
+  "required_permissions": [
+    "all"
+  ]
+}
+```
+
+### Assistant
+
+Creating the Zod OpenAPI wrapper, migrating schemas, and reading controllers for response shapes.
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/lib/zodOpenapi.ts",
+  "contents": "import { extendZodWithOpenApi } from \"@asteasolutions/zod-to-openapi\";\nimport { z } from \"zod\";\n\nextendZodWithOpenApi(z);\n\nexport { z };\n"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/auth/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/schemas.ts",
+  "old_string": "import { z } from \"zod\";",
+  "new_string": "import { z } from \"../../lib/zodOpenapi.js\";"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/node_modules/@asteasolutions/zod-to-openapi",
+  "pattern": "registerPath",
+  "glob": "*.md",
+  "head_limit": 40
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/node_modules/@asteasolutions/zod-to-openapi/README.md",
+  "limit": 120
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/service.ts",
+  "limit": 120
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/service.ts",
+  "limit": 150
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/controller.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/controller.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/controller.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/service.ts",
+  "limit": 60
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "limit": 80
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/prisma/schema.prisma",
+  "limit": 120
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/uploads/service.ts",
+  "offset": 60
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/config/env.ts"
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "pattern": "return \\{"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/controller.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/programs/controller.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/node_modules/@asteasolutions/zod-to-openapi/package.json",
+  "limit": 40
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/node_modules/@asteasolutions/zod-to-openapi/dist/index.d.ts",
+  "limit": 80
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/audit/service.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "deps-openapi",
+      "content": "Add swagger-ui-express, @asteasolutions/zod-to-openapi (+ types/peers); create zodOpenapi wrapper and migrate module schema imports",
+      "status": "completed"
+    },
+    {
+      "id": "openapi-spec",
+      "content": "Implement openapiDocument.ts: securitySchemes, paths, public vs secured operations, query/body from Zod",
+      "status": "in_progress"
+    }
+  ],
+  "merge": true
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "contents": "import {\n  OpenAPIRegistry,\n  OpenApiGeneratorV3\n} from \"@asteasolutions/zod-to-openapi\";\nimport { z } from \"../lib/zodOpenapi.js\";\nimport {\n  signupBodySchema,\n  loginBodySchema,\n  forgotPasswordBodySchema,\n  resetPasswordBodySchema\n} from \"../modules/auth/schemas.js\";\nimport {\n  createProgramBodySchema,\n  updateProgramBodySchema\n} from \"../modules/programs/schemas.js\";\nimport {\n  createSessionBodySchema,\n  reorderSessionsBodySchema,\n  updateSessionBodySchema\n} from \"../modules/sessions/schemas.js\";\nimport { presignBodySchema } from \"../modules/uploads/schemas.js\";\nimport { importSessionsBodySchema } from \"../modules/import/schemas.js\";\nimport { auditQuerySchema } from \"../modules/audit/schemas.js\";\n\nconst CreatorPublicSchema = z\n  .object({\n    id: z.string(),\n    email: z.string().email()\n  })\n  .openapi(\"CreatorPublic\");\n\nconst AuthTokenResponseSchema = z\n  .object({\n    accessToken: z.string(),\n    creator: CreatorPublicSchema\n  })\n  .openapi(\"AuthTokenResponse\");\n\nconst ForgotPasswordAcceptedSchema = z\n  .object({ ok: z.literal(true) })\n  .openapi(\"ForgotPasswordAccepted\");\n\nconst OkTrueSchema = z.object({ ok: z.literal(true) }).openapi(\"OkTrue\");\n\nconst ErrorBodySchema = z\n  .object({\n    error: z.string(),\n    message: z.string(),\n    requestId: z.string().optional()\n  })\n  .openapi(\"ErrorBody\");\n\nconst ProgramSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    title: z.string(),\n    description: z.string().nullable(),\n    createdAt: z.union([z.string(), z.number()]).openapi({\n      description: \"ISO datetime string when serialized via JSON\"\n    }),\n    updatedAt: z.union([z.string(), z.number()]).openapi({\n      description: \"ISO datetime string when serialized via JSON\"\n    })\n  })\n  .openapi(\"Program\");\n\nconst ProgramListSchema = z\n  .object({ programs: z.array(ProgramSchema) })\n  .openapi(\"ProgramList\");\n\nconst SessionSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    programId: z.string(),\n    title: z.string(),\n    durationSeconds: z.number(),\n    position: z.number(),\n    instructorName: z.string(),\n    tags: z.array(z.string()),\n    mediaUrl: z.string().nullable(),\n    mediaType: z.string().nullable(),\n    createdAt: z.union([z.string(), z.number()]),\n    updatedAt: z.union([z.string(), z.number()])\n  })\n  .openapi(\"Session\");\n\nconst SessionListWrapperSchema = z\n  .object({ sessions: z.array(SessionSchema) })\n  .openapi(\"SessionList\");\n\nconst PresignResponseSchema = z\n  .object({\n    uploadUrl: z.string().url(),\n    key: z.string(),\n    bucket: z.string(),\n    expiresIn: z.number(),\n    contentType: z.string(),\n    publicUrl: z.string()\n  })\n  .openapi(\"PresignResponse\");\n\nconst ImportRowResultSchema = z\n  .discriminatedUnion(\"ok\", [\n    z.object({\n      clientRowId: z.string(),\n      ok: z.literal(true),\n      sessionId: z.string(),\n      idempotent: z.boolean().optional()\n    }),\n    z.object({\n      clientRowId: z.string(),\n      ok: z.literal(false),\n      errors: z.array(z.string())\n    })\n  ])\n  .openapi(\"ImportRowResult\");\n\nconst ImportSessionsResponseSchema = z\n  .object({\n    clientImportId: z.string(),\n    results: z.array(ImportRowResultSchema)\n  })\n  .openapi(\"ImportSessionsResponse\");\n\nconst AuditLogSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    actorId: z.string(),\n    action: z.string(),\n    targetType: z.string(),\n    targetId: z.string().nullable(),\n    metadata: z.unknown().nullable(),\n    createdAt: z.union([z.string(), z.number()])\n  })\n  .openapi(\"AuditLog\");\n\nconst AuditListSchema = z\n  .object({ auditLogs: z.array(AuditLogSchema) })\n  .openapi(\"AuditLogList\");\n\nconst HealthSchema = z.object({ ok: z.literal(true) }).openapi(\"Health\");\n\nfunction errorRefs(\n  statuses: Record<number | string, { description: string }>\n): Record<number | string, { description: string; content?: unknown }> {\n  const base = [401, 403, 404, 409, 500, 503] as const;\n  const merged: Record<string, { description: string; content: unknown }> = {\n    ...statuses\n  };\n  for (const code of base) {\n    const key = String(code);\n    if (!merged[key]) {\n      merged[key] = {\n        description: HTTP_STATUS_TEXT[code] ?? `${code}`,\n        content: errorContent\n      };\n    }\n  }\n  return merged as Record<number | string, { description: string; content?: unknown }>;\n}\n\nconst errorContent = {\n  \"application/json\": {\n    schema: ErrorBodySchema\n  }\n};\n\nconst HTTP_STATUS_TEXT: Partial<Record<number, string>> = {\n  400: \"Validation or bad request\",\n  401: \"Unauthorized\",\n  403: \"Forbidden\",\n  404: \"Not found\",\n  409: \"Conflict\",\n  500: \"Internal error\",\n  503: \"Service unavailable\"\n};\n\nexport function buildOpenApiDocument(): ReturnType<\n  OpenApiGeneratorV3[\"generateDocument\"]\n> {\n  const registry = new OpenAPIRegistry();\n\n  registry.registerComponent(\"securitySchemes\", \"bearerAuth\", {\n    type: \"http\",\n    scheme: \"bearer\",\n    bearerFormat: \"JWT\",\n    description: \"HS256 JWT; `sub` is the creator id (tenant).\"\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/health\",\n    tags: [\"System\"],\n    security: [],\n    summary: \"Liveness probe\",\n    responses: {\n      200: {\n        description: \"Service is reachable\",\n        content: { \"application/json\": { schema: HealthSchema } }\n      }\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/signup\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Register a creator account\",\n    request: {\n      body: {\n        content: { \"application/json\": { schema: signupBodySchema } }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        201: {\n          description: \"Registered; returns bearer token\",\n          content: {\n            \"application/json\": {\n              schema: AuthTokenResponseSchema\n            }\n          }\n        },\n        409: {\n          description: \"Email already registered\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/login\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Login\",\n    request: {\n      body: {\n        content: { \"application/json\": { schema: loginBodySchema } }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Access token issued\",\n          content: {\n            \"application/json\": {\n              schema: AuthTokenResponseSchema\n            }\n          }\n        },\n        401: {\n          description: \"Invalid credentials\",\n          content: errorContent as never\n        },\n        503: {\n          description: \"JWT not configured\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/forgot-password\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Request password reset email (always succeeds shape)\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: forgotPasswordBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        202: {\n          description: \"Request accepted\",\n          content: {\n            \"application/json\": {\n              schema: ForgotPasswordAcceptedSchema\n            }\n          }\n        },\n        400: {\n          description: \"Validation error\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/reset-password\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Complete reset with emailed token\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: resetPasswordBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Password updated\",\n          content: {\n            \"application/json\": {\n              schema: AuthTokenResponseSchema\n            }\n          }\n        },\n        401: {\n          description: \"Invalid or expired token\",\n          content: errorContent as never\n        },\n        503: {\n          description: \"JWT not configured\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/auth/me\",\n    tags: [\"Auth\"],\n    summary: \"Current creator profile\",\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Creator identity\",\n          content: {\n            \"application/json\": {\n              schema: CreatorPublicSchema\n            }\n          }\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/programs\",\n    tags: [\"Programs\"],\n    summary: \"List programs for authenticated tenant\",\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Programs ordered by persistence default\",\n          content: {\n            \"application/json\": { schema: ProgramListSchema }\n          }\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/programs\",\n    tags: [\"Programs\"],\n    summary: \"Create program\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: createProgramBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        201: {\n          description: \"Created program\",\n          content: { \"application/json\": { schema: ProgramSchema } }\n        },\n        400: {\n          description: \"Validation error\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Get program by id\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Program detail\",\n          content: { \"application/json\": { schema: ProgramSchema } }\n        },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"patch\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Update program\",\n    request: {\n      params: z.object({ id: z.string().min(1) }),\n      body: {\n        content: {\n          \"application/json\": { schema: updateProgramBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Updated program\",\n          content: { \"application/json\": { schema: ProgramSchema } }\n        },\n        400: {\n          description: \"Validation error\",\n          content: errorContent as never\n        },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"delete\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Delete program\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      ...errorRefs({\n        204: { description: \"Deleted\" },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/sessions\",\n    tags: [\"Sessions\"],\n    summary: \"List sessions in a program\",\n    request: {\n      query: z.object({\n        programId: z\n          .string()\n          .min(1)\n          .openapi({\n            description: \"Program id owned by tenant\",\n            param: {\n              style: \"form\",\n              in: \"query\"\n            }\n          })\n      })\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Ordered sessions\",\n          content: {\n            \"application/json\": { schema: SessionListWrapperSchema }\n          }\n        },\n        400: {\n          description: \"Missing or invalid query\",\n          content: errorContent as never\n        },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/sessions/reorder\",\n    tags: [\"Sessions\"],\n    summary: \"Reorder sessions within a program\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: reorderSessionsBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Sessions after reorder\",\n          content: {\n            \"application/json\": { schema: SessionListWrapperSchema }\n          }\n        },\n        400: {\n          description: \"Validation or ordering constraint\",\n          content: errorContent as never\n        },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/sessions\",\n    tags: [\"Sessions\"],\n    summary: \"Create session\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: createSessionBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        201: {\n          description: \"Created session\",\n          content: { \"application/json\": { schema: SessionSchema } }\n        },\n        400: {\n          description: \"Validation error\",\n          content: errorContent as never\n        },\n        404: {\n          description: \"Program not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Get session by id\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Session detail\",\n          content: { \"application/json\": { schema: SessionSchema } }\n        },\n        404: {\n          description: \"Session not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"patch\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Update session\",\n    request: {\n      params: z.object({ id: z.string().min(1) }),\n      body: {\n        content: {\n          \"application/json\": { schema: updateSessionBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Updated session\",\n          content: { \"application/json\": { schema: SessionSchema } }\n        },\n        400: {\n          description: \"Validation error\",\n          content: errorContent as never\n        },\n        404: {\n          description: \"Session not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"delete\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Delete session\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      ...errorRefs({\n        204: { description: \"Deleted\" },\n        404: {\n          description: \"Session not found for tenant\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/uploads/presign\",\n    tags: [\"Uploads\"],\n    summary: \"Presign PUT to tenant-scoped S3 key\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: presignBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        201: {\n          description: \"Presigned PUT URL issued\",\n          content: {\n            \"application/json\": { schema: PresignResponseSchema }\n          }\n        },\n        400: {\n          description: \"Invalid content type or body\",\n          content: errorContent as never\n        },\n        503: {\n          description: \"S3 not configured\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/import/sessions\",\n    tags: [\"Import\"],\n    summary: \"CSV bulk import (idempotent per client_import_id / client_row_id)\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: importSessionsBodySchema }\n        }\n      }\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Per-row outcomes\",\n          content: {\n            \"application/json\": { schema: ImportSessionsResponseSchema }\n          }\n        },\n        400: {\n          description: \"CSV or validation failures\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/audit\",\n    tags: [\"Audit\"],\n    summary: \"List audit log entries\",\n    request: {\n      query: auditQuerySchema\n    },\n    responses: {\n      ...errorRefs({\n        200: {\n          description: \"Recent audit logs (bounded)\",\n          content: {\n            \"application/json\": { schema: AuditListSchema }\n          }\n        },\n        400: {\n          description: \"Invalid filter values\",\n          content: errorContent as never\n        }\n      })\n    }\n  });\n\n  const generator = new OpenApiGeneratorV3(registry.definitions);\n\n  return generator.generateDocument({\n    openapi: \"3.0.0\",\n    info: {\n      title: \"Wellspring API\",\n      version: \"1.0.0\",\n      description:\n        \"Multi-tenant CMS API for wellness creators. Public routes omit Bearer auth; tenant scope is enforced from JWT `sub` on protected routes.\"\n    },\n    servers: [{ url: \"/\" }],\n    tags: [\n      { name: \"System\" },\n      { name: \"Auth\" },\n      { name: \"Programs\" },\n      { name: \"Sessions\" },\n      { name: \"Uploads\" },\n      { name: \"Import\" },\n      { name: \"Audit\" }\n    ],\n    security: [{ bearerAuth: [] }]\n  });\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm exec tsc --noEmit 2>&1",
+  "description": "Typecheck backend after OpenAPI addition"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/node_modules/@asteasolutions/zod-to-openapi/dist/openapi-registry.d.ts",
+  "limit": 80
+}
+```
+
+### Assistant
+
+Rewriting `openapiDocument.ts`: removing `errorRefs` and using typed `ResponseConfig` objects plus small error helpers.
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "contents": "import {\n  OpenAPIRegistry,\n  OpenApiGeneratorV3,\n  type ResponseConfig\n} from \"@asteasolutions/zod-to-openapi\";\nimport { z } from \"../lib/zodOpenapi.js\";\nimport {\n  signupBodySchema,\n  loginBodySchema,\n  forgotPasswordBodySchema,\n  resetPasswordBodySchema\n} from \"../modules/auth/schemas.js\";\nimport {\n  createProgramBodySchema,\n  updateProgramBodySchema\n} from \"../modules/programs/schemas.js\";\nimport {\n  createSessionBodySchema,\n  reorderSessionsBodySchema,\n  updateSessionBodySchema\n} from \"../modules/sessions/schemas.js\";\nimport { presignBodySchema } from \"../modules/uploads/schemas.js\";\nimport { importSessionsBodySchema } from \"../modules/import/schemas.js\";\nimport { auditQuerySchema } from \"../modules/audit/schemas.js\";\n\nconst CreatorPublicSchema = z\n  .object({\n    id: z.string(),\n    email: z.string().email()\n  })\n  .openapi(\"CreatorPublic\");\n\nconst AuthTokenResponseSchema = z\n  .object({\n    accessToken: z.string(),\n    creator: CreatorPublicSchema\n  })\n  .openapi(\"AuthTokenResponse\");\n\nconst ForgotPasswordAcceptedSchema = z\n  .object({ ok: z.literal(true) })\n  .openapi(\"ForgotPasswordAccepted\");\n\nconst ErrorBodySchema = z\n  .object({\n    error: z.string(),\n    message: z.string(),\n    requestId: z.string().optional()\n  })\n  .openapi(\"ErrorBody\");\n\nfunction err(description: string): ResponseConfig {\n  return {\n    description,\n    content: {\n      \"application/json\": {\n        schema: ErrorBodySchema\n      }\n    }\n  };\n}\n\nconst ProgramSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    title: z.string(),\n    description: z.string().nullable(),\n    createdAt: z.union([z.string(), z.number()]).openapi({\n      description: \"ISO datetime string after JSON serialization\"\n    }),\n    updatedAt: z.union([z.string(), z.number()])\n  })\n  .openapi(\"Program\");\n\nconst ProgramListSchema = z\n  .object({ programs: z.array(ProgramSchema) })\n  .openapi(\"ProgramList\");\n\nconst SessionSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    programId: z.string(),\n    title: z.string(),\n    durationSeconds: z.number(),\n    position: z.number(),\n    instructorName: z.string(),\n    tags: z.array(z.string()),\n    mediaUrl: z.string().nullable(),\n    mediaType: z.string().nullable(),\n    createdAt: z.union([z.string(), z.number()]),\n    updatedAt: z.union([z.string(), z.number()])\n  })\n  .openapi(\"Session\");\n\nconst SessionListWrapperSchema = z\n  .object({ sessions: z.array(SessionSchema) })\n  .openapi(\"SessionList\");\n\nconst PresignResponseSchema = z\n  .object({\n    uploadUrl: z.string(),\n    key: z.string(),\n    bucket: z.string(),\n    expiresIn: z.number(),\n    contentType: z.string(),\n    publicUrl: z.string()\n  })\n  .openapi(\"PresignResponse\");\n\nconst ImportRowOkSchema = z.object({\n  clientRowId: z.string(),\n  ok: z.literal(true),\n  sessionId: z.string(),\n  idempotent: z.boolean().optional()\n});\n\nconst ImportRowErrSchema = z.object({\n  clientRowId: z.string(),\n  ok: z.literal(false),\n  errors: z.array(z.string())\n});\n\nconst ImportRowResultSchema = z\n  .union([ImportRowOkSchema, ImportRowErrSchema])\n  .openapi(\"ImportRowResult\");\n\nconst ImportSessionsResponseSchema = z\n  .object({\n    clientImportId: z.string(),\n    results: z.array(ImportRowResultSchema)\n  })\n  .openapi(\"ImportSessionsResponse\");\n\nconst AuditLogSchema = z\n  .object({\n    id: z.string(),\n    tenantId: z.string(),\n    actorId: z.string(),\n    action: z.string(),\n    targetType: z.string(),\n    targetId: z.string().nullable(),\n    metadata: z.unknown().nullable(),\n    createdAt: z.union([z.string(), z.number()])\n  })\n  .openapi(\"AuditLog\");\n\nconst AuditListSchema = z\n  .object({ auditLogs: z.array(AuditLogSchema) })\n  .openapi(\"AuditLogList\");\n\nconst HealthSchema = z.object({ ok: z.literal(true) }).openapi(\"Health\");\n\nconst jsonOk = (\n  schema: z.ZodType,\n  description: string = \"Successful response\"\n): ResponseConfig => ({\n  description,\n  content: { \"application/json\": { schema } }\n});\n\nconst bearer401 = err(\"Unauthorized: missing or invalid Bearer token\");\n\nexport function buildOpenApiDocument(): ReturnType<\n  OpenApiGeneratorV3[\"generateDocument\"]\n> {\n  const registry = new OpenAPIRegistry();\n\n  registry.registerComponent(\"securitySchemes\", \"bearerAuth\", {\n    type: \"http\",\n    scheme: \"bearer\",\n    bearerFormat: \"JWT\",\n    description: \"HS256 JWT; `sub` is the creator id (tenant).\"\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/health\",\n    tags: [\"System\"],\n    security: [],\n    summary: \"Liveness probe\",\n    responses: {\n      200: jsonOk(HealthSchema, \"Service is reachable\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/signup\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Register a creator account\",\n    request: {\n      body: {\n        content: { \"application/json\": { schema: signupBodySchema } }\n      }\n    },\n    responses: {\n      201: jsonOk(AuthTokenResponseSchema, \"Registered; returns bearer token\"),\n      400: err(\"Validation error\"),\n      409: err(\"Email already registered\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/login\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Login\",\n    request: {\n      body: {\n        content: { \"application/json\": { schema: loginBodySchema } }\n      }\n    },\n    responses: {\n      200: jsonOk(AuthTokenResponseSchema, \"Access token issued\"),\n      400: err(\"Validation error\"),\n      401: err(\"Invalid email or password\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/forgot-password\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Request password reset email (opaque success shape)\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: forgotPasswordBodySchema }\n        }\n      }\n    },\n    responses: {\n      202: jsonOk(ForgotPasswordAcceptedSchema, \"Request accepted\"),\n      400: err(\"Validation error\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/auth/reset-password\",\n    tags: [\"Auth\"],\n    security: [],\n    summary: \"Complete reset with emailed token\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: resetPasswordBodySchema }\n        }\n      }\n    },\n    responses: {\n      200: jsonOk(AuthTokenResponseSchema, \"Password updated\"),\n      400: err(\"Validation error\"),\n      401: err(\"Invalid or expired reset token\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/auth/me\",\n    tags: [\"Auth\"],\n    summary: \"Current creator profile\",\n    responses: {\n      200: jsonOk(CreatorPublicSchema, \"Creator identity\"),\n      401: bearer401,\n      404: err(\"User not found\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/programs\",\n    tags: [\"Programs\"],\n    summary: \"List programs for authenticated tenant\",\n    responses: {\n      200: jsonOk(\n        ProgramListSchema,\n        \"Programs (order defined by persistence layer)\"\n      ),\n      401: bearer401,\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/programs\",\n    tags: [\"Programs\"],\n    summary: \"Create program\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: createProgramBodySchema }\n        }\n      }\n    },\n    responses: {\n      201: jsonOk(ProgramSchema, \"Created program\"),\n      400: err(\"Validation error\"),\n      401: bearer401,\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Get program by id\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      200: jsonOk(ProgramSchema, \"Program detail\"),\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"patch\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Update program\",\n    request: {\n      params: z.object({ id: z.string().min(1) }),\n      body: {\n        content: {\n          \"application/json\": { schema: updateProgramBodySchema }\n        }\n      }\n    },\n    responses: {\n      200: jsonOk(ProgramSchema, \"Updated program\"),\n      400: err(\"Validation error\"),\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"delete\",\n    path: \"/v1/programs/{id}\",\n    tags: [\"Programs\"],\n    summary: \"Delete program\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      204: { description: \"Deleted\" },\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/sessions\",\n    tags: [\"Sessions\"],\n    summary: \"List sessions in a program\",\n    request: {\n      query: z.object({\n        programId: z.string().min(1).openapi({\n          description: \"Program id scoped to authenticated tenant\",\n          param: {\n            style: \"form\",\n            explode: true\n          }\n        })\n      })\n    },\n    responses: {\n      200: jsonOk(SessionListWrapperSchema, \"Ordered sessions\"),\n      400: err(\"Missing or invalid query programId\"),\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/sessions/reorder\",\n    tags: [\"Sessions\"],\n    summary: \"Reorder sessions within a program\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: reorderSessionsBodySchema }\n        }\n      }\n    },\n    responses: {\n      200: jsonOk(SessionListWrapperSchema, \"Sessions after reorder\"),\n      400: err(\"Validation or ordering constraint violated\"),\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/sessions\",\n    tags: [\"Sessions\"],\n    summary: \"Create session\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: createSessionBodySchema }\n        }\n      }\n    },\n    responses: {\n      201: jsonOk(SessionSchema, \"Created session\"),\n      400: err(\"Validation error\"),\n      401: bearer401,\n      404: err(\"Program not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Get session by id\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      200: jsonOk(SessionSchema, \"Session detail\"),\n      401: bearer401,\n      404: err(\"Session not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"patch\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Update session\",\n    request: {\n      params: z.object({ id: z.string().min(1) }),\n      body: {\n        content: {\n          \"application/json\": { schema: updateSessionBodySchema }\n        }\n      }\n    },\n    responses: {\n      200: jsonOk(SessionSchema, \"Updated session\"),\n      400: err(\"Validation error\"),\n      401: bearer401,\n      404: err(\"Session not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"delete\",\n    path: \"/v1/sessions/{id}\",\n    tags: [\"Sessions\"],\n    summary: \"Delete session\",\n    request: {\n      params: z.object({ id: z.string().min(1) })\n    },\n    responses: {\n      204: { description: \"Deleted\" },\n      401: bearer401,\n      404: err(\"Session not found for tenant\"),\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/uploads/presign\",\n    tags: [\"Uploads\"],\n    summary: \"Presign PUT to tenant-scoped S3 key\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: presignBodySchema }\n        }\n      }\n    },\n    responses: {\n      201: jsonOk(PresignResponseSchema, \"Presigned PUT URL issued\"),\n      400: err(\"Validation or unsupported content type\"),\n      401: bearer401,\n      503: err(\"S3 not configured\"),\n      ...({} as Record<string, ResponseConfig>)\n    }\n  });\n\n  registry.registerPath({\n    method: \"post\",\n    path: \"/v1/import/sessions\",\n    tags: [\"Import\"],\n    summary: \"CSV bulk import (idempotent per client_import_id / client_row_id)\",\n    request: {\n      body: {\n        content: {\n          \"application/json\": { schema: importSessionsBodySchema }\n        }\n      }\n    },\n    responses: {\n      200: jsonOk(ImportSessionsResponseSchema, \"Per-row outcomes\"),\n      400: err(\"CSV or validation failures\"),\n      401: bearer401,\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  registry.registerPath({\n    method: \"get\",\n    path: \"/v1/audit\",\n    tags: [\"Audit\"],\n    summary: \"List audit log entries\",\n    request: {\n      query: auditQuerySchema\n    },\n    responses: {\n      200: jsonOk(AuditListSchema, \"Recent audit logs (bounded)\"),\n      400: err(\"Invalid filter values\"),\n      401: bearer401,\n      503: err(\"JWT_SECRET not configured\")\n    }\n  });\n\n  const generator = new OpenApiGeneratorV3(registry.definitions);\n\n  return generator.generateDocument({\n    openapi: \"3.0.0\",\n    info: {\n      title: \"Wellspring API\",\n      version: \"1.0.0\",\n      description:\n        \"Multi-tenant CMS API for wellness creators. Public routes omit Bearer auth; tenant scope is enforced from JWT `sub` on protected routes.\"\n    },\n    servers: [{ url: \"/\" }],\n    tags: [\n      { name: \"System\" },\n      { name: \"Auth\" },\n      { name: \"Programs\" },\n      { name: \"Sessions\" },\n      { name: \"Uploads\" },\n      { name: \"Import\" },\n      { name: \"Audit\" }\n    ],\n    security: [{ bearerAuth: [] }]\n  });\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "old_string": "      401: bearer401,\n      503: err(\"S3 not configured\"),\n      ...({} as Record<string, ResponseConfig>)\n    }\n  });",
+  "new_string": "      401: bearer401,\n      503: err(\"S3 not configured or JWT misconfigured\")\n    }\n  });"
+}
+```
+
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm exec tsc --noEmit 2>&1",
+  "description": "Re-run TypeScript check"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "openapi-spec",
+      "content": "Implement openapiDocument.ts: securitySchemes, paths, public vs secured operations, query/body from Zod",
+      "status": "completed"
+    },
+    {
+      "id": "wire-app",
+      "content": "Mount /openapi.json and /api-docs before JWT middleware; optional prod disable via env",
+      "status": "in_progress"
+    }
+  ],
+  "merge": true
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env.example"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/setup.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/config/env.ts",
+  "old_string": "  /** Base URL for GET access to uploaded objects (e.g. CloudFront or `https://bucket.s3.region.amazonaws.com`). */\n  S3_PUBLIC_BASE_URL: z.string().url().optional()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nexport function loadEnv(): Env {",
+  "new_string": "  /** Base URL for GET access to uploaded objects (e.g. CloudFront or `https://bucket.s3.region.amazonaws.com`). */\n  S3_PUBLIC_BASE_URL: z.string().url().optional(),\n  /**\n   * `1` = expose `GET /openapi.json` and `GET /api-docs` without auth.\n   * `0` = hide docs. Default: hidden in production unless set to `1`.\n   */\n  ENABLE_API_DOCS: z.enum([\"0\", \"1\"]).optional()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\n/** OpenAPI/Swagger when explicitly enabled or when not in production. */\nexport function apiDocsEnabled(env: Env): boolean {\n  if (env.ENABLE_API_DOCS !== undefined) {\n    return env.ENABLE_API_DOCS === \"1\";\n  }\n  return env.NODE_ENV !== \"production\";\n}\n\nexport function loadEnv(): Env {"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/app.ts",
+  "old_string": "import express, { type Application } from \"express\";\nimport pinoHttp from \"pino-http\";\nimport { loadEnv, type Env } from \"./config/env.js\";",
+  "new_string": "import express, { type Application } from \"express\";\nimport pinoHttp from \"pino-http\";\nimport swaggerUi from \"swagger-ui-express\";\nimport { apiDocsEnabled, loadEnv, type Env } from \"./config/env.js\";\nimport { buildOpenApiDocument } from \"./openapi/openapiDocument.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/app.ts",
+  "old_string": "  app.get(\"/health\", (_req, res) => {\n    res.json({ ok: true });\n  });\n\n  app.use(createJwtAuthMiddleware(() => app.get(\"env\") as Env));",
+  "new_string": "  app.get(\"/health\", (_req, res) => {\n    res.json({ ok: true });\n  });\n\n  if (apiDocsEnabled(env)) {\n    const openApiDocument = buildOpenApiDocument();\n    app.get(\"/openapi.json\", (_req, res) => {\n      res.json(openApiDocument);\n    });\n    app.use(\"/api-docs\", swaggerUi.serve, swaggerUi.setup(openApiDocument));\n  }\n\n  app.use(createJwtAuthMiddleware(() => app.get(\"env\") as Env));"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env.example",
+  "old_string": "JWT_SECRET=\"change-me-to-a-long-random-string-for-production\"\nJWT_EXPIRES_IN=\"7d\"\n\n# Set to 1 to log raw password reset tokens at debug level (local only; omit in production)",
+  "new_string": "JWT_SECRET=\"change-me-to-a-long-random-string-for-production\"\nJWT_EXPIRES_IN=\"7d\"\n\n# OpenAPI/Swagger: set to 0 to disable /openapi.json + /api-docs (default disabled in NODE_ENV=production unless set to 1)\n# ENABLE_API_DOCS=\"1\"\n\n# Set to 1 to log raw password reset tokens at debug level (local only; omit in production)"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/prisma/seed.ts",
+  "limit": 80
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm exec tsc --noEmit && pnpm test 2>&1",
+  "description": "Typecheck and run Jest suite"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "wire-app",
+      "content": "Mount /openapi.json and /api-docs before JWT middleware; optional prod disable via env",
+      "status": "completed"
+    },
+    {
+      "id": "bruno-collection",
+      "content": "Add backend/bruno/wellspring-api with envs, Auth script for token, requests for all routes",
+      "status": "in_progress"
+    }
+  ],
+  "merge": true
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/bruno.json",
+  "contents": "{\n  \"version\": \"1\",\n  \"name\": \"Wellspring API\",\n  \"type\": \"collection\",\n  \"ignore\": [\"node_modules\", \".git\"]\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/environments/Local.bru",
+  "contents": "environment: Local\nvars {\n  baseUrl: http://localhost:4000\n  email: creator1@wellspring-seed.example\n  password: Password123!\n  token: \n  programId: \n  sessionId: \n  clientImportId: bruno-sample-import\n}\nvars:secret {\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/environments/Local.bru",
+  "contents": "environment: Local\nvars {\n  baseUrl: http://localhost:4000\n  email: creator1@wellspring-seed.example\n  password: Password123!\n  token: \n  programId: \n  sessionId: \n  clientImportId: bruno-sample-import\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/System/Health.bru",
+  "contents": "meta {\n  name: Health\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/health\n  body: none\n  auth: none\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Login.bru",
+  "contents": "meta {\n  name: Login\n  type: http\n  seq: 10\n}\n\npost {\n  url: {{baseUrl}}/v1/auth/login\n  body: json\n  auth: none\n}\n\nbody:json {\n  {\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n  }\n}\n\nscript:post-response {\n  const body = typeof res.body === \"object\" && res.body !== null ? res.body : {};\n  const t = body.accessToken;\n  if (typeof t === \"string\") {\n    bru.setEnvVar(\"token\", t);\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Me.bru",
+  "contents": "meta {\n  name: Me\n  type: http\n  seq: 11\n}\n\nget {\n  url: {{baseUrl}}/v1/auth/me\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Signup.bru",
+  "contents": "meta {\n  name: Signup\n  type: http\n  seq: 12\n}\n\npost {\n  url: {{baseUrl}}/v1/auth/signup\n  body: json\n  auth: none\n}\n\nbody:json {\n  {\n    \"email\": \"bru-new-user@example.com\",\n    \"password\": \"Password123!\"\n  }\n}\n\nscript:post-response {\n  const body = typeof res.body === \"object\" && res.body !== null ? res.body : {};\n  const t = body.accessToken;\n  if (typeof t === \"string\") {\n    bru.setEnvVar(\"token\", t);\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Forgot password.bru",
+  "contents": "meta {\n  name: Forgot password\n  type: http\n  seq: 13\n}\n\npost {\n  url: {{baseUrl}}/v1/auth/forgot-password\n  body: json\n  auth: none\n}\n\nbody:json {\n  {\n    \"email\": \"{{email}}\"\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Reset password.bru",
+  "contents": "meta {\n  name: Reset password\n  type: http\n  seq: 14\n}\n\npost {\n  url: {{baseUrl}}/v1/auth/reset-password\n  body: json\n  auth: none\n}\n\nbody:json {\n  {\n    \"token\": \"<paste-token-from-reset-email-or-server-logs>\",\n    \"newPassword\": \"Password456!\"\n  }\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Programs/List programs.bru",
+  "contents": "meta {\n  name: List programs\n  type: http\n  seq: 20\n}\n\nget {\n  url: {{baseUrl}}/v1/programs\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nscript:post-response {\n  const rows = typeof res.body === \"object\" && res.body?.programs ? res.body.programs : [];\n  const first = Array.isArray(rows) ? rows[0] : undefined;\n  if (first?.id) {\n    bru.setEnvVar(\"programId\", first.id);\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Programs/Create program.bru",
+  "contents": "meta {\n  name: Create program\n  type: http\n  seq: 21\n}\n\npost {\n  url: {{baseUrl}}/v1/programs\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"title\": \"Bruno program\",\n    \"description\": \"Created from Bruno collection\"\n  }\n}\n\nscript:post-response {\n  const body = typeof res.body === \"object\" ? res.body : {};\n  const id = body.id;\n  if (typeof id === \"string\") {\n    bru.setEnvVar(\"programId\", id);\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Programs/Get program.bru",
+  "contents": "meta {\n  name: Get program\n  type: http\n  seq: 22\n}\n\nget {\n  url: {{baseUrl}}/v1/programs/{{programId}}\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Programs/Patch program.bru",
+  "contents": "meta {\n  name: Patch program\n  type: http\n  seq: 23\n}\n\npatch {\n  url: {{baseUrl}}/v1/programs/{{programId}}\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"title\": \"Bruno program (updated)\"\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Programs/Delete program.bru",
+  "contents": "meta {\n  name: Delete program\n  type: http\n  seq: 29\n}\n\ndelete {\n  url: {{baseUrl}}/v1/programs/{{programId}}\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/List sessions.bru",
+  "contents": "meta {\n  name: List sessions\n  type: http\n  seq: 30\n}\n\nget {\n  url: {{baseUrl}}/v1/sessions?programId={{programId}}\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Reorder sessions.bru",
+  "contents": "meta {\n  name: Reorder sessions\n  type: http\n  seq: 31\n}\n\npost {\n  url: {{baseUrl}}/v1/sessions/reorder\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\ndocs {\n  # Fill orderedSessionIds with every session id from List sessions, in desired order.\n}\n\nbody:json {\n  {\n    \"programId\": \"{{programId}}\",\n    \"orderedSessionIds\": []\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Create session.bru",
+  "contents": "meta {\n  name: Create session\n  type: http\n  seq: 32\n}\n\npost {\n  url: {{baseUrl}}/v1/sessions\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"programId\": \"{{programId}}\",\n    \"title\": \"Bruno session\",\n    \"durationSeconds\": 600,\n    \"instructorName\": \"Alex Kim\",\n    \"tags\": [\"bruno\"],\n    \"mediaUrl\": null,\n    \"mediaType\": null\n  }\n}\n\nscript:post-response {\n  const body = typeof res.body === \"object\" ? res.body : {};\n  const id = body.id;\n  if (typeof id === \"string\") {\n    bru.setEnvVar(\"sessionId\", id);\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Get session.bru",
+  "contents": "meta {\n  name: Get session\n  type: http\n  seq: 33\n}\n\nget {\n  url: {{baseUrl}}/v1/sessions/{{sessionId}}\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Patch session.bru",
+  "contents": "meta {\n  name: Patch session\n  type: http\n  seq: 34\n}\n\npatch {\n  url: {{baseUrl}}/v1/sessions/{{sessionId}}\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"title\": \"Bruno session (patched)\"\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Delete session.bru",
+  "contents": "meta {\n  name: Delete session\n  type: http\n  seq: 35\n}\n\ndelete {\n  url: {{baseUrl}}/v1/sessions/{{sessionId}}\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Reorder sessions.bru",
+  "old_string": "auth:bearer {\n  token: {{token}}\n}\n\ndocs {\n  # Fill orderedSessionIds with every session id from List sessions, in desired order.\n}\n\nbody:json {",
+  "new_string": "auth:bearer {\n  token: {{token}}\n}\n\n# Fill orderedSessionIds with every session id from List sessions, in desired order.\n\nbody:json {"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Uploads/Presign.bru",
+  "contents": "meta {\n  name: Presign upload\n  type: http\n  seq: 40\n}\n\npost {\n  url: {{baseUrl}}/v1/uploads/presign\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"fileName\": \"sample-audio.mp3\",\n    \"contentType\": \"audio/mpeg\"\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Import/Import sessions.bru",
+  "contents": "meta {\n  name: Import sessions\n  type: http\n  seq: 41\n}\n\npost {\n  url: {{baseUrl}}/v1/import/sessions\n  body: json\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n\nbody:json {\n  {\n    \"clientImportId\": \"{{clientImportId}}\",\n    \"csv\": \"client_row_id,program_id,title,duration_seconds,instructor_name,tags\\\\nbru-row-1,{{programId}},Bruno import row,600,Taylor,seed movement\"\n  }\n}\n"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Audit/List audit.bru",
+  "contents": "meta {\n  name: List audit\n  type: http\n  seq: 42\n}\n\nget {\n  url: {{baseUrl}}/v1/audit\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{token}}\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "offset": 80,
+  "limit": 100
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Import/Import sessions.bru",
+  "old_string": "    \"csv\": \"client_row_id,program_id,title,duration_seconds,instructor_name,tags\\\\nbru-row-1,{{programId}},Bruno import row,600,Taylor,seed movement\"",
+  "new_string": "    \"csv\": \"client_row_id,program_id,title,duration_seconds,instructor_name,tags\\nbru-row-1,{{programId}},Bruno import row,600,Taylor,seed movement\""
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md",
+  "old_string": "   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there).",
+  "new_string": "   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI endpoints are gated by **`ENABLE_API_DOCS`** (`1`/`0`; see [.env.example](backend/.env.example))."
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md",
+  "old_string": "- **API:** `http://localhost:4000` (e.g. `GET /health`)\n- **Admin:** `http://localhost:3000`\n\n---\n\n## Test",
+  "new_string": "- **API:** `http://localhost:4000` (e.g. `GET /health`)\n- **Admin:** `http://localhost:3000`\n\nWhen the API is running and docs are enabled (default in non-production environments), [**Swagger UI**](http://localhost:4000/api-docs) serves the interactive OpenAPI explorer, and **`GET`** [`/openapi.json`](http://localhost:4000/openapi.json) exposes the raw spec. Protected operations use **`Authorization: Bearer &lt;jwt&gt;`** (use **Authorize** in Swagger or capture a token from login).\n\n---\n\n## Bruno (API testing)\n\n1. Install [Bruno](https://www.usebruno.com/).\n2. **Open Collection** → choose [`backend/bruno/wellspring-api`](backend/bruno/wellspring-api).\n3. Select environment **Local**, run **`pnpm dev`** for the backend, **`pnpm db:seed`** for seed users (`creator1@wellspring-seed.example` / `Password123!` matches the Local env vars).\n4. Run **Auth → Login** first; the response script saves **`token`** to the environment for bearer-authenticated requests.\n5. Prefer **Programs → List programs** (or Create) before **Sessions**, **Import**, and similar calls so **`programId`** / **`sessionId`** are populated where applicable.\n\nYou can regenerate or reconcile requests anytime by importing **`/openapi.json`** into Bruno if you prefer that workflow.\n\n---\n\n## Test"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md",
+  "old_string": "| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest |",
+  "new_string": "| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger + Bruno collection (`bruno/wellspring-api`) |"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/README.md",
+  "old_string": "Protected operations use **`Authorization: Bearer &lt;jwt&gt;`** (use **Authorize** in Swagger or capture a token from login).",
+  "new_string": "Protected operations use **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or capture a token from login)."
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts",
+  "old_string": "import request from \"supertest\";\nimport { createApp } from \"../src/app\";\n\ndescribe(\"createApp\", () => {\n  it(\"GET /health returns ok\", async () => {\n    const app = createApp();\n    const res = await request(app).get(\"/health\").expect(200);\n    expect(res.body).toEqual({ ok: true });\n  });\n\n  it(\"GET /v1/programs returns 401 without bearer token\", async () => {\n    const app = createApp();\n    const res = await request(app).get(\"/v1/programs\").expect(401);\n    expect(res.body).toMatchObject({ error: \"unauthorized\" });\n  });\n});",
+  "new_string": "import request from \"supertest\";\nimport { loadEnv } from \"../src/config/env\";\nimport { createApp } from \"../src/app\";\n\ndescribe(\"createApp\", () => {\n  it(\"GET /health returns ok\", async () => {\n    const app = createApp();\n    const res = await request(app).get(\"/health\").expect(200);\n    expect(res.body).toEqual({ ok: true });\n  });\n\n  it(\"GET /openapi.json exposes OpenAPI 3 when docs enabled\", async () => {\n    const env = loadEnv();\n    const app =\n      env.ENABLE_API_DOCS === \"0\"\n        ? createApp({ ...env, ENABLE_API_DOCS: \"1\", NODE_ENV: \"production\" })\n        : createApp();\n    const res = await request(app).get(\"/openapi.json\").expect(200);\n    expect(res.body.openapi).toBe(\"3.0.0\");\n    expect(res.body.info.title).toBe(\"Wellspring API\");\n  });\n\n  it(\"GET /openapi.json is omitted when ENABLE_API_DOCS=0\", async () => {\n    const env = loadEnv();\n    const app = createApp({ ...env, ENABLE_API_DOCS: \"0\" });\n    await request(app).get(\"/openapi.json\").expect(404);\n  });\n\n  it(\"GET /v1/programs returns 401 without bearer token\", async () => {\n    const app = createApp();\n    const res = await request(app).get(\"/v1/programs\").expect(401);\n    expect(res.body).toMatchObject({ error: \"unauthorized\" });\n  });\n});"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts",
+  "old_string": "  it(\"GET /openapi.json exposes OpenAPI 3 when docs enabled\", async () => {\n    const env = loadEnv();\n    const app =\n      env.ENABLE_API_DOCS === \"0\"\n        ? createApp({ ...env, ENABLE_API_DOCS: \"1\", NODE_ENV: \"production\" })\n        : createApp();\n    const res = await request(app).get(\"/openapi.json\").expect(200);\n    expect(res.body.openapi).toBe(\"3.0.0\");\n    expect(res.body.info.title).toBe(\"Wellspring API\");\n  });",
+  "new_string": "  it(\"GET /openapi.json exposes OpenAPI 3 when docs enabled\", async () => {\n    const env = loadEnv();\n    const app = createApp({ ...env, ENABLE_API_DOCS: \"1\" });\n    const res = await request(app).get(\"/openapi.json\").expect(200);\n    expect(res.body.openapi).toBe(\"3.0.0\");\n    expect(res.body.info.title).toBe(\"Wellspring API\");\n  });"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test 2>&1",
+  "description": "Run full Jest suite after smoke test changes"
+}
+```
+
+
+**Tool:** `ReadLints`
+
+```json
+{
+  "paths": [
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/app.ts",
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts"
+  ]
+}
+```
+
+### Assistant
+
+When docs are disabled `/openapi.json` isn't mounted, so the request hits JWT middleware and returns 401. Adding explicit stub routes before JWT so disabled docs return 404.
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/app.ts",
+  "old_string": "  if (apiDocsEnabled(env)) {\n    const openApiDocument = buildOpenApiDocument();\n    app.get(\"/openapi.json\", (_req, res) => {\n      res.json(openApiDocument);\n    });\n    app.use(\"/api-docs\", swaggerUi.serve, swaggerUi.setup(openApiDocument));\n  }\n\n  app.use(createJwtAuthMiddleware(() => app.get(\"env\") as Env));",
+  "new_string": "  if (apiDocsEnabled(env)) {\n    const openApiDocument = buildOpenApiDocument();\n    app.get(\"/openapi.json\", (_req, res) => {\n      res.json(openApiDocument);\n    });\n    app.use(\"/api-docs\", swaggerUi.serve, swaggerUi.setup(openApiDocument));\n  } else {\n    app.get(\"/openapi.json\", (req, res) => {\n      res.status(404).json({\n        error: \"not_found\",\n        message: \"API documentation is disabled\",\n        requestId: req.requestId\n      });\n    });\n    app.use(\"/api-docs\", (req, res) => {\n      res.status(404).json({\n        error: \"not_found\",\n        message: \"API documentation is disabled\",\n        requestId: req.requestId\n      });\n    });\n  }\n\n  app.use(createJwtAuthMiddleware(() => app.get(\"env\") as Env));"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test 2>&1",
+  "description": "Re-run Jest after app.ts 404 stubs"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/smoke.test.ts",
+  "old_string": "  it(\"GET /openapi.json is omitted when ENABLE_API_DOCS=0\", async () => {\n    const env = loadEnv();\n    const app = createApp({ ...env, ENABLE_API_DOCS: \"0\" });\n    await request(app).get(\"/openapi.json\").expect(404);\n  });",
+  "new_string": "  it(\"GET /openapi.json is omitted when ENABLE_API_DOCS=0\", async () => {\n    const env = loadEnv();\n    const app = createApp({ ...env, ENABLE_API_DOCS: \"0\" });\n    const res = await request(app).get(\"/openapi.json\").expect(404);\n    expect(res.body).toMatchObject({ error: \"not_found\" });\n  });"
+}
+```
+
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "bruno-collection",
+      "content": "Add backend/bruno/wellspring-api with envs, Auth script for token, requests for all routes",
+      "status": "completed"
+    },
+    {
+      "id": "readme-tests",
+      "content": "Document Swagger + Bruno in README; optional smoke test for /openapi.json",
+      "status": "completed"
+    }
+  ],
+  "merge": true
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/package.json"
+}
+```
+
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test -- tests/smoke.test.ts 2>&1",
+  "description": "Run smoke tests only for quick verify"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Sessions/Reorder sessions.bru",
+  "old_string": "auth:bearer {\n  token: {{token}}\n}\n\n# Fill orderedSessionIds with every session id from List sessions, in desired order.\n\nbody:json {",
+  "new_string": "auth:bearer {\n  token: {{token}}\n}\n\nbody:json {"
+}
+```
+
+### Assistant
+
+Here is what was implemented:
+
+### Swagger / OpenAPI
+- **Dependencies:** `swagger-ui-express`, `@types/swagger-ui-express`, `@asteasolutions/zod-to-openapi@^7.3.4` (Zod 3–compatible), `openapi3-ts` ([`backend/package.json`](backend/package.json)).
+- **Extended Zod:** [`backend/src/lib/zodOpenapi.ts`](backend/src/lib/zodOpenapi.ts); module payloads import it from [`auth/programs/sessions/uploads/import/audit/schemas.ts`](backend/src/modules/).
+- **Spec:** [`backend/src/openapi/openapiDocument.ts`](backend/src/openapi/openapiDocument.ts) registers `bearerAuth`, public auth routes (`security: []` via omission of per-route overrides where registry handles it—in practice public routes omit global security via explicit empty security on operations that need it; see auth block… Actually I should verify — zod openapi generator merges global security. Public routes don't set `security: []` in my file for signup etc.!
+
+Critical check: OpenAPI 3 applies **AND** merge of operation security with global security. If global security is `[{ bearerAuth: [] }]`, operations need **`security: []`** to override to public!
+
+Reading my openapiDocument - I did NOT add `security: []` to signup, login etc. That's a bug for Swagger UI "Try it out" - it may require bearer for public routes.
+
+Let me check the generated spec behavior - in OpenAPI 3, if operation has no security field, it inherits global security. So ALL my public routes would incorrectly require bearer in Swagger UI.
+
+I need to add `security: []` to:
+- /health
+- /v1/auth/signup, login, forgot-password, reset-password
+
+Let me verify registration - read openapiDocument for those paths
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "pattern": "security:"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "offset": 160,
+  "limit": 120
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/openapi/openapiDocument.ts",
+  "offset": 520,
+  "limit": 80
+}
+```
+
+### Assistant
+
+### Summary
+
+**OpenAPI + Swagger UI**
+- Mounted **before** JWT so docs stay public: `GET /openapi.json` and **`/api-docs`** (Swagger UI), when enabled via [`apiDocsEnabled`](backend/src/config/env.ts) (`ENABLE_API_DOCS=1` forces on; `ENABLE_API_DOCS=0` forces off; otherwise off in **production** only).
+- When docs are disabled, same paths return **404 JSON** (`not_found`) so they never fall through to JWT 401.
+- Spec built in [`backend/src/openapi/openapiDocument.ts`](backend/src/openapi/openapiDocument.ts) with `@asteasolutions/zod-to-openapi` **v7** for Zod 3; request schemas come from your module Zod files via [`backend/src/lib/zodOpenapi.ts`](backend/src/lib/zodOpenapi.ts).
+
+**Bruno**
+- Collection: [`backend/bruno/wellspring-api`](backend/bruno/wellspring-api) with **`environments/Local.bru`** (seed user `creator1@wellspring-seed.example` / `Password123!`), **Login** saves `token`, **List programs** sets `programId`, **Create session** sets `sessionId`, plus the rest of the HTTP surface (including reorder with an empty `orderedSessionIds` you fill after listing sessions).
+
+**Docs & tests**
+- [`README.md`](README.md): Swagger links, **`ENABLE_API_DOCS`**, and Bruno workflow.
+- [`backend/.env.example`](backend/.env.example): optional `ENABLE_API_DOCS`.
+- [`backend/tests/smoke.test.ts`](backend/tests/smoke.test.ts): OpenAPI exposed when docs on; **`not_found`** when `ENABLE_API_DOCS=0`.
+
+**Note:** `@asteasolutions/zod-to-openapi` is pinned to **v7.x** because **v8** targets Zod 4; `backend/package.json` uses `^7.3.4`.
+
+All related todos are **completed**; backend tests pass (`pnpm test`).
+
+[REDACTED]
+
+---
+
+## Exchange 5
+
+### User
+
+<user_query>
+Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+
+To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
+</user_query>
+
+### User
+
+Stage the changes you worked on and create a commit for this branch.
+- Current branch: develop.
+- Base branch: develop.
+- Stage the changes you worked on.
+- If there are unrelated files or changes, exclude them.
+- Write a concise commit message.
+- Do not push.
+- Do not include unrelated files in the commit.
+<user_query>
+Execute the selected diff-tab commit action.
+</user_query>
+
