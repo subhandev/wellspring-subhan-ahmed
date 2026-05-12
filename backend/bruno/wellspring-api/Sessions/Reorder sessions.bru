@@ -4,6 +4,12 @@ meta {
   seq: 31
 }
 
+docs {
+  `orderedSessionIds` must include every session in the program exactly once.
+  After List sessions, copy ids into the array in desired order. With only one session,
+  use a single-element array containing `sessionId`.
+}
+
 post {
   url: {{baseUrl}}/v1/sessions/reorder
   body: json
@@ -17,6 +23,6 @@ auth:bearer {
 body:json {
   {
     "programId": "{{programId}}",
-    "orderedSessionIds": []
+    "orderedSessionIds": ["{{sessionId}}"]
   }
 }

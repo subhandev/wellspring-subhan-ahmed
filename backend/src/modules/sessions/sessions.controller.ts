@@ -5,7 +5,7 @@ import {
   reorderSessionsBodySchema,
   updateSessionBodySchema
 } from "./schemas.js";
-import * as sessionsService from "./service.js";
+import * as sessionsService from "./sessions.service.js";
 
 function requireTenantContext(req: Parameters<RequestHandler>[0]) {
   const tenantId = req.tenantId;
@@ -23,9 +23,12 @@ export const list: RequestHandler = async (req, res, next) => {
       next(new HttpError(401, "Unauthorized", "unauthorized"));
       return;
     }
-    const programId = typeof req.query.programId === "string" ? req.query.programId : "";
+    const programId =
+      typeof req.query.programId === "string" ? req.query.programId : "";
     if (!programId) {
-      next(new HttpError(400, "query programId is required", "validation_error"));
+      next(
+        new HttpError(400, "query programId is required", "validation_error")
+      );
       return;
     }
     const sessions = await sessionsService.listSessions(ctx.tenantId, programId);
@@ -42,7 +45,10 @@ export const getById: RequestHandler = async (req, res, next) => {
       next(new HttpError(401, "Unauthorized", "unauthorized"));
       return;
     }
-    const session = await sessionsService.getSession(ctx.tenantId, req.params.id);
+    const session = await sessionsService.getSession(
+      ctx.tenantId,
+      req.params.id
+    );
     res.json(session);
   } catch (e) {
     next(e);

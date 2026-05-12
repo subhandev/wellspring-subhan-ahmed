@@ -453,6 +453,7 @@ export function buildOpenApiDocument(): ReturnType<
       400: err("Validation error"),
       401: bearer401,
       404: err("Program not found for tenant"),
+      409: err("Session position conflicts with existing row (unique programId+position)"),
       503: err("JWT_SECRET not configured")
     }
   });
@@ -491,6 +492,7 @@ export function buildOpenApiDocument(): ReturnType<
       400: err("Validation error"),
       401: bearer401,
       404: err("Session not found for tenant"),
+      409: err("Session position conflicts with existing row (unique programId+position)"),
       503: err("JWT_SECRET not configured")
     }
   });

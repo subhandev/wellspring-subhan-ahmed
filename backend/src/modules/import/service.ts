@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
-import * as sessionsRepo from "../sessions/repository.js";
+import * as sessionsRepo from "../sessions/sessions.repository.js";
 import type { TenantId } from "../../types/tenant.js";
 import type { ImportSessionsBody } from "./schemas.js";
 

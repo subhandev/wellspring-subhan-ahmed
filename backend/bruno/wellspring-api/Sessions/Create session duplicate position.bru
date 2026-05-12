@@ -1,0 +1,31 @@
+meta {
+  name: Create session duplicate position
+  type: http
+  seq: 33
+}
+
+docs {
+  Expect 409 when `position` collides with an existing session in the same program.
+  Run Create session first; keep default env `sessionId`, then send this request with the same programId and position 0.
+}
+
+post {
+  url: {{baseUrl}}/v1/sessions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "programId": "{{programId}}",
+    "title": "Collision test",
+    "durationSeconds": 120,
+    "position": 0,
+    "instructorName": "Coach",
+    "tags": []
+  }
+}

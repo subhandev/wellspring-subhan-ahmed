@@ -9,7 +9,7 @@ import { requestIdMiddleware } from "./middleware/requestId.js";
 import { createAuthenticateMiddleware } from "./middleware/authenticate.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { programsRouter } from "./modules/programs/routes.js";
-import { sessionsRouter } from "./modules/sessions/routes.js";
+import { sessionsRouter } from "./modules/sessions/sessions.routes.js";
 import { uploadsRouter } from "./modules/uploads/routes.js";
 import { importRouter } from "./modules/import/routes.js";
 import { auditRouter } from "./modules/audit/routes.js";

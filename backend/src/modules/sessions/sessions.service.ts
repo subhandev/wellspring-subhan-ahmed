@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { prisma } from "../../config/database.js";
@@ -7,12 +8,21 @@ import type {
   ReorderSessionsBody,
   UpdateSessionBody
 } from "./schemas.js";
-import * as repo from "./repository.js";
+import * as repo from "./sessions.repository.js";
 
-export async function listSessions(
-  tenantId: TenantId,
-  programId: string
-) {
+const POSITION_CONFLICT_MESSAGE =
+  "Position is already in use for this program. Choose another position or use the reorder endpoint.";
+
+function throwIfSessionPositionConflict(err: unknown): void {
+  if (
+    err instanceof Prisma.PrismaClientKnownRequestError &&
+    err.code === "P2002"
+  ) {
+    throw new HttpError(409, POSITION_CONFLICT_MESSAGE, "position_conflict");
+  }
+}
+
+export async function listSessions(tenantId: TenantId, programId: string) {
   const program = await repo.assertProgramOwnedByTenant(tenantId, programId);
   if (!program) {
     throw new HttpError(404, "Program not found", "not_found");
@@ -43,27 +53,32 @@ export async function createSession(
       ? body.position
       : await repo.nextPosition(tenantId, body.programId);
 
-  const session = await repo.createSession(tenantId, {
-    programId: body.programId,
-    title: body.title,
-    durationSeconds: body.durationSeconds,
-    position,
-    instructorName: body.instructorName,
-    tags: body.tags,
-    mediaUrl: body.mediaUrl,
-    mediaType: body.mediaType
-  });
+  try {
+    const session = await repo.createSession(tenantId, {
+      programId: body.programId,
+      title: body.title,
+      durationSeconds: body.durationSeconds,
+      position,
+      instructorName: body.instructorName,
+      tags: body.tags,
+      mediaUrl: body.mediaUrl,
+      mediaType: body.mediaType
+    });
 
-  await appendAuditLog({
-    tenantId,
-    actorId,
-    action: "session.created",
-    targetType: "session",
-    targetId: session.id,
-    metadata: { programId: body.programId, title: session.title }
-  });
+    await appendAuditLog({
+      tenantId,
+      actorId,
+      action: "session.created",
+      targetType: "session",
+      targetId: session.id,
+      metadata: { programId: body.programId, title: session.title }
+    });
 
-  return session;
+    return session;
+  } catch (err) {
+    throwIfSessionPositionConflict(err);
+    throw err;
+  }
 }
 
 export async function updateSession(
@@ -72,18 +87,23 @@ export async function updateSession(
   id: string,
   body: UpdateSessionBody
 ) {
-  const session = await repo.updateSession(tenantId, id, body);
-  if (!session) {
-    throw new HttpError(404, "Session not found", "not_found");
+  try {
+    const session = await repo.updateSession(tenantId, id, body);
+    if (!session) {
+      throw new HttpError(404, "Session not found", "not_found");
+    }
+    await appendAuditLog({
+      tenantId,
+      actorId,
+      action: "session.updated",
+      targetType: "session",
+      targetId: id
+    });
+    return session;
+  } catch (err) {
+    throwIfSessionPositionConflict(err);
+    throw err;
   }
-  await appendAuditLog({
-    tenantId,
-    actorId,
-    action: "session.updated",
-    targetType: "session",
-    targetId: id
-  });
-  return session;
 }
 
 export async function removeSession(
@@ -118,14 +138,26 @@ export async function reorderSessions(
   const existingIds = new Set(existing.map((s) => s.id));
   const uniq = new Set(body.orderedSessionIds);
   if (uniq.size !== body.orderedSessionIds.length) {
-    throw new HttpError(400, "orderedSessionIds must not contain duplicates", "validation_error");
+    throw new HttpError(
+      400,
+      "orderedSessionIds must not contain duplicates",
+      "validation_error"
+    );
   }
   if (existing.length !== body.orderedSessionIds.length) {
-    throw new HttpError(400, "orderedSessionIds must list every session in the program", "validation_error");
+    throw new HttpError(
+      400,
+      "orderedSessionIds must list every session in the program",
+      "validation_error"
+    );
   }
   for (const id of body.orderedSessionIds) {
     if (!existingIds.has(id)) {
-      throw new HttpError(400, "Unknown session id for this program", "validation_error");
+      throw new HttpError(
+        400,
+        "Unknown session id for this program",
+        "validation_error"
+      );
     }
   }
 

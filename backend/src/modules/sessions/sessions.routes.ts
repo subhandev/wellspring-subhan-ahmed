@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import * as controller from "./controller.js";
+import * as controller from "./sessions.controller.js";
 
 export const sessionsRouter: IRouter = Router();
 

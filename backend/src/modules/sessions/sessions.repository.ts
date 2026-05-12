@@ -33,7 +33,10 @@ export async function getSessionById(
   });
 }
 
-export async function nextPosition(tenantId: TenantId, programId: string): Promise<number> {
+export async function nextPosition(
+  tenantId: TenantId,
+  programId: string
+): Promise<number> {
   const agg = await prisma.session.aggregate({
     where: { tenantId: tenantId as string, programId },
     _max: { position: true }
@@ -104,23 +107,12 @@ export async function updateSession(
   });
 }
 
-export async function deleteSession(tenantId: TenantId, id: string): Promise<boolean> {
+export async function deleteSession(
+  tenantId: TenantId,
+  id: string
+): Promise<boolean> {
   const result = await prisma.session.deleteMany({
     where: { id, tenantId: tenantId as string }
   });
   return result.count > 0;
-}
-
-export async function listSessionsByIdsForProgram(
-  tenantId: TenantId,
-  programId: string,
-  ids: string[]
-): Promise<Session[]> {
-  return prisma.session.findMany({
-    where: {
-      tenantId: tenantId as string,
-      programId,
-      id: { in: ids }
-    }
-  });
 }
