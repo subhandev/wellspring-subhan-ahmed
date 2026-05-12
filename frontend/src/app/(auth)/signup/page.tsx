@@ -6,8 +6,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AuthFieldError } from "@/components/auth/AuthFieldError";
+import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
+import { AuthTextField } from "@/components/auth/AuthTextField";
+import { RedirectIfAuthed } from "@/components/auth/RedirectIfAuthed";
 import { Button } from "@/components/ui/button";
-import { apiFetch, setAccessToken } from "@/lib/api";
+import { apiFetch, readApiErrorMessage, readAuthAccessToken, setAccessToken } from "@/lib/api";
 
 const schema = z
   .object({
@@ -35,69 +39,68 @@ export default function SignupPage() {
       body: JSON.stringify({ email: data.email, password: data.password }),
       auth: false
     });
-    const body = (await res.json().catch(() => ({}))) as {
-      accessToken?: string;
-      message?: string;
-    };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Could not sign up");
+      setError(readApiErrorMessage(body, "Could not sign up"));
       return;
     }
-    if (body.accessToken) {
-      setAccessToken(body.accessToken);
+    const token = readAuthAccessToken(body);
+    if (token) {
+      setAccessToken(token);
       router.push("/programs");
       router.refresh();
+    } else {
+      setError("Sign up succeeded but no token was returned");
     }
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Sign up</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="email">
-            Email
-          </label>
-          <input
+    <RedirectIfAuthed>
+      <section className="space-y-4" aria-labelledby="signup-heading">
+        <AuthPageHeader
+          titleId="signup-heading"
+          title="Create account"
+          description="Register a creator account. You will land on Programs after sign-up."
+        />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+          <AuthTextField
             id="email"
+            label="Email"
             type="email"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
             {...register("email")}
           />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="password">
-            Password (min 8)
-          </label>
-          <input
+          <AuthFieldError message={errors.email?.message} />
+          <AuthTextField
             id="password"
+            label="Password (min 8 characters)"
             type="password"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            autoComplete="new-password"
+            aria-invalid={Boolean(errors.password)}
             {...register("password")}
           />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="confirm">
-            Confirm password
-          </label>
-          <input
+          <AuthFieldError message={errors.password?.message} />
+          <AuthTextField
             id="confirm"
+            label="Confirm password"
             type="password"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            autoComplete="new-password"
+            aria-invalid={Boolean(errors.confirm)}
             {...register("confirm")}
           />
-          {errors.confirm ? <p className="text-sm text-red-600">{errors.confirm.message}</p> : null}
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Creating…" : "Create account"}
-        </Button>
-      </form>
-      <p className="text-center text-sm text-muted-foreground">
-        <Link href="/login" className="underline underline-offset-4">
-          Back to login
-        </Link>
-      </p>
-    </div>
+          <AuthFieldError message={errors.confirm?.message} />
+          {error ? <AuthFieldError message={error} /> : null}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating…" : "Create account"}
+          </Button>
+        </form>
+        <nav aria-label="Account access" className="text-center text-sm text-muted-foreground">
+          <Link href="/login" className="underline underline-offset-4">
+            Already have an account? Sign in
+          </Link>
+        </nav>
+      </section>
+    </RedirectIfAuthed>
   );
 }

@@ -13,7 +13,12 @@ const links = [
 export function DashboardNav() {
   return (
     <nav className="flex flex-wrap items-center gap-2 border-b bg-card px-4 py-3">
-      <span className="mr-4 font-semibold text-foreground">Wellspring</span>
+      <Link
+        href="/programs"
+        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mr-2 px-2 font-semibold")}
+      >
+        Wellspring Admin
+      </Link>
       {links.map((l) => (
         <Link
           key={l.href}

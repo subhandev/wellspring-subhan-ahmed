@@ -293,6 +293,18 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV3["generateD
   });
 
   registry.registerPath({
+    method: "post",
+    path: "/api/auth/logout",
+    tags: ["Auth"],
+    summary: "Record logout (audit)",
+    responses: {
+      204: { description: "Logout recorded; discard JWT on the client" },
+      401: bearer401,
+      503: err("JWT_SECRET not configured")
+    }
+  });
+
+  registry.registerPath({
     method: "get",
     path: "/v1/programs",
     tags: ["Programs"],

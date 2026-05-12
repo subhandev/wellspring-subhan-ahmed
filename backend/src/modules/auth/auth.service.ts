@@ -2,7 +2,9 @@ import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import type { Env } from "../../config/env.js";
+import { appendAuditLog } from "../../lib/auditWriter.js";
 import { HttpError } from "../../lib/httpError.js";
+import type { TenantId } from "../../types/tenant.js";
 import { signAccessToken, signPasswordResetToken, verifyPasswordResetToken } from "./jwt.js";
 import * as repo from "./repository.js";
 import type { ForgotPasswordBody, LoginBody, ResetPasswordBody, SignupBody } from "./schemas.js";
@@ -13,6 +15,16 @@ export type AuthTokenBundle = {
   accessToken: string;
   creator: { id: string; email: string };
 };
+
+export async function recordLogout(tenantId: TenantId, creatorId: string): Promise<void> {
+  await appendAuditLog({
+    tenantId,
+    actorId: creatorId,
+    action: "auth.logged_out",
+    targetType: "creator",
+    targetId: creatorId
+  });
+}
 
 export async function signup(env: Env, body: SignupBody): Promise<AuthTokenBundle> {
   const passwordHash = await bcrypt.hash(body.password, BCRYPT_ROUNDS);

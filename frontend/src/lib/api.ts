@@ -36,3 +36,17 @@ export async function apiFetch(path: string, init?: ApiFetchOpts): Promise<Respo
   }
   return fetch(apiUrl(path), { ...rest, headers });
 }
+
+/** Express API: success auth payloads use `{ success, data: { accessToken } }`. */
+export function readAuthAccessToken(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null;
+  const data = (body as { data?: { accessToken?: string } }).data;
+  return typeof data?.accessToken === "string" ? data.accessToken : null;
+}
+
+/** Express API: errors use `{ success: false, error: { message } }`. */
+export function readApiErrorMessage(body: unknown, fallback: string): string {
+  if (!body || typeof body !== "object") return fallback;
+  const err = (body as { error?: { message?: string } }).error;
+  return typeof err?.message === "string" ? err.message : fallback;
+}

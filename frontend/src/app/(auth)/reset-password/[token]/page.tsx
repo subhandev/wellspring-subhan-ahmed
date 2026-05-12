@@ -6,8 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { apiFetch, setAccessToken } from "@/lib/api";
+import { AuthFieldError } from "@/components/auth/AuthFieldError";
+import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
+import { AuthTextField } from "@/components/auth/AuthTextField";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { apiFetch, readApiErrorMessage, readAuthAccessToken, setAccessToken } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 const schema = z
   .object({
@@ -24,7 +28,7 @@ type Form = z.infer<typeof schema>;
 export default function ResetPasswordPage() {
   const params = useParams();
   const router = useRouter();
-  const token = typeof params.token === "string" ? params.token : "";
+  const token = typeof params.token === "string" ? params.token.trim() : "";
   const [error, setError] = useState<string | null>(null);
   const {
     register,
@@ -39,58 +43,82 @@ export default function ResetPasswordPage() {
       body: JSON.stringify({ token, newPassword: data.newPassword }),
       auth: false
     });
-    const body = (await res.json().catch(() => ({}))) as {
-      accessToken?: string;
-      message?: string;
-    };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Reset failed");
+      setError(readApiErrorMessage(body, "Reset failed"));
       return;
     }
-    if (body.accessToken) {
-      setAccessToken(body.accessToken);
+    const tokenOut = readAuthAccessToken(body);
+    if (tokenOut) {
+      setAccessToken(tokenOut);
       router.push("/programs");
       router.refresh();
+    } else {
+      setError("Password updated but no token was returned");
     }
   }
 
+  if (!token) {
+    return (
+      <section className="space-y-4" aria-labelledby="reset-invalid-heading">
+        <AuthPageHeader
+          titleId="reset-invalid-heading"
+          title="Invalid reset link"
+          description="This URL is missing a reset token. Request a new link from the forgot password page."
+        />
+        <nav aria-label="Account access">
+          <Link
+            href="/forgot-password"
+            className={cn(buttonVariants({ variant: "secondary" }), "inline-flex w-full justify-center")}
+          >
+            Request a new link
+          </Link>
+        </nav>
+        <p className="text-center text-sm text-muted-foreground">
+          <Link href="/login" className="underline underline-offset-4">
+            Back to sign in
+          </Link>
+        </p>
+      </section>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Reset password</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="newPassword">
-            New password
-          </label>
-          <input
-            id="newPassword"
-            type="password"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...register("newPassword")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="confirm">
-            Confirm
-          </label>
-          <input
-            id="confirm"
-            type="password"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...register("confirm")}
-          />
-          {errors.confirm ? <p className="text-sm text-red-600">{errors.confirm.message}</p> : null}
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+    <section className="space-y-4" aria-labelledby="reset-heading">
+      <AuthPageHeader
+        titleId="reset-heading"
+        title="Set a new password"
+        description="Choose a new password for your account. You will be signed in on Programs afterward."
+      />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+        <AuthTextField
+          id="newPassword"
+          label="New password (min 8 characters)"
+          type="password"
+          autoComplete="new-password"
+          aria-invalid={Boolean(errors.newPassword)}
+          {...register("newPassword")}
+        />
+        <AuthFieldError message={errors.newPassword?.message} />
+        <AuthTextField
+          id="confirm"
+          label="Confirm password"
+          type="password"
+          autoComplete="new-password"
+          aria-invalid={Boolean(errors.confirm)}
+          {...register("confirm")}
+        />
+        <AuthFieldError message={errors.confirm?.message} />
+        {error ? <AuthFieldError message={error} /> : null}
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          Update password
+          {isSubmitting ? "Updating…" : "Update password and sign in"}
         </Button>
       </form>
-      <p className="text-center text-sm text-muted-foreground">
+      <nav aria-label="Account access" className="text-center text-sm text-muted-foreground">
         <Link href="/login" className="underline underline-offset-4">
-          Back to login
+          Back to sign in
         </Link>
-      </p>
-    </div>
+      </nav>
+    </section>
   );
 }

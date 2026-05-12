@@ -46,6 +46,13 @@ describeDb("auth API (requires DATABASE_URL)", () => {
 
     expect(login.body.data.accessToken).toBeTruthy();
 
+    await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", `Bearer ${login.body.data.accessToken}`)
+      .expect(204);
+
+    await request(app).post("/api/auth/logout").expect(401);
+
     await prisma.creator.delete({ where: { id: signup.body.data.creator.id } });
   });
 });

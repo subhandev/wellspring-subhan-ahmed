@@ -298,3 +298,35 @@ export const me: RequestHandler = async (req, res, next) => {
     next(e);
   }
 };
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Record logout (client must still discard JWT)
+ *     description: |
+ *       Stateless JWT auth has no server session to destroy. This endpoint records an audit event
+ *       and returns 204. The client must remove the token from storage.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       204:
+ *         description: Logout recorded
+ *       401:
+ *         description: Missing or invalid bearer token
+ */
+export const logout: RequestHandler = async (req, res, next) => {
+  try {
+    const creatorId = req.creatorId;
+    const tenantId = req.tenantId;
+    if (!creatorId || !tenantId) {
+      next(new HttpError(401, "Unauthorized", "unauthorized"));
+      return;
+    }
+    await authService.recordLogout(tenantId, creatorId);
+    res.status(204).send();
+  } catch (e) {
+    next(e);
+  }
+};
