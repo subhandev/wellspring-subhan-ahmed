@@ -2,7 +2,7 @@
 
 **Loom walkthrough:** _[Add your 5–7 minute Loom URL here before submission.]_
 
-Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. Full brief and quality bars live in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
+Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. Full brief and quality bars live in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Implementation checklist: [`docs/BACKLOG.md`](docs/BACKLOG.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
 
 This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each directory as below (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
 
