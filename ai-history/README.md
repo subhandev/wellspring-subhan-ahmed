@@ -25,6 +25,13 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 13 | [`13-cursor-agent-transcript-75041a1f.jsonl`](./13-cursor-agent-transcript-75041a1f.jsonl), [`13-cursor-agent-chat-export-75041a1f.md`](./13-cursor-agent-chat-export-75041a1f.md); subagents: [`13-1-cursor-agent-subagent-transcript-3b5d1df7.jsonl`](./13-1-cursor-agent-subagent-transcript-3b5d1df7.jsonl), [`13-2-cursor-agent-subagent-transcript-8c483707.jsonl`](./13-2-cursor-agent-subagent-transcript-8c483707.jsonl) (and matching `*-chat-export-*.md`) | Larger backend work session (multi-module) |
 | 14 | [`14-cursor-agent-transcript-37a0e50f.jsonl`](./14-cursor-agent-transcript-37a0e50f.jsonl), [`14-cursor-agent-chat-export-37a0e50f.md`](./14-cursor-agent-chat-export-37a0e50f.md) | Cursor backend conventions/rules work |
 | 15 | [`15-cursor-agent-transcript-4e36a5a5.jsonl`](./15-cursor-agent-transcript-4e36a5a5.jsonl), [`15-cursor-agent-chat-export-4e36a5a5.md`](./15-cursor-agent-chat-export-4e36a5a5.md) | Follow-up session (short) |
+| 16 | [`16-cursor-agent-transcript-1a88e3bb.jsonl`](./16-cursor-agent-transcript-1a88e3bb.jsonl), [`16-cursor-agent-chat-export-1a88e3bb.md`](./16-cursor-agent-chat-export-1a88e3bb.md) | Seed script status check |
+| 17 | [`17-cursor-agent-transcript-6bf0688e.jsonl`](./17-cursor-agent-transcript-6bf0688e.jsonl), [`17-cursor-agent-chat-export-6bf0688e.md`](./17-cursor-agent-chat-export-6bf0688e.md) | README + `.env.example` review |
+| 18 | [`18-cursor-agent-transcript-4475439c.jsonl`](./18-cursor-agent-transcript-4475439c.jsonl), [`18-cursor-agent-chat-export-4475439c.md`](./18-cursor-agent-chat-export-4475439c.md) | Frontend Cursor rules (`frontend.mdc`) |
+| 19 | [`19-cursor-agent-transcript-68cf74da.jsonl`](./19-cursor-agent-transcript-68cf74da.jsonl), [`19-cursor-agent-chat-export-68cf74da.md`](./19-cursor-agent-chat-export-68cf74da.md) | Frontend coverage inventory |
+| 20 | [`20-cursor-agent-transcript-241ddb3c.jsonl`](./20-cursor-agent-transcript-241ddb3c.jsonl), [`20-cursor-agent-chat-export-241ddb3c.md`](./20-cursor-agent-chat-export-241ddb3c.md) | Frontend layered architecture alignment |
+| 21 | [`21-cursor-agent-transcript-dc37ad1e.jsonl`](./21-cursor-agent-transcript-dc37ad1e.jsonl), [`21-cursor-agent-chat-export-dc37ad1e.md`](./21-cursor-agent-chat-export-dc37ad1e.md) | Auth frontend pages/screens |
+| 22 | [`22-cursor-agent-transcript-838e9474.jsonl`](./22-cursor-agent-transcript-838e9474.jsonl), [`22-cursor-agent-chat-export-838e9474.md`](./22-cursor-agent-chat-export-838e9474.md) | Programs UI — end-to-end plan (post-login landing) |
 
 ## Raw vs Markdown
 
