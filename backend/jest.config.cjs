@@ -5,6 +5,9 @@ module.exports = {
   testMatch: ["**/*.test.ts"],
   clearMocks: true,
   passWithNoTests: true,
+  moduleNameMapper: {
+    "^(\\.\\.?/.+)\\.js$": "$1"
+  },
   transform: {
     "^.+\\.ts$": [
       "ts-jest",

@@ -6,30 +6,30 @@ Living checklist aligned with [`REQUIREMENTS.md`](REQUIREMENTS.md), [`.cursor/ru
 
 ## UI stack (frontend)
 
-- [ ] **Tailwind CSS** — configure for Next.js App Router under `frontend/` (PostCSS, `globals.css`, content paths).
-- [ ] **shadcn/ui** — `npx shadcn@latest init` in `frontend/` (`components.json`, `src/components/ui/*`).
+- [x] **Tailwind CSS** — configure for Next.js App Router under `frontend/` (PostCSS, `globals.css`, content paths).
+- [x] **shadcn/ui** — `npx shadcn@latest init` in `frontend/` (`components.json`, `src/components/ui/*`).
 - [ ] Keep **React Hook Form + Zod** for forms; prefer shadcn `Form`, `Input`, `Button`, `Table`, `Dialog`, and date/filter primitives as needed (audit filters, CSV feedback tables).
 
 ---
 
 ## Data / Prisma
 
-- [ ] **Models + migrations only** — no ad-hoc DDL at startup. Initial entities (names may vary; keep `tenant_id` on tenant-owned rows):
+- [x] **Models + migrations only** — no ad-hoc DDL at startup. Initial entities (names may vary; keep `tenant_id` on tenant-owned rows):
   - Creator (tenant): admin identity, password hash, etc.
   - Program: belongs to creator/tenant.
   - Session: belongs to program; **title**, **duration**, **ordered position**, **instructor name**, **tags**, **media file URL** (and any indexes you need).
   - AuditLog: actor, action, target entity, timestamp, `tenant_id`.
   - **Bulk import idempotency** — e.g. table keyed by `client_import_id` (and optionally per-row client id or hash) so retries do not duplicate sessions; document chosen upsert/skip rules in `ARCHITECTURE_REVIEW.md`.
-- [ ] **Seed** — [`backend/prisma/seed.ts`](../backend/prisma/seed.ts): **2 creators**, **3 programs** each, **~10 sessions** per program.
+- [ ] **Seed** — [`backend/src/prisma/seed.ts`](../backend/src/prisma/seed.ts): **2 creators**, **3 programs** each, **~10 sessions** per program.
 
 ---
 
 ## Cross-cutting backend
 
-- [ ] **`request_id`** on every request; propagate to Pino child loggers.
-- [ ] **Structured JSON logs** — every line includes `request_id`; include **`tenant_id`** once auth resolves it; use a documented sentinel (e.g. `null` or `"pre_auth"`) for routes before JWT verification.
+- [x] **`request_id`** on every request; propagate to Pino child loggers.
+- [x] **Structured JSON logs** — every line includes `request_id`; include **`tenant_id`** once auth resolves it; use a documented sentinel (e.g. `null` or `"pre_auth"`) for routes before JWT verification.
 - [ ] **JWT middleware** — verify token, attach **tenant context** (and actor) to `req`; never authorize using client-supplied `tenant_id` from body/query.
-- [ ] **App composition** — mount domain routers from a single root (e.g. `src/app.ts` / `src/server.ts`); keep route handlers thin.
+- [x] **App composition** — mount domain routers from a single root (e.g. `src/app.ts` / `src/server.ts`); keep route handlers thin.
 
 ---
 
@@ -37,23 +37,23 @@ Living checklist aligned with [`REQUIREMENTS.md`](REQUIREMENTS.md), [`.cursor/ru
 
 Per domain: `routes` (+ optional `service`, `repository`, `schemas`). Repositories **always** scope Prisma queries by `tenantId` from context.
 
-- [ ] **`auth/`** — signup, login, password reset; issue JWT with stable tenant/creator id.
-- [ ] **`programs/`** — tenant-scoped CRUD.
-- [ ] **`sessions/`** — tenant-scoped CRUD; **reorder** endpoint (batch position updates) for drag-reorder.
-- [ ] **`uploads/`** (or `media/`) — **S3 presigned URLs**: short TTL, key prefix or policy scoped to tenant; only for authenticated tenant.
-- [ ] **`import/`** — CSV bulk upload: **row-level validation errors** returned to client; **idempotent** using **client-provided import id** (no duplicate rows on retry).
-- [ ] **`audit/`** — append audit rows on **admin write** actions; **list** with filters: **date range** and **action type**.
+- [x] **`auth/`** — signup, login, password reset; issue JWT with stable tenant/creator id. _(Scaffold: 501 stubs.)_
+- [x] **`programs/`** — tenant-scoped CRUD. _(Scaffold: 501 stubs.)_
+- [x] **`sessions/`** — tenant-scoped CRUD; **reorder** endpoint (batch position updates) for drag-reorder. _(Scaffold: 501 stubs.)_
+- [x] **`uploads/`** (or `media/`) — **S3 presigned URLs**: short TTL, key prefix or policy scoped to tenant; only for authenticated tenant. _(Scaffold: 501 stubs.)_
+- [x] **`import/`** — CSV bulk upload: **row-level validation errors** returned to client; **idempotent** using **client-provided import id** (no duplicate rows on retry). _(Scaffold: 501 stubs.)_
+- [x] **`audit/`** — append audit rows on **admin write** actions; **list** with filters: **date range** and **action type**. _(Scaffold: 501 stubs.)_
 
 ---
 
 ## Frontend routes / screens (Next.js App Router)
 
-- [ ] Auth: signup, login, password reset.
-- [ ] Programs: list, create, edit.
-- [ ] Sessions: list per program with **drag-reorder**; create/edit with all required fields.
-- [ ] Session **media upload** via presigned URL flow (request URL → PUT to S3 → persist URL).
-- [ ] **Bulk CSV upload** — show which rows failed and why.
-- [ ] **Audit log** viewer — filters by date and action type (shadcn-friendly controls).
+- [x] Auth: signup, login, password reset. _(Scaffold pages.)_
+- [x] Programs: list, create, edit. _(Scaffold routes.)_
+- [x] Sessions: list per program with **drag-reorder**; create/edit with all required fields. _(Scaffold routes.)_
+- [x] Session **media upload** via presigned URL flow (request URL → PUT to S3 → persist URL). _(Scaffold copy on edit page.)_
+- [x] **Bulk CSV upload** — show which rows failed and why. _(Scaffold page.)_
+- [x] **Audit log** viewer — filters by date and action type (shadcn-friendly controls). _(Scaffold page.)_
 
 ---
 

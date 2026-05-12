@@ -1,17 +1,12 @@
-import express from "express";
-import pino from "pino";
-import pinoHttp from "pino-http";
+import { createApp } from "./app.js";
+import { loadEnv } from "./config/env.js";
+import { createRootLogger } from "./config/logger.js";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "info" });
-const app = express();
+const env = loadEnv();
+const logger = createRootLogger(env);
+const app = createApp(env);
 
-app.use(pinoHttp({ logger }));
-
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
-
-const port = Number(process.env.PORT ?? 4000);
+const port = env.PORT;
 app.listen(port, () => {
-  logger.info({ port }, "backend listening");
+  logger.info({ port, request_id: "boot", tenant_id: "pre_auth" }, "backend listening");
 });

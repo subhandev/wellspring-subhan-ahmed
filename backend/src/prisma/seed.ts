@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed: 2 creators, 3 programs each, ~10 sessions per program (rubric).
+  // Rubric: 2 creators × 3 programs × ~10 sessions each — implement in a follow-up.
 }
 
 main()

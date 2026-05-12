@@ -29,7 +29,7 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
 
 3. **Environment files**
 
-   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`).
+   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there).
    - Admin UI: copy `frontend/.env.example` to `frontend/.env.local` and set `NEXT_PUBLIC_API_URL` to your API base URL (e.g. `http://localhost:4000`).
 
 4. **Database & Prisma** (from `backend/`):
@@ -39,13 +39,13 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
    pnpm db:generate
    ```
 
-   After migration files exist in `backend/prisma/migrations/`, apply them:
+   After migration files exist in `backend/src/prisma/migrations/`, apply them:
 
    ```bash
    pnpm db:migrate
    ```
 
-   For **first-time schema authoring** on your machine you may use `pnpm exec prisma migrate dev --name <description>` until migrations are checked in; CI and production use `pnpm db:migrate` (`prisma migrate deploy`).
+   For **local schema iteration** use `pnpm db:migrate:dev` (wraps `prisma migrate dev` with `--schema src/prisma/schema.prisma`). CI and production use `pnpm db:migrate` (`prisma migrate deploy`).
 
 5. **Seed** (from `backend/`; implements rubric counts when finished):
 

@@ -8,7 +8,7 @@ alwaysApply: false
 
 ## Locked tooling
 
-- **ORM:** Prisma (PostgreSQL). Schema in `backend/prisma/schema.prisma`; schema changes only via **Prisma migrations** (`prisma migrate`).
+- **ORM:** Prisma (PostgreSQL). Schema in `backend/src/prisma/schema.prisma` (CLI uses `--schema src/prisma/schema.prisma`); schema changes only via **Prisma migrations** (`prisma migrate`).
 - **Validation:** Zod for request bodies, query params, and CSV row shapes where applicable.
 - **Logging:** Pino — one **JSON object per line** with `request_id`, `tenant_id` (when known), level, message, metadata.
 - **Tests:** Jest + Supertest in `backend/tests/` (integration/API tests; include names containing **`rejects cross-tenant`** per rubric).

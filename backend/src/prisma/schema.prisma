@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Tenant (wellness creator). `id` is used as `tenantId` on child rows.
+model Creator {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  programs  Program[]
+  sessions  Session[]
+  auditLogs AuditLog[]
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  tenantId    String
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Creator   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@index([tenantId])
+}
+
+model Session {
+  id              String   @id @default(cuid())
+  tenantId        String
+  programId       String
+  title           String
+  durationSeconds Int
+  position        Int
+  instructorName  String
+  tags            String[] @default([])
+  mediaUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant  Creator @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([programId, position])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  actorId    String
+  action     String
+  targetType String
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor Creator @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, action])
+}
+
+/// Idempotent CSV import: unique per tenant + client import + row id.
+model SessionImportKey {
+  id             String   @id @default(cuid())
+  tenantId       String
+  clientImportId String
+  clientRowId    String
+  sessionId      String?
+  createdAt      DateTime @default(now())
+
+  @@unique([tenantId, clientImportId, clientRowId])
+  @@index([tenantId])
+}
