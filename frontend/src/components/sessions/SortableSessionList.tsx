@@ -33,13 +33,7 @@ export type SessionRow = {
   mediaUrl?: string | null;
 };
 
-function SortableRow({
-  session,
-  programId
-}: {
-  session: SessionRow;
-  programId: string;
-}) {
+function SortableRow({ session, programId }: { session: SessionRow; programId: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: session.id
   });
@@ -111,7 +105,10 @@ export function SortableSessionList({
         orderedSessionIds: nextIds
       })
     });
-    const data = (await res.json().catch(() => ({}))) as { message?: string; sessions?: SessionRow[] };
+    const data = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      sessions?: SessionRow[];
+    };
     setSaving(false);
     if (!res.ok) {
       setError(data.message ?? "Reorder failed");

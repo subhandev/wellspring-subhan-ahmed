@@ -3,21 +3,14 @@ import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { prisma } from "../../config/database.js";
 import type { TenantId } from "../../types/tenant.js";
-import type {
-  CreateSessionBody,
-  ReorderSessionsBody,
-  UpdateSessionBody
-} from "./schemas.js";
+import type { CreateSessionBody, ReorderSessionsBody, UpdateSessionBody } from "./schemas.js";
 import * as repo from "./sessions.repository.js";
 
 const POSITION_CONFLICT_MESSAGE =
   "Position is already in use for this program. Choose another position or use the reorder endpoint.";
 
 function throwIfSessionPositionConflict(err: unknown): void {
-  if (
-    err instanceof Prisma.PrismaClientKnownRequestError &&
-    err.code === "P2002"
-  ) {
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
     throw new HttpError(409, POSITION_CONFLICT_MESSAGE, "position_conflict");
   }
 }
@@ -38,20 +31,14 @@ export async function getSession(tenantId: TenantId, id: string) {
   return s;
 }
 
-export async function createSession(
-  tenantId: TenantId,
-  actorId: string,
-  body: CreateSessionBody
-) {
+export async function createSession(tenantId: TenantId, actorId: string, body: CreateSessionBody) {
   const program = await repo.assertProgramOwnedByTenant(tenantId, body.programId);
   if (!program) {
     throw new HttpError(404, "Program not found", "not_found");
   }
 
   const position =
-    body.position !== undefined
-      ? body.position
-      : await repo.nextPosition(tenantId, body.programId);
+    body.position !== undefined ? body.position : await repo.nextPosition(tenantId, body.programId);
 
   try {
     const session = await repo.createSession(tenantId, {
@@ -106,11 +93,7 @@ export async function updateSession(
   }
 }
 
-export async function removeSession(
-  tenantId: TenantId,
-  actorId: string,
-  id: string
-) {
+export async function removeSession(tenantId: TenantId, actorId: string, id: string) {
   const ok = await repo.deleteSession(tenantId, id);
   if (!ok) {
     throw new HttpError(404, "Session not found", "not_found");
@@ -138,11 +121,7 @@ export async function reorderSessions(
   const existingIds = new Set(existing.map((s) => s.id));
   const uniq = new Set(body.orderedSessionIds);
   if (uniq.size !== body.orderedSessionIds.length) {
-    throw new HttpError(
-      400,
-      "orderedSessionIds must not contain duplicates",
-      "validation_error"
-    );
+    throw new HttpError(400, "orderedSessionIds must not contain duplicates", "validation_error");
   }
   if (existing.length !== body.orderedSessionIds.length) {
     throw new HttpError(
@@ -153,11 +132,7 @@ export async function reorderSessions(
   }
   for (const id of body.orderedSessionIds) {
     if (!existingIds.has(id)) {
-      throw new HttpError(
-        400,
-        "Unknown session id for this program",
-        "validation_error"
-      );
+      throw new HttpError(400, "Unknown session id for this program", "validation_error");
     }
   }
 

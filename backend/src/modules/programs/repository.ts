@@ -9,10 +9,7 @@ export async function listPrograms(tenantId: TenantId): Promise<Program[]> {
   });
 }
 
-export async function getProgramById(
-  tenantId: TenantId,
-  id: string
-): Promise<Program | null> {
+export async function getProgramById(tenantId: TenantId, id: string): Promise<Program | null> {
   return prisma.program.findFirst({
     where: { id, tenantId: tenantId as string }
   });
@@ -50,10 +47,7 @@ export async function updateProgram(
   return getProgramById(tenantId, id);
 }
 
-export async function deleteProgram(
-  tenantId: TenantId,
-  id: string
-): Promise<boolean> {
+export async function deleteProgram(tenantId: TenantId, id: string): Promise<boolean> {
   const result = await prisma.program.deleteMany({
     where: { id, tenantId: tenantId as string }
   });

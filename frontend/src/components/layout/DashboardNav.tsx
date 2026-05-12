@@ -15,7 +15,11 @@ export function DashboardNav() {
     <nav className="flex flex-wrap items-center gap-2 border-b bg-card px-4 py-3">
       <span className="mr-4 font-semibold text-foreground">Wellspring</span>
       {links.map((l) => (
-        <Link key={l.href} href={l.href} className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+        <Link
+          key={l.href}
+          href={l.href}
+          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+        >
           {l.label}
         </Link>
       ))}

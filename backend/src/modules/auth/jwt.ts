@@ -15,11 +15,7 @@ export function signAccessToken(env: Env, payload: AccessTokenPayload): string {
     subject: payload.sub,
     expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"]
   };
-  return jwt.sign(
-    { email: payload.email, tenantId: payload.tenantId },
-    secret,
-    options
-  );
+  return jwt.sign({ email: payload.email, tenantId: payload.tenantId }, secret, options);
 }
 
 export function verifyAccessToken(env: Env, token: string): AccessTokenPayload {
@@ -32,8 +28,7 @@ export function verifyAccessToken(env: Env, token: string): AccessTokenPayload {
   }
   const dp = decoded as JwtPayload & { email?: unknown; tenantId?: unknown };
   const email = typeof dp.email === "string" ? dp.email : "";
-  const tenantId =
-    typeof dp.tenantId === "string" ? dp.tenantId : decoded.sub;
+  const tenantId = typeof dp.tenantId === "string" ? dp.tenantId : decoded.sub;
   return { sub: decoded.sub, tenantId, email };
 }
 

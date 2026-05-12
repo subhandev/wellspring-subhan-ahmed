@@ -1,9 +1,6 @@
 import type { RequestHandler } from "express";
 import { HttpError } from "../../lib/httpError.js";
-import {
-  createProgramBodySchema,
-  updateProgramBodySchema
-} from "./schemas.js";
+import { createProgramBodySchema, updateProgramBodySchema } from "./schemas.js";
 import * as programsService from "./service.js";
 
 function requireTenantContext(req: Parameters<RequestHandler>[0]) {
@@ -55,11 +52,7 @@ export const create: RequestHandler = async (req, res, next) => {
       next(new HttpError(400, "Invalid request body", "validation_error"));
       return;
     }
-    const p = await programsService.createProgram(
-      ctx.tenantId,
-      ctx.creatorId,
-      parsed.data
-    );
+    const p = await programsService.createProgram(ctx.tenantId, ctx.creatorId, parsed.data);
     res.status(201).json(p);
   } catch (e) {
     next(e);

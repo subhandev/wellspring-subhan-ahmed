@@ -23,12 +23,9 @@ export const list: RequestHandler = async (req, res, next) => {
       next(new HttpError(401, "Unauthorized", "unauthorized"));
       return;
     }
-    const programId =
-      typeof req.query.programId === "string" ? req.query.programId : "";
+    const programId = typeof req.query.programId === "string" ? req.query.programId : "";
     if (!programId) {
-      next(
-        new HttpError(400, "query programId is required", "validation_error")
-      );
+      next(new HttpError(400, "query programId is required", "validation_error"));
       return;
     }
     const sessions = await sessionsService.listSessions(ctx.tenantId, programId);
@@ -45,10 +42,7 @@ export const getById: RequestHandler = async (req, res, next) => {
       next(new HttpError(401, "Unauthorized", "unauthorized"));
       return;
     }
-    const session = await sessionsService.getSession(
-      ctx.tenantId,
-      req.params.id
-    );
+    const session = await sessionsService.getSession(ctx.tenantId, req.params.id);
     res.json(session);
   } catch (e) {
     next(e);
@@ -67,11 +61,7 @@ export const create: RequestHandler = async (req, res, next) => {
       next(new HttpError(400, "Invalid request body", "validation_error"));
       return;
     }
-    const session = await sessionsService.createSession(
-      ctx.tenantId,
-      ctx.creatorId,
-      parsed.data
-    );
+    const session = await sessionsService.createSession(ctx.tenantId, ctx.creatorId, parsed.data);
     res.status(201).json(session);
   } catch (e) {
     next(e);
@@ -109,11 +99,7 @@ export const remove: RequestHandler = async (req, res, next) => {
       next(new HttpError(401, "Unauthorized", "unauthorized"));
       return;
     }
-    await sessionsService.removeSession(
-      ctx.tenantId,
-      ctx.creatorId,
-      req.params.id
-    );
+    await sessionsService.removeSession(ctx.tenantId, ctx.creatorId, req.params.id);
     res.status(204).send();
   } catch (e) {
     next(e);

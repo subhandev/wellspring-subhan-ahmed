@@ -3,7 +3,11 @@ import { z } from "../../lib/zodOpenapi.js";
 export const createSessionBodySchema = z.object({
   programId: z.string().min(1),
   title: z.string().min(1).max(500),
-  durationSeconds: z.number().int().positive().max(86400 * 365),
+  durationSeconds: z
+    .number()
+    .int()
+    .positive()
+    .max(86400 * 365),
   position: z.number().int().min(0).optional(),
   instructorName: z.string().min(1).max(200),
   tags: z.array(z.string().max(100)).max(50).default([]),
@@ -14,7 +18,12 @@ export const createSessionBodySchema = z.object({
 export const updateSessionBodySchema = z
   .object({
     title: z.string().min(1).max(500).optional(),
-    durationSeconds: z.number().int().positive().max(86400 * 365).optional(),
+    durationSeconds: z
+      .number()
+      .int()
+      .positive()
+      .max(86400 * 365)
+      .optional(),
     position: z.number().int().min(0).optional(),
     instructorName: z.string().min(1).max(200).optional(),
     tags: z.array(z.string().max(100)).max(50).optional(),

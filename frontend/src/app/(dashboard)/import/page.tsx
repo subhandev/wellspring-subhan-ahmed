@@ -53,8 +53,10 @@ export default function ImportPage() {
       <p className="text-sm text-muted-foreground">
         Required columns: <code className="text-xs">client_row_id</code>,{" "}
         <code className="text-xs">program_id</code>, <code className="text-xs">title</code>,{" "}
-        <code className="text-xs">duration_seconds</code>, <code className="text-xs">instructor_name</code>. Optional:{" "}
-        <code className="text-xs">tags</code> (comma or pipe), <code className="text-xs">position</code>.
+        <code className="text-xs">duration_seconds</code>,{" "}
+        <code className="text-xs">instructor_name</code>. Optional:{" "}
+        <code className="text-xs">tags</code> (comma or pipe),{" "}
+        <code className="text-xs">position</code>.
       </p>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1">
@@ -94,11 +96,11 @@ export default function ImportPage() {
                 {results.map((r) => (
                   <tr key={r.clientRowId} className="border-b last:border-0">
                     <td className="px-3 py-2 font-mono text-xs">{r.clientRowId}</td>
-                    <td className="px-3 py-2">{r.ok ? (r.idempotent ? "ok (idempotent)" : "ok") : "error"}</td>
+                    <td className="px-3 py-2">
+                      {r.ok ? (r.idempotent ? "ok (idempotent)" : "ok") : "error"}
+                    </td>
                     <td className="px-3 py-2 text-xs text-muted-foreground">
-                      {r.ok
-                        ? r.sessionId
-                        : (r.errors ?? []).join("; ")}
+                      {r.ok ? r.sessionId : (r.errors ?? []).join("; ")}
                     </td>
                   </tr>
                 ))}

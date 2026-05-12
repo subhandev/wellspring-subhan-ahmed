@@ -16,10 +16,7 @@ function sanitizeFileName(name: string): string {
 
 function s3Configured(env: Env): boolean {
   return Boolean(
-    env.AWS_REGION &&
-      env.AWS_ACCESS_KEY_ID &&
-      env.AWS_SECRET_ACCESS_KEY &&
-      env.S3_BUCKET
+    env.AWS_REGION && env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY && env.S3_BUCKET
   );
 }
 

@@ -9,7 +9,10 @@ export async function findCreatorById(id: string): Promise<Creator | null> {
   return prisma.creator.findUnique({ where: { id } });
 }
 
-export async function createCreator(data: { email: string; passwordHash: string }): Promise<Creator> {
+export async function createCreator(data: {
+  email: string;
+  passwordHash: string;
+}): Promise<Creator> {
   return prisma.creator.create({
     data: {
       email: data.email.toLowerCase().trim(),
@@ -18,10 +21,7 @@ export async function createCreator(data: { email: string; passwordHash: string 
   });
 }
 
-export async function updatePassword(
-  id: string,
-  passwordHash: string
-): Promise<void> {
+export async function updatePassword(id: string, passwordHash: string): Promise<void> {
   await prisma.creator.update({
     where: { id },
     data: {
@@ -31,4 +31,3 @@ export async function updatePassword(
     }
   });
 }
-

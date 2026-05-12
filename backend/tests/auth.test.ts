@@ -42,10 +42,7 @@ describeDb("auth API (requires DATABASE_URL)", () => {
       data: { email, id: signup.body.data.creator.id }
     });
 
-    const login = await request(app)
-      .post("/api/auth/login")
-      .send({ email, password })
-      .expect(200);
+    const login = await request(app).post("/api/auth/login").send({ email, password }).expect(200);
 
     expect(login.body.data.accessToken).toBeTruthy();
 

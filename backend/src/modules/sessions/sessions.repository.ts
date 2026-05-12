@@ -24,19 +24,13 @@ export async function listSessionsForProgram(
   });
 }
 
-export async function getSessionById(
-  tenantId: TenantId,
-  id: string
-): Promise<Session | null> {
+export async function getSessionById(tenantId: TenantId, id: string): Promise<Session | null> {
   return prisma.session.findFirst({
     where: { id, tenantId: tenantId as string }
   });
 }
 
-export async function nextPosition(
-  tenantId: TenantId,
-  programId: string
-): Promise<number> {
+export async function nextPosition(tenantId: TenantId, programId: string): Promise<number> {
   const agg = await prisma.session.aggregate({
     where: { tenantId: tenantId as string, programId },
     _max: { position: true }
@@ -93,13 +87,9 @@ export async function updateSession(
     where: { id },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
-      ...(data.durationSeconds !== undefined
-        ? { durationSeconds: data.durationSeconds }
-        : {}),
+      ...(data.durationSeconds !== undefined ? { durationSeconds: data.durationSeconds } : {}),
       ...(data.position !== undefined ? { position: data.position } : {}),
-      ...(data.instructorName !== undefined
-        ? { instructorName: data.instructorName }
-        : {}),
+      ...(data.instructorName !== undefined ? { instructorName: data.instructorName } : {}),
       ...(data.tags !== undefined ? { tags: data.tags } : {}),
       ...(data.mediaUrl !== undefined ? { mediaUrl: data.mediaUrl } : {}),
       ...(data.mediaType !== undefined ? { mediaType: data.mediaType } : {})
@@ -107,10 +97,7 @@ export async function updateSession(
   });
 }
 
-export async function deleteSession(
-  tenantId: TenantId,
-  id: string
-): Promise<boolean> {
+export async function deleteSession(tenantId: TenantId, id: string): Promise<boolean> {
   const result = await prisma.session.deleteMany({
     where: { id, tenantId: tenantId as string }
   });

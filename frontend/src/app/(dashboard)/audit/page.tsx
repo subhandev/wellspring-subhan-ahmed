@@ -36,7 +36,10 @@ export default function AuditPage() {
     }
     const qs = q.toString();
     const res = await apiFetch(`/audit${qs ? `?${qs}` : ""}`);
-    const data = (await res.json().catch(() => ({}))) as { auditLogs?: AuditRow[]; message?: string };
+    const data = (await res.json().catch(() => ({}))) as {
+      auditLogs?: AuditRow[];
+      message?: string;
+    };
     if (!res.ok) {
       setError(data.message ?? "Failed to load audit log");
       return;

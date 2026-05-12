@@ -15,7 +15,10 @@ export default function ProgramsPage() {
     let cancelled = false;
     (async () => {
       const res = await apiFetch("/programs");
-      const data = (await res.json().catch(() => ({}))) as { programs?: Program[]; message?: string };
+      const data = (await res.json().catch(() => ({}))) as {
+        programs?: Program[];
+        message?: string;
+      };
       if (cancelled) {
         return;
       }
@@ -58,7 +61,10 @@ export default function ProgramsPage() {
                 ) : null}
               </div>
               <div className="flex gap-2">
-                <Link href={`/programs/${p.id}`} className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}>
+                <Link
+                  href={`/programs/${p.id}`}
+                  className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+                >
                   Edit
                 </Link>
                 <Link

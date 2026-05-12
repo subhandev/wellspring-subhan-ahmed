@@ -13,7 +13,9 @@ function getEnv(req: Parameters<RequestHandler>[0]): Env {
   return req.app.get("env") as Env;
 }
 
-function firstValidationMessage(err: { flatten: () => { fieldErrors: Record<string, string[]> } }): string {
+function firstValidationMessage(err: {
+  flatten: () => { fieldErrors: Record<string, string[]> };
+}): string {
   const flat = err.flatten().fieldErrors;
   const firstKey = Object.keys(flat)[0];
   const msgs = firstKey ? flat[firstKey] : undefined;

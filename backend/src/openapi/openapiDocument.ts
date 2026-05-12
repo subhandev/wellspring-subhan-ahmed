@@ -10,10 +10,7 @@ import {
   forgotPasswordBodySchema,
   resetPasswordBodySchema
 } from "../modules/auth/schemas.js";
-import {
-  createProgramBodySchema,
-  updateProgramBodySchema
-} from "../modules/programs/schemas.js";
+import { createProgramBodySchema, updateProgramBodySchema } from "../modules/programs/schemas.js";
 import {
   createSessionBodySchema,
   reorderSessionsBodySchema,
@@ -95,9 +92,7 @@ const ProgramSchema = z
   })
   .openapi("Program");
 
-const ProgramListSchema = z
-  .object({ programs: z.array(ProgramSchema) })
-  .openapi("ProgramList");
+const ProgramListSchema = z.object({ programs: z.array(ProgramSchema) }).openapi("ProgramList");
 
 const SessionSchema = z
   .object({
@@ -168,9 +163,7 @@ const AuditLogSchema = z
   })
   .openapi("AuditLog");
 
-const AuditListSchema = z
-  .object({ auditLogs: z.array(AuditLogSchema) })
-  .openapi("AuditLogList");
+const AuditListSchema = z.object({ auditLogs: z.array(AuditLogSchema) }).openapi("AuditLogList");
 
 const HealthSchema = z.object({ ok: z.literal(true) }).openapi("Health");
 
@@ -184,9 +177,7 @@ const jsonOk = (
 
 const bearer401 = err("Unauthorized: missing or invalid Bearer token");
 
-export function buildOpenApiDocument(): ReturnType<
-  OpenApiGeneratorV3["generateDocument"]
-> {
+export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV3["generateDocument"]> {
   const registry = new OpenAPIRegistry();
 
   registry.registerComponent("securitySchemes", "bearerAuth", {
@@ -307,10 +298,7 @@ export function buildOpenApiDocument(): ReturnType<
     tags: ["Programs"],
     summary: "List programs for authenticated tenant",
     responses: {
-      200: jsonOk(
-        ProgramListSchema,
-        "Programs (order defined by persistence layer)"
-      ),
+      200: jsonOk(ProgramListSchema, "Programs (order defined by persistence layer)"),
       401: bearer401,
       503: err("JWT_SECRET not configured")
     }
@@ -397,13 +385,16 @@ export function buildOpenApiDocument(): ReturnType<
     summary: "List sessions in a program",
     request: {
       query: z.object({
-        programId: z.string().min(1).openapi({
-          description: "Program id scoped to authenticated tenant",
-          param: {
-            style: "form",
-            explode: true
-          }
-        })
+        programId: z
+          .string()
+          .min(1)
+          .openapi({
+            description: "Program id scoped to authenticated tenant",
+            param: {
+              style: "form",
+              explode: true
+            }
+          })
       })
     },
     responses: {

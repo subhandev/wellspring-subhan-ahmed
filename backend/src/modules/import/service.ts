@@ -120,10 +120,7 @@ export async function importSessionsFromCsv(
       continue;
     }
 
-    const program = await sessionsRepo.assertProgramOwnedByTenant(
-      tenantId,
-      programId
-    );
+    const program = await sessionsRepo.assertProgramOwnedByTenant(tenantId, programId);
     if (!program) {
       results.push({
         clientRowId,
@@ -134,19 +131,15 @@ export async function importSessionsFromCsv(
     }
 
     try {
-      const rowResult = await processRow(
-        tenantId,
-        body.clientImportId,
-        {
-          clientRowId,
-          programId,
-          title,
-          durationSeconds,
-          instructorName,
-          tags,
-          position
-        }
-      );
+      const rowResult = await processRow(tenantId, body.clientImportId, {
+        clientRowId,
+        programId,
+        title,
+        durationSeconds,
+        instructorName,
+        tags,
+        position
+      });
       results.push(rowResult);
     } catch (e) {
       results.push({
@@ -242,10 +235,8 @@ async function processRow(
       throw e;
     }
 
-    let pos =
-      row.position !== undefined
-        ? row.position
-        : await nextPositionTx(tx, tenantId, row.programId);
+    const pos =
+      row.position !== undefined ? row.position : await nextPositionTx(tx, tenantId, row.programId);
 
     const session = await tx.session.create({
       data: {

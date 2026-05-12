@@ -39,10 +39,7 @@ async function crossTenantProgramFixture() {
   return { app, tokenA, tokenB, victimId, creatorAId, creatorBId };
 }
 
-async function teardownProgramAndCreators(
-  victimId: string,
-  creatorIds: [string, string]
-) {
+async function teardownProgramAndCreators(victimId: string, creatorIds: [string, string]) {
   await prisma.program.deleteMany({ where: { id: victimId } });
   await prisma.creator.deleteMany({
     where: { id: { in: creatorIds } }
@@ -57,8 +54,7 @@ describeDb("tenant isolation — programs", () => {
   });
 
   it("rejects cross-tenant program access", async () => {
-    const { app, tokenB, victimId, creatorAId, creatorBId } =
-      await crossTenantProgramFixture();
+    const { app, tokenB, victimId, creatorAId, creatorBId } = await crossTenantProgramFixture();
 
     const steal = await request(app)
       .get(`/v1/programs/${victimId}`)

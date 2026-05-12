@@ -5,12 +5,7 @@ import type { Env } from "../../config/env.js";
 import { HttpError } from "../../lib/httpError.js";
 import { signAccessToken, signPasswordResetToken, verifyPasswordResetToken } from "./jwt.js";
 import * as repo from "./repository.js";
-import type {
-  ForgotPasswordBody,
-  LoginBody,
-  ResetPasswordBody,
-  SignupBody
-} from "./schemas.js";
+import type { ForgotPasswordBody, LoginBody, ResetPasswordBody, SignupBody } from "./schemas.js";
 
 const BCRYPT_ROUNDS = 10;
 

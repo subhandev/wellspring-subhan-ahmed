@@ -24,11 +24,7 @@ export const importSessions: RequestHandler = async (req, res, next) => {
       next(new HttpError(400, "Invalid request body", "validation_error"));
       return;
     }
-    const out = await importService.importSessionsFromCsv(
-      ctx.tenantId,
-      ctx.creatorId,
-      parsed.data
-    );
+    const out = await importService.importSessionsFromCsv(ctx.tenantId, ctx.creatorId, parsed.data);
     res.status(200).json(out);
   } catch (e) {
     next(e);

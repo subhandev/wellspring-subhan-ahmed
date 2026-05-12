@@ -14,24 +14,32 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
-    const res = await apiFetch(`/sessions?programId=${encodeURIComponent(programId)}`);
-    const data = (await res.json().catch(() => ({}))) as {
-      sessions?: SessionRow[];
-      message?: string;
-    };
-    if (!res.ok) {
-      setError(data.message ?? "Failed to load sessions");
-      return;
-    }
-    setSessions(data.sessions ?? []);
-  }
-
   useEffect(() => {
     if (!programId) {
       return;
     }
-    void load();
+
+    let cancelled = false;
+    void (async () => {
+      const res = await apiFetch(`/sessions?programId=${encodeURIComponent(programId)}`);
+      const data = (await res.json().catch(() => ({}))) as {
+        sessions?: SessionRow[];
+        message?: string;
+      };
+      if (!res.ok) {
+        if (!cancelled) {
+          setError(data.message ?? "Failed to load sessions");
+        }
+        return;
+      }
+      if (!cancelled) {
+        setSessions(data.sessions ?? []);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [programId]);
 
   if (error) {
@@ -57,7 +65,9 @@ export default function SessionsPage() {
           </Link>
         </div>
       </div>
-      <p className="text-sm text-muted-foreground">Drag handles to reorder. Order saves automatically.</p>
+      <p className="text-sm text-muted-foreground">
+        Drag handles to reorder. Order saves automatically.
+      </p>
       {sessions.length === 0 ? (
         <p className="text-muted-foreground">No sessions yet.</p>
       ) : (

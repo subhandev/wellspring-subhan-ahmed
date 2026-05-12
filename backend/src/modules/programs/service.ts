@@ -16,11 +16,7 @@ export async function getProgram(tenantId: TenantId, id: string) {
   return p;
 }
 
-export async function createProgram(
-  tenantId: TenantId,
-  actorId: string,
-  body: CreateProgramBody
-) {
+export async function createProgram(tenantId: TenantId, actorId: string, body: CreateProgramBody) {
   const p = await repo.createProgram(tenantId, {
     title: body.title,
     description: body.description
@@ -59,11 +55,7 @@ export async function updateProgram(
   return p;
 }
 
-export async function removeProgram(
-  tenantId: TenantId,
-  actorId: string,
-  id: string
-) {
+export async function removeProgram(tenantId: TenantId, actorId: string, id: string) {
   const ok = await repo.deleteProgram(tenantId, id);
   if (!ok) {
     throw new HttpError(404, "Program not found", "not_found");

@@ -40,8 +40,8 @@ export default function ForgotPasswordPage() {
       <h1 className="text-xl font-semibold">Forgot password</h1>
       {done ? (
         <p className="text-sm text-muted-foreground">
-          If an account exists for that email, reset instructions were sent. In development, check API logs for the
-          reset token.
+          If an account exists for that email, reset instructions were sent. In development, check
+          API logs for the reset token.
         </p>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">

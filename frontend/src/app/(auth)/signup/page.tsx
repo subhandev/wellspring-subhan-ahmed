@@ -86,9 +86,7 @@ export default function SignupPage() {
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
             {...register("confirm")}
           />
-          {errors.confirm ? (
-            <p className="text-sm text-red-600">{errors.confirm.message}</p>
-          ) : null}
+          {errors.confirm ? <p className="text-sm text-red-600">{errors.confirm.message}</p> : null}
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" className="w-full" disabled={isSubmitting}>
