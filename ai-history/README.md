@@ -19,10 +19,17 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 07 | [`07-cursor-agent-transcript-28d7767b.jsonl`](./07-cursor-agent-transcript-28d7767b.jsonl), [`07-cursor-agent-chat-export-28d7767b.md`](./07-cursor-agent-chat-export-28d7767b.md) | Schema design + Prisma |
 | 08 | [`08-cursor-agent-transcript-60848efb.jsonl`](./08-cursor-agent-transcript-60848efb.jsonl), [`08-cursor-agent-chat-export-60848efb.md`](./08-cursor-agent-chat-export-60848efb.md) | Swagger / API docs + Bruno testing plan |
 | 09 | [`09-cursor-agent-transcript-8cf676c5.jsonl`](./09-cursor-agent-transcript-8cf676c5.jsonl), [`09-cursor-agent-chat-export-8cf676c5.md`](./09-cursor-agent-chat-export-8cf676c5.md) | `ai-history` completeness vs requirements (this batch) |
+| 10 | [`10-cursor-agent-transcript-463e5d90.jsonl`](./10-cursor-agent-transcript-463e5d90.jsonl), [`10-cursor-agent-chat-export-463e5d90.md`](./10-cursor-agent-chat-export-463e5d90.md) | Programs module planning |
+| 11 | [`11-cursor-agent-transcript-ec65e396.jsonl`](./11-cursor-agent-transcript-ec65e396.jsonl), [`11-cursor-agent-chat-export-ec65e396.md`](./11-cursor-agent-chat-export-ec65e396.md); subagents: [`11-1-cursor-agent-subagent-transcript-ecaf8a38.jsonl`](./11-1-cursor-agent-subagent-transcript-ecaf8a38.jsonl), [`11-2-cursor-agent-subagent-transcript-73d03d99.jsonl`](./11-2-cursor-agent-subagent-transcript-73d03d99.jsonl), [`11-3-cursor-agent-subagent-transcript-058e0566.jsonl`](./11-3-cursor-agent-subagent-transcript-058e0566.jsonl) (and matching `*-chat-export-*.md`) | Build out Auth module |
+| 12 | [`12-cursor-agent-transcript-81ccc327.jsonl`](./12-cursor-agent-transcript-81ccc327.jsonl), [`12-cursor-agent-chat-export-81ccc327.md`](./12-cursor-agent-chat-export-81ccc327.md); subagent: [`12-1-cursor-agent-subagent-transcript-f8db9767.jsonl`](./12-1-cursor-agent-subagent-transcript-f8db9767.jsonl) (and matching `*-chat-export-*.md`) | Programs module verification pass |
+| 13 | [`13-cursor-agent-transcript-75041a1f.jsonl`](./13-cursor-agent-transcript-75041a1f.jsonl), [`13-cursor-agent-chat-export-75041a1f.md`](./13-cursor-agent-chat-export-75041a1f.md); subagents: [`13-1-cursor-agent-subagent-transcript-3b5d1df7.jsonl`](./13-1-cursor-agent-subagent-transcript-3b5d1df7.jsonl), [`13-2-cursor-agent-subagent-transcript-8c483707.jsonl`](./13-2-cursor-agent-subagent-transcript-8c483707.jsonl) (and matching `*-chat-export-*.md`) | Larger backend work session (multi-module) |
+| 14 | [`14-cursor-agent-transcript-37a0e50f.jsonl`](./14-cursor-agent-transcript-37a0e50f.jsonl), [`14-cursor-agent-chat-export-37a0e50f.md`](./14-cursor-agent-chat-export-37a0e50f.md) | Cursor backend conventions/rules work |
+| 15 | [`15-cursor-agent-transcript-4e36a5a5.jsonl`](./15-cursor-agent-transcript-4e36a5a5.jsonl), [`15-cursor-agent-chat-export-4e36a5a5.md`](./15-cursor-agent-chat-export-4e36a5a5.md) | Follow-up session (short) |
 
 ## Raw vs Markdown
 
 - **`.jsonl`** — Copied from `~/.cursor/projects/Users-subhan-Work-wellspring-subhan-ahmed/agent-transcripts/<id>/<id>.jsonl`. One JSON object per line; authoritative **raw** export for agentic sessions.
+- **`NN-*-subagent-*.jsonl`** — Additional raw transcripts emitted by Cursor subagents invoked during a parent run.
 - **`*-chat-export-*.md`** — Same turns rendered for readability (user/assistant text + tool JSON). Regenerate after syncing JSONL:
 
   ```bash

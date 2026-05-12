@@ -98,8 +98,8 @@ def render_file(jsonl_path: Path) -> str:
 
 def main() -> None:
     pairs: list[tuple[Path, Path]] = []
-    for jsonl in sorted(ROOT.glob("*-cursor-agent-transcript-*.jsonl")):
-        out = jsonl.with_name(jsonl.name.replace("-transcript-", "-chat-export-").replace(".jsonl", ".md"))
+    for jsonl in sorted(ROOT.glob("*cursor-agent*transcript-*.jsonl")):
+        out = jsonl.with_name(jsonl.name.replace("-transcript-", "-chat-export-", 1).replace(".jsonl", ".md"))
         pairs.append((jsonl, out))
 
     for src, dst in pairs:
