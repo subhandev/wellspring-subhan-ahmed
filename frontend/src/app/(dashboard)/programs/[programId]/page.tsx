@@ -5,31 +5,31 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { editProgramFormSchema, type EditProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
-
-const schema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional().nullable()
-});
-
-type Form = z.infer<typeof schema>;
 
 export default function ProgramDetailPage() {
   const params = useParams();
   const router = useRouter();
   const programId = typeof params.programId === "string" ? params.programId : "";
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
-  const form = useForm<Form>({ resolver: zodResolver(schema) });
+  const form = useForm<EditProgramForm>({
+    resolver: zodResolver(editProgramFormSchema)
+  });
 
   useEffect(() => {
     if (!programId) {
+      setLoadError("Missing program id");
+      setLoadState("error");
       return;
     }
     let cancelled = false;
+    setLoadState("loading");
+    setLoadError(null);
     (async () => {
       const res = await apiFetch(`/programs/${programId}`);
       const data = (await res.json().catch(() => ({}))) as {
@@ -43,19 +43,21 @@ export default function ProgramDetailPage() {
       }
       if (!res.ok) {
         setLoadError(data.message ?? "Not found");
+        setLoadState("error");
         return;
       }
       form.reset({
         title: data.title ?? "",
         description: data.description ?? ""
       });
+      setLoadState("ready");
     })();
     return () => {
       cancelled = true;
     };
   }, [programId, form]);
 
-  async function onSubmit(data: Form) {
+  async function onSubmit(data: EditProgramForm) {
     setError(null);
     const res = await apiFetch(`/programs/${programId}`, {
       method: "PATCH",
@@ -85,8 +87,18 @@ export default function ProgramDetailPage() {
     router.push("/programs");
   }
 
-  if (loadError) {
-    return <p className="text-sm text-red-600">{loadError}</p>;
+  if (loadState === "loading") {
+    return (
+      <div className="max-w-lg space-y-4">
+        <p className="text-muted-foreground">Loading program…</p>
+        <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+        <div className="h-24 w-full animate-pulse rounded-md bg-muted" />
+      </div>
+    );
+  }
+
+  if (loadState === "error" || loadError) {
+    return <p className="text-sm text-red-600">{loadError ?? "Failed to load program"}</p>;
   }
 
   return (

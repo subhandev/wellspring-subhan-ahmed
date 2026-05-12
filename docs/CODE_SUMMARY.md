@@ -12,6 +12,20 @@ Module-by-module tour for a new hire on day 1.
 
 **Extend:** Add repository files if you want thinner services; keep all tenant scopes in data layer.
 
+### Programs API contract (`/v1/programs`)
+
+**Stable shapes** live in [`modules/programs/schemas.ts`](../backend/src/modules/programs/schemas.ts) and mirrored in [`openapi/openapiDocument.ts`](../backend/src/openapi/openapiDocument.ts) under tag **Programs**.
+
+| Method | Path | Body | Success |
+|--------|------|------|---------|
+| `GET` | `/v1/programs` | — | `{ programs: Program[] }` (`createdAt` desc) |
+| `POST` | `/v1/programs` | `{ title: string (1–500), description?: string (≤5000) }` | `201` + `Program` |
+| `GET` | `/v1/programs/:id` | — | `Program` |
+| `PATCH` | `/v1/programs/:id` | At least one of `title`, `description` (`description` nullable) | `Program` |
+| `DELETE` | `/v1/programs/:id` | — | `204` |
+
+**`Program`** JSON: `id`, `tenantId`, `title`, `description` (nullable), `createdAt`, `updatedAt` (ISO strings). Wrong-tenant `:id` → **`404`** (no existence leak). Frontend should mirror string length limits above.
+
 ---
 
 ## `backend/src/prisma/`
@@ -24,13 +38,13 @@ Module-by-module tour for a new hire on day 1.
 
 ## `backend/tests/`
 
-**What it does:** Jest + Supertest against **`createApp()`**; [`tests/setup.ts`](../backend/tests/setup.ts) loads `.env` and default `JWT_SECRET`. Includes **`rejects cross-tenant program access`**, **`rejects cross-tenant session access`**, **`rejects cross-tenant import into another program`**.
+**What it does:** Jest + Supertest against **`createApp()`**; [`tests/setup.ts`](../backend/tests/setup.ts) loads `.env` and default `JWT_SECRET`. Programs tenant suite ([`programs-cross-tenant.test.ts`](../backend/tests/programs-cross-tenant.test.ts)) covers **GET / PATCH / DELETE** across tenants (404). Also **`rejects cross-tenant session access`**, **`rejects cross-tenant import into another program`**.
 
 ---
 
 ## `frontend/` (Next.js Admin)
 
-**What it does:** App Router with **`(auth)/`** (login, signup, forgot/reset password) and **`(dashboard)/`** gated by [`DashboardGate`](../frontend/src/components/DashboardGate.tsx) (JWT in `localStorage`). [`lib/api.ts`](../frontend/src/lib/api.ts) — **`apiFetch`** to `/v1` with Bearer token. Programs CRUD, sessions list with **@dnd-kit** reorder calling **`POST /v1/sessions/reorder`**, session edit with **presigned S3 upload** flow, CSV import UI, audit log filters.
+**What it does:** App Router with **`(auth)/`** (login, signup, forgot/reset password) and **`(dashboard)/`** gated by [`DashboardGate`](../frontend/src/components/DashboardGate.tsx) (JWT in `localStorage`). [`lib/api.ts`](../frontend/src/lib/api.ts) — **`apiFetch`** to `/v1` with Bearer token; program forms share limits/types via [`lib/programs.ts`](../frontend/src/lib/programs.ts). Programs CRUD, sessions list with **@dnd-kit** reorder calling **`POST /v1/sessions/reorder`**, session edit with **presigned S3 upload** flow, CSV import UI, audit log filters.
 
 **Design choices:** **RHF + Zod** on forms; **Tailwind** + shadcn-style **`Button`**; `NEXT_PUBLIC_API_URL` for API origin only.
 

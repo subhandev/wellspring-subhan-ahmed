@@ -1,3 +1,8 @@
+/**
+ * HTTP body validation for Programs. Response shapes follow Prisma `Program`;
+ * paths are documented in `openapi/openapiDocument.ts` (tag Programs) and
+ * `docs/CODE_SUMMARY.md` (Programs API contract).
+ */
 import { z } from "../../lib/zodOpenapi.js";
 
 export const createProgramBodySchema = z.object({

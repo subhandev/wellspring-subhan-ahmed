@@ -36,19 +36,18 @@ export async function updateProgram(
   id: string,
   data: { title?: string; description?: string | null }
 ): Promise<Program | null> {
-  const existing = await getProgramById(tenantId, id);
-  if (!existing) {
+  const patch = {
+    ...(data.title !== undefined ? { title: data.title } : {}),
+    ...(data.description !== undefined ? { description: data.description } : {})
+  };
+  const result = await prisma.program.updateMany({
+    where: { id, tenantId: tenantId as string },
+    data: patch
+  });
+  if (result.count === 0) {
     return null;
   }
-  return prisma.program.update({
-    where: { id },
-    data: {
-      ...(data.title !== undefined ? { title: data.title } : {}),
-      ...(data.description !== undefined
-        ? { description: data.description }
-        : {})
-    }
-  });
+  return getProgramById(tenantId, id);
 }
 
 export async function deleteProgram(

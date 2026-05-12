@@ -4,13 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import type { Program } from "@/lib/programs";
 import { cn } from "@/lib/utils";
-
-type Program = {
-  id: string;
-  title: string;
-  description: string | null;
-};
 
 export default function ProgramsPage() {
   const [programs, setPrograms] = useState<Program[] | null>(null);

@@ -5,17 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { newProgramFormSchema, type NewProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
-
-const schema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional()
-});
-
-type Form = z.infer<typeof schema>;
 
 export default function NewProgramPage() {
   const router = useRouter();
@@ -24,9 +17,12 @@ export default function NewProgramPage() {
     register,
     handleSubmit,
     formState: { isSubmitting }
-  } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { title: "", description: "" } });
+  } = useForm<NewProgramForm>({
+    resolver: zodResolver(newProgramFormSchema),
+    defaultValues: { title: "", description: "" }
+  });
 
-  async function onSubmit(data: Form) {
+  async function onSubmit(data: NewProgramForm) {
     setError(null);
     const res = await apiFetch("/programs", {
       method: "POST",
