@@ -10,7 +10,7 @@ import { AuthFieldError } from "@/components/auth/AuthFieldError";
 import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 import { AuthTextField } from "@/components/auth/AuthTextField";
 import { RedirectIfAuthed } from "@/components/auth/RedirectIfAuthed";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage, readAuthAccessToken, setAccessToken } from "@/lib/api";
 
 const schema = z.object({

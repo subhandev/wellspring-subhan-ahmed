@@ -1,22 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
-
-type AuditRow = {
-  id: string;
-  tenantId: string;
-  actorId: string;
-  action: string;
-  targetType: string;
-  targetId: string | null;
-  metadata: unknown;
-  createdAt: string;
-};
+import type { AuditLogRow } from "@/types";
 
 export default function AuditPage() {
-  const [rows, setRows] = useState<AuditRow[] | null>(null);
+  const [rows, setRows] = useState<AuditLogRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -37,7 +27,7 @@ export default function AuditPage() {
     const qs = q.toString();
     const res = await apiFetch(`/audit${qs ? `?${qs}` : ""}`);
     const data = (await res.json().catch(() => ({}))) as {
-      auditLogs?: AuditRow[];
+      auditLogs?: AuditLogRow[];
       message?: string;
     };
     if (!res.ok) {

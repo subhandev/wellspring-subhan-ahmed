@@ -1,13 +1,13 @@
-import { DashboardGate } from "@/components/DashboardGate";
-import { DashboardNav } from "@/components/layout/DashboardNav";
+import { Navbar } from "@/components/layout/Navbar";
+import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardGate>
+    <ProtectedLayout>
       <div className="min-h-screen bg-background">
-        <DashboardNav />
+        <Navbar />
         <main className="mx-auto max-w-5xl p-6">{children}</main>
       </div>
-    </DashboardGate>
+    </ProtectedLayout>
   );
 }

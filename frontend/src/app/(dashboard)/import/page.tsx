@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
+import type { CsvImportRowResult } from "@/types";
 
 const schema = z.object({
   clientImportId: z.string().min(1),
@@ -14,13 +15,9 @@ const schema = z.object({
 
 type Form = z.infer<typeof schema>;
 
-type RowResult =
-  | { clientRowId: string; ok: true; sessionId: string; idempotent?: boolean }
-  | { clientRowId: string; ok: false; errors?: string[] };
-
 export default function ImportPage() {
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<RowResult[] | null>(null);
+  const [results, setResults] = useState<CsvImportRowResult[] | null>(null);
   const form = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -37,7 +34,7 @@ export default function ImportPage() {
       body: JSON.stringify(data)
     });
     const body = (await res.json().catch(() => ({}))) as {
-      results?: RowResult[];
+      results?: CsvImportRowResult[];
       message?: string;
     };
     if (!res.ok) {

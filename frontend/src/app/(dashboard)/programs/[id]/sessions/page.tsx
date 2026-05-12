@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SortableSessionList, type SessionRow } from "@/components/sessions/SortableSessionList";
-import { buttonVariants } from "@/components/ui/button";
+import { SessionList } from "@/components/sessions/SessionList";
+import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { SessionRow } from "@/types";
 
 export default function SessionsPage() {
   const params = useParams();
-  const programId = typeof params.programId === "string" ? params.programId : "";
+  const programId = typeof params.id === "string" ? params.id : "";
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +59,7 @@ export default function SessionsPage() {
             New session
           </Link>
           <Link
-            href={`/programs/${programId}`}
+            href={`/programs/${programId}/edit`}
             className={cn(buttonVariants({ variant: "outline" }))}
           >
             Program
@@ -71,7 +72,7 @@ export default function SessionsPage() {
       {sessions.length === 0 ? (
         <p className="text-muted-foreground">No sessions yet.</p>
       ) : (
-        <SortableSessionList programId={programId} initialSessions={sessions} />
+        <SessionList programId={programId} initialSessions={sessions} />
       )}
     </div>
   );

@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ type Form = z.infer<typeof schema>;
 export default function EditSessionPage() {
   const params = useParams();
   const router = useRouter();
-  const programId = typeof params.programId === "string" ? params.programId : "";
+  const programId = typeof params.id === "string" ? params.id : "";
   const sessionId = typeof params.sessionId === "string" ? params.sessionId : "";
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

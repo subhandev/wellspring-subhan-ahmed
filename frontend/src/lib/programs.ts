@@ -4,12 +4,6 @@ import { z } from "zod";
 export const PROGRAM_TITLE_MAX = 500;
 export const PROGRAM_DESCRIPTION_MAX = 5000;
 
-export type Program = {
-  id: string;
-  title: string;
-  description: string | null;
-};
-
 export const newProgramFormSchema = z.object({
   title: z.string().min(1).max(PROGRAM_TITLE_MAX),
   description: z.string().max(PROGRAM_DESCRIPTION_MAX).optional()

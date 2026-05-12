@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
-import type { Program } from "@/lib/programs";
+import type { Program } from "@/types";
 import { cn } from "@/lib/utils";
 
 export default function ProgramsPage() {
@@ -62,7 +62,7 @@ export default function ProgramsPage() {
               </div>
               <div className="flex gap-2">
                 <Link
-                  href={`/programs/${p.id}`}
+                  href={`/programs/${p.id}/edit`}
                   className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
                 >
                   Edit

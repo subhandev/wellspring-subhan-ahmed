@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
 import { newProgramFormSchema, type NewProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export default function NewProgramPage() {
       return;
     }
     if (body.id) {
-      router.push(`/programs/${body.id}`);
+      router.push(`/programs/${body.id}/edit`);
     }
   }
 

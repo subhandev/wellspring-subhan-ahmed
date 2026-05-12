@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/Button";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { cn } from "@/lib/utils";
 
@@ -10,12 +10,15 @@ const links = [
   { href: "/audit", label: "Audit log" }
 ] as const;
 
-export function DashboardNav() {
+export function Navbar() {
   return (
     <nav className="flex flex-wrap items-center gap-2 border-b bg-card px-4 py-3">
       <Link
         href="/programs"
-        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mr-2 px-2 font-semibold")}
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "sm" }),
+          "mr-2 cursor-default px-2 font-semibold no-underline hover:no-underline"
+        )}
       >
         Wellspring Admin
       </Link>

@@ -19,19 +19,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { SessionRow } from "@/types";
 
-export type SessionRow = {
-  id: string;
-  title: string;
-  durationSeconds: number;
-  position: number;
-  instructorName: string;
-  tags: string[];
-  mediaUrl?: string | null;
-};
+export type { SessionRow };
 
 function SortableRow({ session, programId }: { session: SessionRow; programId: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -75,7 +68,8 @@ function SortableRow({ session, programId }: { session: SessionRow; programId: s
   );
 }
 
-export function SortableSessionList({
+/** Session list with drag-and-drop reorder and persistence. */
+export function SessionList({
   programId,
   initialSessions
 }: {

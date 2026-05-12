@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { apiFetch } from "@/lib/api";
 import { editProgramFormSchema, type EditProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export default function ProgramDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const programId = typeof params.programId === "string" ? params.programId : "";
+  const programId = typeof params.id === "string" ? params.id : "";
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);

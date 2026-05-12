@@ -17,3 +17,8 @@ export function setAccessToken(token: string | null): void {
     localStorage.removeItem(KEY);
   }
 }
+
+/** True when a token is stored (client-only; false on the server). */
+export function isAuthenticated(): boolean {
+  return Boolean(getAccessToken());
+}
