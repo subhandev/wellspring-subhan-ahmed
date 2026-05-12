@@ -83,8 +83,8 @@ export async function updateSession(
   if (!existing) {
     return null;
   }
-  return prisma.session.update({
-    where: { id },
+  const result = await prisma.session.updateMany({
+    where: { id, tenantId: tenantId as string },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
       ...(data.durationSeconds !== undefined ? { durationSeconds: data.durationSeconds } : {}),
@@ -95,6 +95,10 @@ export async function updateSession(
       ...(data.mediaType !== undefined ? { mediaType: data.mediaType } : {})
     }
   });
+  if (result.count === 0) {
+    return null;
+  }
+  return getSessionById(tenantId, id);
 }
 
 export async function deleteSession(tenantId: TenantId, id: string): Promise<boolean> {

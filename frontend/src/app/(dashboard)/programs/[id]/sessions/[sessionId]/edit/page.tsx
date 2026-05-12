@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { apiFetch, readApiErrorMessage, applyServerFieldErrors, readApiErrorDetails } from "@/lib/api";
 import { fileAcceptForMediaKind, mimeToMediaKind, type MediaKind } from "@/lib/mediaKind";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -99,6 +99,7 @@ export default function EditSessionPage() {
 
   async function onSubmit(data: Form) {
     setError(null);
+    form.clearErrors();
     const res = await apiFetch(`/sessions/${sessionId}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -112,7 +113,11 @@ export default function EditSessionPage() {
     });
     const resBody = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(readApiErrorMessage(resBody, "Update failed"));
+      const { message, details } = readApiErrorDetails(resBody);
+      setError(message);
+      if (details?.fieldErrors) {
+        applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
+      }
       return;
     }
     router.refresh();
@@ -155,7 +160,12 @@ export default function EditSessionPage() {
       });
       const patchBody = await patchRes.json().catch(() => ({}));
       if (!patchRes.ok) {
-        setUploadMsg(readApiErrorMessage(patchBody, "Could not save media to session"));
+        form.clearErrors();
+        const { message, details } = readApiErrorDetails(patchBody);
+        if (details?.fieldErrors) {
+          applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
+        }
+        setUploadMsg(message);
         return;
       }
       setUploadMsg("Upload complete — media saved.");
@@ -317,6 +327,13 @@ export default function EditSessionPage() {
           />
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {Object.entries(form.formState.errors).map(([key, err]) =>
+          err?.message ? (
+            <p key={key} className="text-sm text-red-600">
+              {err.message}
+            </p>
+          ) : null
+        )}
         <div className="flex flex-wrap justify-end gap-2">
           <Link
             href={`/programs/${programId}/sessions`}

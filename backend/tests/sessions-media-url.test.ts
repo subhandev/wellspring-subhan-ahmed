@@ -56,7 +56,12 @@ describeDb("session mediaUrl tenant prefix", () => {
       .expect(400);
     expect(createBad.body).toMatchObject({
       success: false,
-      error: { code: "validation_error" }
+      error: {
+        code: "validation_error",
+        details: {
+          fieldErrors: { mediaUrl: expect.any(Array) }
+        }
+      }
     });
 
     const sess = await request(app)
@@ -78,7 +83,12 @@ describeDb("session mediaUrl tenant prefix", () => {
       .expect(400);
     expect(patchBad.body).toMatchObject({
       success: false,
-      error: { code: "validation_error" }
+      error: {
+        code: "validation_error",
+        details: {
+          fieldErrors: { mediaUrl: expect.any(Array) }
+        }
+      }
     });
 
     const creatorAId = signupA.body.data.creator.id as string;

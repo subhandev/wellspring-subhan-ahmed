@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import { HttpError } from "../../lib/httpError.js";
+import { httpErrorFromZod } from "../../lib/httpErrorFromZod.js";
 import {
   createSessionBodySchema,
   reorderSessionsBodySchema,
@@ -25,7 +26,12 @@ export const list: RequestHandler = async (req, res, next) => {
     }
     const programId = typeof req.query.programId === "string" ? req.query.programId : "";
     if (!programId) {
-      next(new HttpError(400, "query programId is required", "validation_error"));
+      next(
+        new HttpError(400, "query programId is required", "validation_error", {
+          fieldErrors: { programId: ["Required"] },
+          formErrors: [] as string[]
+        })
+      );
       return;
     }
     const sessions = await sessionsService.listSessions(ctx.tenantId, programId);
@@ -58,7 +64,7 @@ export const create: RequestHandler = async (req, res, next) => {
     }
     const parsed = createSessionBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const session = await sessionsService.createSession(ctx.tenantId, ctx.creatorId, parsed.data);
@@ -77,7 +83,7 @@ export const update: RequestHandler = async (req, res, next) => {
     }
     const parsed = updateSessionBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const session = await sessionsService.updateSession(
@@ -115,7 +121,7 @@ export const reorder: RequestHandler = async (req, res, next) => {
     }
     const parsed = reorderSessionsBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const sessions = await sessionsService.reorderSessions(

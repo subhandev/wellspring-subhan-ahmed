@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import type { Env } from "../../config/env.js";
 import { HttpError } from "../../lib/httpError.js";
+import { httpErrorFromZod } from "../../lib/httpErrorFromZod.js";
 import { presignBodySchema } from "./schemas.js";
 import * as uploadsService from "./service.js";
 
@@ -22,7 +23,7 @@ export const presign: RequestHandler = async (req, res, next) => {
     }
     const parsed = presignBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const env = req.app.get("env") as Env;

@@ -12,7 +12,10 @@ const POSITION_CONFLICT_MESSAGE =
 
 function throwIfSessionPositionConflict(err: unknown): void {
   if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-    throw new HttpError(409, POSITION_CONFLICT_MESSAGE, "position_conflict");
+    throw new HttpError(409, POSITION_CONFLICT_MESSAGE, "position_conflict", {
+      fieldErrors: { position: [POSITION_CONFLICT_MESSAGE] },
+      formErrors: [] as string[]
+    });
   }
 }
 
@@ -128,18 +131,36 @@ export async function reorderSessions(
   const existingIds = new Set(existing.map((s) => s.id));
   const uniq = new Set(body.orderedSessionIds);
   if (uniq.size !== body.orderedSessionIds.length) {
-    throw new HttpError(400, "orderedSessionIds must not contain duplicates", "validation_error");
+    throw new HttpError(400, "orderedSessionIds must not contain duplicates", "validation_error", {
+      fieldErrors: {
+        orderedSessionIds: ["Must not contain duplicate session ids"]
+      },
+      formErrors: [] as string[]
+    });
   }
   if (existing.length !== body.orderedSessionIds.length) {
     throw new HttpError(
       400,
       "orderedSessionIds must list every session in the program",
-      "validation_error"
+      "validation_error",
+      {
+        fieldErrors: {
+          orderedSessionIds: [
+            `Expected ${existing.length} session id(s), got ${body.orderedSessionIds.length}`
+          ]
+        },
+        formErrors: [] as string[]
+      }
     );
   }
   for (const id of body.orderedSessionIds) {
     if (!existingIds.has(id)) {
-      throw new HttpError(400, "Unknown session id for this program", "validation_error");
+      throw new HttpError(400, "Unknown session id for this program", "validation_error", {
+        fieldErrors: {
+          orderedSessionIds: ["Each id must belong to this program"]
+        },
+        formErrors: [] as string[]
+      });
     }
   }
 

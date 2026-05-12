@@ -26,7 +26,10 @@ export function assertSessionMediaUrlForTenant(
   try {
     pathname = new URL(trimmed).pathname;
   } catch {
-    throw new HttpError(400, "mediaUrl must be a valid absolute URL", "validation_error");
+    throw new HttpError(400, "mediaUrl must be a valid absolute URL", "validation_error", {
+      fieldErrors: { mediaUrl: ["Must be a valid absolute URL"] },
+      formErrors: [] as string[]
+    });
   }
 
   let decoded = pathname;
@@ -41,7 +44,13 @@ export function assertSessionMediaUrlForTenant(
     throw new HttpError(
       400,
       "mediaUrl must point to an object under this tenant's media prefix",
-      "validation_error"
+      "validation_error",
+      {
+        fieldErrors: {
+          mediaUrl: ["URL must be under this tenant's uploaded media path (use presigned upload)."]
+        },
+        formErrors: [] as string[]
+      }
     );
   }
 }

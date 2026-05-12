@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { apiFetch, applyServerFieldErrors, readApiErrorDetails } from "@/lib/api";
 import { fileAcceptForMediaKind, type MediaKind } from "@/lib/mediaKind";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -75,6 +75,7 @@ export default function NewSessionPage() {
 
   async function onSubmit(data: Form) {
     setError(null);
+    form.clearErrors();
     const tags =
       data.tags
         ?.split(/[|,]/)
@@ -101,7 +102,12 @@ export default function NewSessionPage() {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(readApiErrorMessage(body, "Could not create session"));
+      form.clearErrors();
+      const { message, details } = readApiErrorDetails(body);
+      setError(message);
+      if (details?.fieldErrors) {
+        applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
+      }
       return;
     }
     const created = body as { id?: string };
@@ -227,6 +233,13 @@ export default function NewSessionPage() {
           {uploadMsg ? <p className="text-xs text-muted-foreground">{uploadMsg}</p> : null}
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {Object.entries(form.formState.errors).map(([key, err]) =>
+          err?.message ? (
+            <p key={key} className="text-sm text-red-600">
+              {err.message}
+            </p>
+          ) : null
+        )}
         <div className="flex flex-wrap justify-end gap-2">
           <Link
             href={`/programs/${programId}/sessions`}

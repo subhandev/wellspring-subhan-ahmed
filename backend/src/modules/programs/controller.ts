@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import { HttpError } from "../../lib/httpError.js";
+import { httpErrorFromZod } from "../../lib/httpErrorFromZod.js";
 import { createProgramBodySchema, updateProgramBodySchema } from "./schemas.js";
 import * as programsService from "./service.js";
 
@@ -49,7 +50,7 @@ export const create: RequestHandler = async (req, res, next) => {
     }
     const parsed = createProgramBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const p = await programsService.createProgram(ctx.tenantId, ctx.creatorId, parsed.data);
@@ -68,7 +69,7 @@ export const update: RequestHandler = async (req, res, next) => {
     }
     const parsed = updateProgramBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const p = await programsService.updateProgram(

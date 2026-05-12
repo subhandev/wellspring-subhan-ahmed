@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import { HttpError } from "../../lib/httpError.js";
+import { httpErrorFromZod } from "../../lib/httpErrorFromZod.js";
 import { importSessionsBodySchema } from "./schemas.js";
 import * as importService from "./service.js";
 
@@ -21,7 +22,7 @@ export const importSessions: RequestHandler = async (req, res, next) => {
     }
     const parsed = importSessionsBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      next(new HttpError(400, "Invalid request body", "validation_error"));
+      next(httpErrorFromZod(parsed.error));
       return;
     }
     const out = await importService.importSessionsFromCsv(ctx.tenantId, ctx.creatorId, parsed.data);

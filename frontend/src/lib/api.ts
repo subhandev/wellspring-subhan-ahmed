@@ -1,3 +1,4 @@
+import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 import { getAccessToken, setAccessToken } from "./auth";
 
 const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
@@ -54,6 +55,54 @@ export function readApiErrorMessage(body: unknown, fallback: string): string {
   if (!body || typeof body !== "object") return fallback;
   const err = (body as { error?: { message?: string } }).error;
   return typeof err?.message === "string" ? err.message : fallback;
+}
+
+/** Optional `error.details` from validation responses (Zod flatten shape). */
+export type ApiValidationDetails = {
+  fieldErrors: Record<string, string[]>;
+  formErrors?: string[];
+};
+
+export function readApiErrorDetails(body: unknown): {
+  message: string;
+  details?: ApiValidationDetails;
+} {
+  const message = readApiErrorMessage(body, "Request failed");
+  if (!body || typeof body !== "object") {
+    return { message };
+  }
+  const err = (body as { error?: { details?: unknown } }).error;
+  const raw = err?.details;
+  if (!raw || typeof raw !== "object" || raw === null) {
+    return { message };
+  }
+  const fieldErrors = (raw as { fieldErrors?: unknown }).fieldErrors;
+  if (typeof fieldErrors !== "object" || fieldErrors === null) {
+    return { message };
+  }
+  const formErrors = (raw as { formErrors?: unknown }).formErrors;
+  return {
+    message,
+    details: {
+      fieldErrors: fieldErrors as Record<string, string[]>,
+      formErrors: Array.isArray(formErrors) ? (formErrors as string[]) : undefined
+    }
+  };
+}
+
+/** Maps API `fieldErrors` keys onto RHF fields when the key exists on the current form values. */
+export function applyServerFieldErrors<T extends FieldValues>(
+  setError: UseFormSetError<T>,
+  values: T,
+  fieldErrors: Record<string, string[]>
+): void {
+  for (const [field, msgs] of Object.entries(fieldErrors)) {
+    const msg = msgs?.[0];
+    if (!msg || !(field in values)) {
+      continue;
+    }
+    setError(field as Path<T>, { type: "server", message: msg });
+  }
 }
 
 /** `POST /api/auth/forgot-password` success body: `{ data: { resetToken } }` (null if email unknown). */
