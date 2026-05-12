@@ -14,35 +14,41 @@ describeDb("auth API (requires DATABASE_URL)", () => {
     await prisma.$disconnect();
   });
 
-  it("signup, login, and GET /v1/auth/me", async () => {
+  it("signup, login, and GET /api/auth/me", async () => {
     const app = createApp();
     const email = `test-${randomUUID()}@example.com`;
     const password = "SecurePass1!";
 
     const signup = await request(app)
-      .post("/v1/auth/signup")
+      .post("/api/auth/signup")
       .send({ email, password })
       .expect(201);
 
     expect(signup.body).toMatchObject({
-      creator: { email },
-      accessToken: expect.any(String)
+      success: true,
+      data: {
+        creator: { email },
+        accessToken: expect.any(String)
+      }
     });
 
     const me = await request(app)
-      .get("/v1/auth/me")
-      .set("Authorization", `Bearer ${signup.body.accessToken}`)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${signup.body.data.accessToken}`)
       .expect(200);
 
-    expect(me.body).toMatchObject({ email, id: signup.body.creator.id });
+    expect(me.body).toMatchObject({
+      success: true,
+      data: { email, id: signup.body.data.creator.id }
+    });
 
     const login = await request(app)
-      .post("/v1/auth/login")
+      .post("/api/auth/login")
       .send({ email, password })
       .expect(200);
 
-    expect(login.body.accessToken).toBeTruthy();
+    expect(login.body.data.accessToken).toBeTruthy();
 
-    await prisma.creator.delete({ where: { id: signup.body.creator.id } });
+    await prisma.creator.delete({ where: { id: signup.body.data.creator.id } });
   });
 });

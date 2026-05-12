@@ -15,18 +15,18 @@ async function crossTenantProgramFixture() {
   const emailB = `b-${randomUUID()}@example.com`;
 
   const signupA = await request(app)
-    .post("/v1/auth/signup")
+    .post("/api/auth/signup")
     .send({ email: emailA, password })
     .expect(201);
   const signupB = await request(app)
-    .post("/v1/auth/signup")
+    .post("/api/auth/signup")
     .send({ email: emailB, password })
     .expect(201);
 
-  const tokenA = signupA.body.accessToken as string;
-  const tokenB = signupB.body.accessToken as string;
-  const creatorAId = signupA.body.creator.id as string;
-  const creatorBId = signupB.body.creator.id as string;
+  const tokenA = signupA.body.data.accessToken as string;
+  const tokenB = signupB.body.data.accessToken as string;
+  const creatorAId = signupA.body.data.creator.id as string;
+  const creatorBId = signupB.body.data.creator.id as string;
 
   const created = await request(app)
     .post("/v1/programs")
@@ -65,7 +65,7 @@ describeDb("tenant isolation — programs", () => {
       .set("Authorization", `Bearer ${tokenB}`)
       .expect(404);
 
-    expect(steal.body.message).toMatch(/not found/i);
+    expect(steal.body.error.message).toMatch(/not found/i);
 
     await teardownProgramAndCreators(victimId, [creatorAId, creatorBId]);
   });
@@ -80,7 +80,7 @@ describeDb("tenant isolation — programs", () => {
       .send({ title: "Stolen title" })
       .expect(404);
 
-    expect(patched.body.message).toMatch(/not found/i);
+    expect(patched.body.error.message).toMatch(/not found/i);
 
     const intact = await request(app)
       .get(`/v1/programs/${victimId}`)
@@ -101,7 +101,7 @@ describeDb("tenant isolation — programs", () => {
       .set("Authorization", `Bearer ${tokenB}`)
       .expect(404);
 
-    expect(del.body.message).toMatch(/not found/i);
+    expect(del.body.error.message).toMatch(/not found/i);
 
     await request(app)
       .get(`/v1/programs/${victimId}`)

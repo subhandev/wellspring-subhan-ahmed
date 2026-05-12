@@ -21,12 +21,18 @@ describe("createApp", () => {
     const env = loadEnv();
     const app = createApp({ ...env, ENABLE_API_DOCS: "0" });
     const res = await request(app).get("/openapi.json").expect(404);
-    expect(res.body).toMatchObject({ error: "not_found" });
+    expect(res.body).toMatchObject({
+      success: false,
+      error: { code: "not_found" }
+    });
   });
 
   it("GET /v1/programs returns 401 without bearer token", async () => {
     const app = createApp();
     const res = await request(app).get("/v1/programs").expect(401);
-    expect(res.body).toMatchObject({ error: "unauthorized" });
+    expect(res.body).toMatchObject({
+      success: false,
+      error: { code: "unauthorized" }
+    });
   });
 });

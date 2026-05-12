@@ -22,16 +22,16 @@ describeDb("tenant isolation — sessions", () => {
     const emailB = `sb-${randomUUID()}@example.com`;
 
     const signupA = await request(app)
-      .post("/v1/auth/signup")
+      .post("/api/auth/signup")
       .send({ email: emailA, password })
       .expect(201);
     const signupB = await request(app)
-      .post("/v1/auth/signup")
+      .post("/api/auth/signup")
       .send({ email: emailB, password })
       .expect(201);
 
-    const tokenA = signupA.body.accessToken as string;
-    const tokenB = signupB.body.accessToken as string;
+    const tokenA = signupA.body.data.accessToken as string;
+    const tokenB = signupB.body.data.accessToken as string;
 
     const prog = await request(app)
       .post("/v1/programs")
@@ -59,12 +59,12 @@ describeDb("tenant isolation — sessions", () => {
       .set("Authorization", `Bearer ${tokenB}`)
       .expect(404);
 
-    expect(steal.body.message).toMatch(/not found/i);
+    expect(steal.body.error.message).toMatch(/not found/i);
 
     await prisma.session.deleteMany({ where: { id: sessionId } });
     await prisma.program.deleteMany({ where: { id: programId } });
     await prisma.creator.deleteMany({
-      where: { id: { in: [signupA.body.creator.id, signupB.body.creator.id] } }
+      where: { id: { in: [signupA.body.data.creator.id, signupB.body.data.creator.id] } }
     });
   });
 });

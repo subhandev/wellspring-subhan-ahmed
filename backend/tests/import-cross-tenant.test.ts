@@ -22,16 +22,16 @@ describeDb("tenant isolation — CSV import", () => {
     const emailB = `ib-${randomUUID()}@example.com`;
 
     const signupA = await request(app)
-      .post("/v1/auth/signup")
+      .post("/api/auth/signup")
       .send({ email: emailA, password })
       .expect(201);
     const signupB = await request(app)
-      .post("/v1/auth/signup")
+      .post("/api/auth/signup")
       .send({ email: emailB, password })
       .expect(201);
 
-    const tokenA = signupA.body.accessToken as string;
-    const tokenB = signupB.body.accessToken as string;
+    const tokenA = signupA.body.data.accessToken as string;
+    const tokenB = signupB.body.data.accessToken as string;
 
     const prog = await request(app)
       .post("/v1/programs")
@@ -60,7 +60,7 @@ describeDb("tenant isolation — CSV import", () => {
     expect(res.body.results[0].errors?.[0] ?? "").toMatch(/program not found/i);
 
     await prisma.creator.deleteMany({
-      where: { id: { in: [signupA.body.creator.id, signupB.body.creator.id] } }
+      where: { id: { in: [signupA.body.data.creator.id, signupB.body.data.creator.id] } }
     });
   });
 });
