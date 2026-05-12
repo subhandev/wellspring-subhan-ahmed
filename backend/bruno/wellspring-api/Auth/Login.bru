@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/v1/auth/login
+  url: {{baseUrl}}/api/auth/login
   body: json
   auth: none
 }
@@ -19,7 +19,8 @@ body:json {
 
 script:post-response {
   const body = typeof res.body === "object" && res.body !== null ? res.body : {};
-  const t = body.accessToken;
+  const data = body.data && typeof body.data === "object" ? body.data : {};
+  const t = data.accessToken;
   if (typeof t === "string") {
     bru.setEnvVar("token", t);
   }
