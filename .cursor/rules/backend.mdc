@@ -13,16 +13,83 @@ alwaysApply: false
 - **Logging:** Pino — one **JSON object per line** with `request_id`, `tenant_id` (when known), level, message, metadata.
 - **Tests:** Jest + Supertest in `backend/tests/` (integration/API tests; include names containing **`rejects cross-tenant`** per rubric).
 
+## Backend folder structure (canonical)
+
+- `backend/src/app.ts`: Express app wiring and route mounting
+- `backend/src/modules/<domain>/`: feature modules (see below)
+- `backend/src/middleware/`: cross-cutting Express middleware (auth, request id, etc.)
+- `backend/src/lib/`: shared helpers (logger, S3 helpers, audit writer, errors)
+- `backend/src/config/`: runtime configuration (logger, database)
+- `backend/src/types/`: shared types (e.g. tenant context, Express type augmentation)
+- `backend/src/prisma/schema.prisma`: Prisma schema (Postgres)
+- `backend/src/prisma/migrations/`: Prisma migrations (only way to change schema)
+- `backend/tests/`: Jest + Supertest integration/API tests
+- `backend/bruno/`: Bruno API collection (keep requests in sync with API changes)
+- `backend/.env.example`: backend env var template
+
 ## Layout (feature modules)
 
 Organize by domain under `src/modules/<feature>/`, for example:
 
-- `routes.ts` (or `*.routes.ts`) — mount on the app in a central `src/app.ts` or `src/server.ts`
-- `service.ts` — orchestration (optional but keep routes thin)
-- `repository.ts` — Prisma access; **every query must scope `tenant_id`** from context, never from untrusted client input
-- `schemas.ts` — Zod schemas for that feature’s HTTP payloads
+- `<domain>.routes.ts` — Express router, mounts on `src/app.ts`
+- `<domain>.controller.ts` — request/response handling, calls service
+- `<domain>.service.ts` — business logic orchestration, keep routes thin
+- `<domain>.repository.ts` — Prisma access, always scope by `tenantId`
+- `<domain>.schemas.ts` — Zod schemas for HTTP payloads
 
 Shared cross-cutting code: `src/middleware/`, `src/lib/` (logger factory, S3 helpers), `src/types/`.
+
+## File naming conventions
+
+- **Module files**: always use `<domain>.<layer>.ts` pattern
+  - Layer names: `routes`, `controller`, `service`, `repository`, `schemas`
+  - e.g. `programs.routes.ts`, `programs.controller.ts`, `programs.service.ts`, `programs.repository.ts`, `programs.schemas.ts`
+  - e.g. `sessions.routes.ts`, `sessions.controller.ts`, `sessions.service.ts`, `sessions.repository.ts`, `sessions.schemas.ts`
+- **Middleware**: kebab-case — `authenticate.ts`, `error-handler.ts`, `request-logger.ts`
+- **Lib helpers**: camelCase — `auditWriter.ts`, `jwtHelper.ts`, `prismaClient.ts`
+- **Tests**: `<domain>-<concern>.test.ts` — `programs-cross-tenant.test.ts`, `bulk-import.test.ts`
+- **No index.ts barrels** unless explicitly needed
+
+## Variable / function naming conventions
+
+- **Variables & functions**: `camelCase` (`tenantId`, `requestId`, `appendAuditLog`, `parseCsvRows`).
+- **Types & classes**: `PascalCase` (`TenantContext`, `HttpError`, `SessionCreateInput`).
+- **Constants**: `SCREAMING_SNAKE_CASE` only for true constants/config (`MAX_UPLOAD_BYTES`, `DEFAULT_PAGE_SIZE`).
+- **Booleans**: prefix with `is/has/can/should` (`isAuthed`, `hasAccess`, `canEdit`, `shouldRetry`).
+- **IDs**: use `<entity>Id` (`programId`, `sessionId`, `creatorId`, `tenantId`), not generic `id` in multi-id scopes.
+- **Tenant-derived values**: name explicitly as derived, e.g. `authedTenantId`, `actorCreatorId` when helpful to prevent misuse.
+
+## Response shape conventions
+
+- **Success (single resource)**: return the entity directly (`res.json(program)`), unless a list/metadata envelope is required.
+- **Success (lists)**: return `{ items, pageInfo }` where `pageInfo` includes `limit` and optionally `cursor/nextCursor` (prefer consistency per endpoint).
+- **Mutations**: return the updated/created entity; for deletes return `204` with no body (preferred) or `{ ok: true }` if already established by an endpoint.
+- **Bulk/CSV import**: return a stable shape that supports row errors:
+  - `{ importedCount, failedCount, errors: [{ rowIndex, message, field? }] }`
+- **Never** return raw Prisma errors; map to `HttpError`/known error responses.
+
+## Error code conventions
+
+- **HTTP status**:
+  - `400` invalid input (Zod validation failures)
+  - `401` unauthenticated (missing/invalid JWT)
+  - `403` authenticated but forbidden (cross-tenant or role restriction)
+  - `404` not found (resource does not exist *for that tenant*)
+  - `409` conflict (uniques, duplicates, idempotency violations)
+  - `422` semantically invalid (optional; if used, be consistent)
+  - `429` rate limited (if implemented)
+  - `500` unexpected errors
+- **Error response JSON**: prefer a consistent envelope:
+  - `{ error: { code, message, details? } }`
+  - `code` is snake_case and stable for clients/tests:
+    - `validation_error` — 400 Zod failures
+    - `unauthorized` — 401 missing/invalid token
+    - `not_found` — 404 missing or cross-tenant resource
+    - `email_taken` — 409 duplicate signup
+    - `position_conflict` — 409 session position collision
+    - `auth_misconfigured` — 503 missing `JWT_SECRET`
+- **Validation errors**: include `details` shaped as `{ fieldErrors, formErrors }` or a list of issues; keep it machine-readable.
+- **Cross-tenant**: return `404` with `code: "not_found"` — identical to missing resource response to avoid leaking existence of another tenant’s data. Tests assert this behavior.
 
 ## Tenant isolation
 
