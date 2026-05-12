@@ -50,3 +50,10 @@ export function readApiErrorMessage(body: unknown, fallback: string): string {
   const err = (body as { error?: { message?: string } }).error;
   return typeof err?.message === "string" ? err.message : fallback;
 }
+
+/** `POST /api/auth/forgot-password` success body: `{ data: { resetToken } }` (null if email unknown). */
+export function readForgotPasswordResetToken(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null;
+  const t = (body as { data?: { resetToken?: string | null } }).data?.resetToken;
+  return typeof t === "string" && t.length > 0 ? t : null;
+}

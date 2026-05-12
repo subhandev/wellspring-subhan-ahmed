@@ -9,15 +9,22 @@ import { AuthFieldError } from "@/components/auth/AuthFieldError";
 import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 import { AuthTextField } from "@/components/auth/AuthTextField";
 import { RedirectIfAuthed } from "@/components/auth/RedirectIfAuthed";
-import { Button } from "@/components/ui/Button";
-import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { apiFetch, readApiErrorMessage, readForgotPasswordResetToken } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
-const schema = z.object({ email: z.string().email() });
+const schema = z.object({ email: z.string().email("Enter a valid email address.") });
 type Form = z.infer<typeof schema>;
+
+const GENERIC_DONE =
+  "If this email is registered you'll receive reset instructions.";
+
+const isDev = process.env.NODE_ENV === "development";
 
 export default function ForgotPasswordPage() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [devResetToken, setDevResetToken] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -26,18 +33,30 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(data: Form) {
     setError(null);
+    setDevResetToken(null);
     const res = await apiFetch("/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify(data),
       auth: false
     });
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
       setError(readApiErrorMessage(body, "Request failed"));
       return;
     }
     setDone(true);
+    if (isDev) {
+      const t = readForgotPasswordResetToken(body);
+      if (t) {
+        setDevResetToken(t);
+      }
+    }
   }
+
+  const devResetHref =
+    devResetToken != null
+      ? `/reset-password?token=${encodeURIComponent(devResetToken)}`
+      : null;
 
   return (
     <RedirectIfAuthed>
@@ -45,14 +64,9 @@ export default function ForgotPasswordPage() {
         <AuthPageHeader
           titleId="forgot-heading"
           title="Forgot password"
-          description="We will email reset steps when outbound mail is configured. In development, use the reset token from API logs."
+          description="Enter the email for your account. We will send reset instructions when email delivery is enabled."
         />
-        {done ? (
-          <p className="text-sm text-muted-foreground">
-            If an account exists for that email, you can continue with the reset link. In development,
-            check API logs for the reset token and open the reset URL from your app.
-          </p>
-        ) : (
+        {!done ? (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
             <AuthTextField
               id="email"
@@ -68,6 +82,29 @@ export default function ForgotPasswordPage() {
               {isSubmitting ? "Sending…" : "Send reset link"}
             </Button>
           </form>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{GENERIC_DONE}</p>
+            {isDev && devResetHref ? (
+              <div
+                className="rounded-md border border-dashed border-amber-600/50 bg-amber-50 p-3 text-xs dark:bg-amber-950/30"
+                data-testid="fp-dev-helper"
+              >
+                <p className="mb-2 font-medium text-amber-950 dark:text-amber-100">
+                  Development only — reset token (do not ship to production users)
+                </p>
+                <p className="mb-2 break-all font-mono text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-100/90">
+                  {devResetToken}
+                </p>
+                <Link
+                  href={devResetHref}
+                  className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "w-full justify-center")}
+                >
+                  Open reset password
+                </Link>
+              </div>
+            ) : null}
+          </div>
         )}
         <nav aria-label="Account access" className="text-center text-sm text-muted-foreground">
           <Link href="/login" className="underline underline-offset-4">
