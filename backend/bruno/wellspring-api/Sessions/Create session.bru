@@ -1,0 +1,35 @@
+meta {
+  name: Create session
+  type: http
+  seq: 32
+}
+
+post {
+  url: {{baseUrl}}/v1/sessions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "programId": "{{programId}}",
+    "title": "Bruno session",
+    "durationSeconds": 600,
+    "instructorName": "Alex Kim",
+    "tags": ["bruno"],
+    "mediaUrl": null,
+    "mediaType": null
+  }
+}
+
+script:post-response {
+  const body = typeof res.body === "object" ? res.body : {};
+  const id = body.id;
+  if (typeof id === "string") {
+    bru.setEnvVar("sessionId", id);
+  }
+}

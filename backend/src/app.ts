@@ -1,10 +1,12 @@
 import express, { type Application } from "express";
 import pinoHttp from "pino-http";
-import { loadEnv, type Env } from "./config/env.js";
+import swaggerUi from "swagger-ui-express";
+import { apiDocsEnabled, loadEnv, type Env } from "./config/env.js";
+import { buildOpenApiDocument } from "./openapi/openapiDocument.js";
 import { createRootLogger } from "./config/logger.js";
 import { createErrorHandler } from "./middleware/errorHandler.js";
 import { requestIdMiddleware } from "./middleware/requestId.js";
-import { authStubMiddleware } from "./middleware/auth.js";
+import { createJwtAuthMiddleware } from "./middleware/auth.js";
 import { authRouter } from "./modules/auth/routes.js";
 import { programsRouter } from "./modules/programs/routes.js";
 import { sessionsRouter } from "./modules/sessions/routes.js";
@@ -17,6 +19,7 @@ export function createApp(env: Env = loadEnv()): Application {
   const app = express();
 
   app.disable("x-powered-by");
+  app.set("env", env);
 
   app.use(requestIdMiddleware);
   app.use(
@@ -36,7 +39,30 @@ export function createApp(env: Env = loadEnv()): Application {
     res.json({ ok: true });
   });
 
-  app.use(authStubMiddleware);
+  if (apiDocsEnabled(env)) {
+    const openApiDocument = buildOpenApiDocument();
+    app.get("/openapi.json", (_req, res) => {
+      res.json(openApiDocument);
+    });
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
+  } else {
+    app.get("/openapi.json", (req, res) => {
+      res.status(404).json({
+        error: "not_found",
+        message: "API documentation is disabled",
+        requestId: req.requestId
+      });
+    });
+    app.use("/api-docs", (req, res) => {
+      res.status(404).json({
+        error: "not_found",
+        message: "API documentation is disabled",
+        requestId: req.requestId
+      });
+    });
+  }
+
+  app.use(createJwtAuthMiddleware(() => app.get("env") as Env));
 
   app.use("/v1/auth", authRouter);
   app.use("/v1/programs", programsRouter);

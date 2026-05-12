@@ -1,0 +1,21 @@
+meta {
+  name: Patch program
+  type: http
+  seq: 23
+}
+
+patch {
+  url: {{baseUrl}}/v1/programs/{{programId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "Bruno program (updated)"
+  }
+}

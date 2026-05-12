@@ -1,0 +1,15 @@
+meta {
+  name: List audit
+  type: http
+  seq: 42
+}
+
+get {
+  url: {{baseUrl}}/v1/audit
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

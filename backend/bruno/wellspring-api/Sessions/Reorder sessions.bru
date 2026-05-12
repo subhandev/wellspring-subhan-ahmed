@@ -1,0 +1,22 @@
+meta {
+  name: Reorder sessions
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{baseUrl}}/v1/sessions/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "programId": "{{programId}}",
+    "orderedSessionIds": []
+  }
+}

@@ -29,7 +29,7 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
 
 3. **Environment files**
 
-   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there).
+   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI endpoints are gated by **`ENABLE_API_DOCS`** (`1`/`0`; see [.env.example](backend/.env.example)).
    - Admin UI: copy `frontend/.env.example` to `frontend/.env.local` and set `NEXT_PUBLIC_API_URL` to your API base URL (e.g. `http://localhost:4000`).
 
 4. **Database & Prisma** (from `backend/`):
@@ -70,6 +70,20 @@ cd frontend && pnpm dev
 - **API:** `http://localhost:4000` (e.g. `GET /health`)
 - **Admin:** `http://localhost:3000`
 
+When the API is running and docs are enabled (default in non-production environments), [**Swagger UI**](http://localhost:4000/api-docs) serves the interactive OpenAPI explorer, and **`GET`** [`/openapi.json`](http://localhost:4000/openapi.json) exposes the raw spec. Protected operations use **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or capture a token from login).
+
+---
+
+## Bruno (API testing)
+
+1. Install [Bruno](https://www.usebruno.com/).
+2. **Open Collection** → choose [`backend/bruno/wellspring-api`](backend/bruno/wellspring-api).
+3. Select environment **Local**, run **`pnpm dev`** for the backend, **`pnpm db:seed`** for seed users (`creator1@wellspring-seed.example` / `Password123!` matches the Local env vars).
+4. Run **Auth → Login** first; the response script saves **`token`** to the environment for bearer-authenticated requests.
+5. Prefer **Programs → List programs** (or Create) before **Sessions**, **Import**, and similar calls so **`programId`** / **`sessionId`** are populated where applicable.
+
+You can regenerate or reconcile requests anytime by importing **`/openapi.json`** into Bruno if you prefer that workflow.
+
 ---
 
 ## Test
@@ -97,7 +111,7 @@ The API can be run with `tsx` in development; add a production start command (e.
 
 | Path | Purpose |
 |------|---------|
-| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest |
+| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger + Bruno collection (`bruno/wellspring-api`) |
 | `frontend/` | Next.js App Router admin |
 | `docs/` | Requirements copy, code summary, architecture review |
 | `ai-history/` | Exported AI sessions (chronological, uncurated) |
@@ -109,4 +123,4 @@ The API can be run with `tsx` in development; add a production start command (e.
 - [ ] Public GitHub repo + email per [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
 - [ ] Loom URL at **top of this README**
 - [ ] `docs/CODE_SUMMARY.md` and `docs/ARCHITECTURE_REVIEW.md` completed
-- [ ] `/ai-history` populated
+- [x] `/ai-history` populated

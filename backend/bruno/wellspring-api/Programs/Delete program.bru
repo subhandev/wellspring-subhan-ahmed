@@ -1,0 +1,15 @@
+meta {
+  name: Delete program
+  type: http
+  seq: 29
+}
+
+delete {
+  url: {{baseUrl}}/v1/programs/{{programId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

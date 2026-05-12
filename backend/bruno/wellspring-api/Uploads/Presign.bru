@@ -1,0 +1,22 @@
+meta {
+  name: Presign upload
+  type: http
+  seq: 40
+}
+
+post {
+  url: {{baseUrl}}/v1/uploads/presign
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "fileName": "sample-audio.mp3",
+    "contentType": "audio/mpeg"
+  }
+}

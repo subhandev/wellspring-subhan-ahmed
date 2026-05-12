@@ -1,0 +1,21 @@
+meta {
+  name: Patch session
+  type: http
+  seq: 34
+}
+
+patch {
+  url: {{baseUrl}}/v1/sessions/{{sessionId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "Bruno session (patched)"
+  }
+}
