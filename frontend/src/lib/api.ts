@@ -34,7 +34,12 @@ export async function apiFetch(path: string, init?: ApiFetchOpts): Promise<Respo
       headers.set("Authorization", `Bearer ${t}`);
     }
   }
-  return fetch(apiUrl(path), { ...rest, headers });
+  const res = await fetch(apiUrl(path), { ...rest, headers });
+  if (auth && res.status === 401 && typeof window !== "undefined") {
+    setAccessToken(null);
+    window.location.replace("/login");
+  }
+  return res;
 }
 
 /** Express API: success auth payloads use `{ success, data: { accessToken } }`. */

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SessionList } from "@/components/sessions/SessionList";
 import { buttonVariants } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "@/types";
 
@@ -23,17 +23,15 @@ export default function SessionsPage() {
     let cancelled = false;
     void (async () => {
       const res = await apiFetch(`/sessions?programId=${encodeURIComponent(programId)}`);
-      const data = (await res.json().catch(() => ({}))) as {
-        sessions?: SessionRow[];
-        message?: string;
-      };
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (!cancelled) {
-          setError(data.message ?? "Failed to load sessions");
+          setError(readApiErrorMessage(body, "Failed to load sessions"));
         }
         return;
       }
       if (!cancelled) {
+        const data = body as { sessions?: SessionRow[] };
         setSessions(data.sessions ?? []);
       }
     })();

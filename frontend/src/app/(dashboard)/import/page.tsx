@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import type { CsvImportRowResult } from "@/types";
 
 const schema = z.object({
@@ -33,15 +33,12 @@ export default function ImportPage() {
       method: "POST",
       body: JSON.stringify(data)
     });
-    const body = (await res.json().catch(() => ({}))) as {
-      results?: CsvImportRowResult[];
-      message?: string;
-    };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Import failed");
+      setError(readApiErrorMessage(body, "Import failed"));
       return;
     }
-    setResults(body.results ?? []);
+    setResults((body as { results?: CsvImportRowResult[] }).results ?? []);
   }
 
   return (
@@ -79,6 +76,13 @@ export default function ImportPage() {
       </form>
       {results ? (
         <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            {(() => {
+              const ok = results.filter((r) => r.ok).length;
+              const fail = results.length - ok;
+              return `${ok} row${ok === 1 ? "" : "s"} succeeded${fail > 0 ? ` · ${fail} row${fail === 1 ? "" : "s"} failed` : ""}`;
+            })()}
+          </p>
           <h2 className="font-medium">Results</h2>
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-left text-sm">

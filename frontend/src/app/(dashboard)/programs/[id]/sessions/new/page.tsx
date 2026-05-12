@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -56,13 +56,14 @@ export default function NewSessionPage() {
       method: "POST",
       body: JSON.stringify(payload)
     });
-    const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Could not create session");
+      setError(readApiErrorMessage(body, "Could not create session"));
       return;
     }
-    if (body.id) {
-      router.push(`/programs/${programId}/sessions/${body.id}/edit`);
+    const created = body as { id?: string };
+    if (created.id) {
+      router.push(`/programs/${programId}/sessions/${created.id}/edit`);
     }
   }
 

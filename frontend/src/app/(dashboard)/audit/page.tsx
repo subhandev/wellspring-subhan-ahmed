@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import type { AuditLogRow } from "@/types";
 
 export default function AuditPage() {
@@ -26,14 +26,12 @@ export default function AuditPage() {
     }
     const qs = q.toString();
     const res = await apiFetch(`/audit${qs ? `?${qs}` : ""}`);
-    const data = (await res.json().catch(() => ({}))) as {
-      auditLogs?: AuditLogRow[];
-      message?: string;
-    };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(data.message ?? "Failed to load audit log");
+      setError(readApiErrorMessage(body, "Failed to load audit log"));
       return;
     }
+    const data = body as { auditLogs?: AuditLogRow[] };
     setRows(data.auditLogs ?? []);
   }
 
@@ -67,11 +65,23 @@ export default function AuditPage() {
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Action</label>
           <input
-            className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+            className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm font-mono"
             value={action}
             onChange={(e) => setAction(e.target.value)}
             placeholder="program.created"
+            list="audit-action-suggestions"
           />
+          <datalist id="audit-action-suggestions">
+            <option value="program.created" />
+            <option value="program.updated" />
+            <option value="program.deleted" />
+            <option value="session.created" />
+            <option value="session.updated" />
+            <option value="session.deleted" />
+            <option value="session.reordered" />
+            <option value="sessions.imported" />
+            <option value="media.presigned" />
+          </datalist>
         </div>
         <Button type="button" onClick={load}>
           Apply filters

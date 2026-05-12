@@ -20,7 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "@/types";
 
@@ -89,7 +89,7 @@ export function SessionList({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  async function persistOrder(nextIds: string[]) {
+  async function persistOrder(nextIds: string[]): Promise<boolean> {
     setSaving(true);
     setError(null);
     const res = await apiFetch("/sessions/reorder", {
@@ -99,18 +99,17 @@ export function SessionList({
         orderedSessionIds: nextIds
       })
     });
-    const data = (await res.json().catch(() => ({}))) as {
-      message?: string;
-      sessions?: SessionRow[];
-    };
+    const body = await res.json().catch(() => ({}));
     setSaving(false);
     if (!res.ok) {
-      setError(data.message ?? "Reorder failed");
-      return;
+      setError(readApiErrorMessage(body, "Reorder failed"));
+      return false;
     }
+    const data = body as { sessions?: SessionRow[] };
     if (data.sessions) {
       setItems(data.sessions);
     }
+    return true;
   }
 
   function onDragEnd(ev: DragEndEvent) {
@@ -123,9 +122,15 @@ export function SessionList({
     if (oldIndex < 0 || newIndex < 0) {
       return;
     }
+    const previous = items;
     const reordered = arrayMove(items, oldIndex, newIndex);
     setItems(reordered);
-    void persistOrder(reordered.map((s) => s.id));
+    void (async () => {
+      const ok = await persistOrder(reordered.map((s) => s.id));
+      if (!ok) {
+        setItems(previous);
+      }
+    })();
   }
 
   return (

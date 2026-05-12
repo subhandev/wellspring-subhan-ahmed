@@ -6,7 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { editProgramFormSchema, type EditProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,8 @@ export default function ProgramDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const form = useForm<EditProgramForm>({
     resolver: zodResolver(editProgramFormSchema)
   });
@@ -36,13 +39,12 @@ export default function ProgramDetailPage() {
         id?: string;
         title?: string;
         description?: string | null;
-        message?: string;
       };
       if (cancelled) {
         return;
       }
       if (!res.ok) {
-        setLoadError(data.message ?? "Not found");
+        setLoadError(readApiErrorMessage(data, "Not found"));
         setLoadState("error");
         return;
       }
@@ -66,23 +68,21 @@ export default function ProgramDetailPage() {
         description: data.description === "" ? null : data.description
       })
     });
-    const body = (await res.json().catch(() => ({}))) as { message?: string };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Update failed");
+      setError(readApiErrorMessage(body, "Update failed"));
       return;
     }
     router.refresh();
   }
 
-  async function onDelete() {
-    if (!confirm("Delete this program and all sessions?")) {
-      return;
-    }
+  async function onConfirmDelete() {
+    setDeleteError(null);
     const res = await apiFetch(`/programs/${programId}`, { method: "DELETE" });
     if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { message?: string };
-      alert(body.message ?? "Delete failed");
-      return;
+      const body = await res.json().catch(() => ({}));
+      setDeleteError(readApiErrorMessage(body, "Delete failed"));
+      throw new Error("delete failed");
     }
     router.push("/programs");
   }
@@ -133,7 +133,7 @@ export default function ProgramDetailPage() {
           <Button type="submit" disabled={form.formState.isSubmitting}>
             Save
           </Button>
-          <Button type="button" variant="destructive" onClick={onDelete}>
+          <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
             Delete
           </Button>
           <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
@@ -141,6 +141,18 @@ export default function ProgramDetailPage() {
           </Link>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete this program?"
+        description="All sessions in this program will be removed. This cannot be undone."
+        confirmLabel="Delete program"
+        cancelLabel="Cancel"
+        confirmVariant="destructive"
+        onConfirm={onConfirmDelete}
+      />
+      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
     </div>
   );
 }

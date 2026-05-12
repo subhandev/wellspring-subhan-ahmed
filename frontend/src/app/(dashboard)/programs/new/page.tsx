@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { newProgramFormSchema, type NewProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
 
@@ -28,13 +28,14 @@ export default function NewProgramPage() {
       method: "POST",
       body: JSON.stringify(data)
     });
-    const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(body.message ?? "Could not create program");
+      setError(readApiErrorMessage(body, "Could not create program"));
       return;
     }
-    if (body.id) {
-      router.push(`/programs/${body.id}/edit`);
+    const created = body as { id?: string };
+    if (created.id) {
+      router.push(`/programs/${created.id}/edit`);
     }
   }
 
