@@ -3,6 +3,8 @@ import { AuditLogAction } from "@prisma/client";
 /** Values exposed on GET /v1/audit (stable dotted identifiers). */
 export const AUDIT_ACTION_API_VALUES = [
   "auth.logged_out",
+  "auth.signed_up",
+  "auth.password_reset",
   "program.created",
   "program.updated",
   "program.deleted",
@@ -20,6 +22,8 @@ export type AuditActionApiValue = (typeof AUDIT_ACTION_API_VALUES)[number];
 /** Map stable API / filter strings to persisted Prisma enum. */
 export const auditActionApiToPrisma: Record<AuditActionApiValue, AuditLogAction> = {
   "auth.logged_out": AuditLogAction.auth_logged_out,
+  "auth.signed_up": AuditLogAction.auth_signed_up,
+  "auth.password_reset": AuditLogAction.auth_password_reset,
   "program.created": AuditLogAction.program_created,
   "program.updated": AuditLogAction.program_updated,
   "program.deleted": AuditLogAction.program_deleted,

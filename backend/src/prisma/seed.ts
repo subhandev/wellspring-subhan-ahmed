@@ -7,23 +7,46 @@ const prisma = new PrismaClient();
 const PROGRAMS_PER_CREATOR = 3;
 const SESSIONS_PER_PROGRAM = 10;
 
+/**
+ * One JSON object per line (same keys as API logs where applicable).
+ * `tenant_id` is the creator id when in a tenant context, else `pre_auth` sentinel (no HTTP request).
+ */
+function seedLog(
+  level: "info" | "warn" | "error",
+  msg: string,
+  extra?: Record<string, unknown> & { tenantId?: string }
+): void {
+  const { tenantId, ...rest } = extra ?? {};
+  console.log(
+    JSON.stringify({
+      level,
+      msg,
+      component: "prisma_seed",
+      request_id: "seed",
+      tenant_id: tenantId ?? "pre_auth",
+      ...rest
+    })
+  );
+}
+
 async function main() {
   if (process.env.NODE_ENV === "production") {
     throw new Error("Refusing to run seed in production (NODE_ENV=production).");
   }
 
-  console.log(`[seed] starting (NODE_ENV=${process.env.NODE_ENV ?? "undefined"})`);
-  console.log(
-    `[seed] will create: creators=2, programsPerCreator=${PROGRAMS_PER_CREATOR}, sessionsPerProgram=${SESSIONS_PER_PROGRAM}`
-  );
+  seedLog("info", "seed starting", {
+    nodeEnv: process.env.NODE_ENV ?? "undefined",
+    programsPerCreator: PROGRAMS_PER_CREATOR,
+    sessionsPerProgram: SESSIONS_PER_PROGRAM
+  });
 
-  console.log("[seed] clearing existing data...");
+  seedLog("info", "clearing existing data");
   await prisma.sessionImportKey.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.session.deleteMany();
   await prisma.program.deleteMany();
   await prisma.creator.deleteMany();
-  console.log("[seed] cleared.");
+  seedLog("info", "cleared");
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
   const instructors = ["Alex Kim", "Jordan Lee", "Sam Rivera"];
@@ -31,7 +54,7 @@ async function main() {
 
   for (let i = 0; i < 2; i++) {
     const email = `creator${i + 1}@wellspring.example`;
-    console.log(`[seed] creating creator ${i + 1}/2 (${email})...`);
+    seedLog("info", `creating creator ${i + 1}/2`, { email });
     const creator = await prisma.creator.create({
       data: {
         email,
@@ -41,7 +64,11 @@ async function main() {
     seededCreators.push({ email: creator.email, id: creator.id });
 
     for (let p = 0; p < PROGRAMS_PER_CREATOR; p++) {
-      console.log(`[seed] creating program ${p + 1}/${PROGRAMS_PER_CREATOR} for ${email}...`);
+      seedLog("info", `creating program ${p + 1}/${PROGRAMS_PER_CREATOR}`, {
+        tenantId: creator.id,
+        email,
+        programIndex: p + 1
+      });
       await prisma.program.create({
         data: {
           tenantId: creator.id,
@@ -69,15 +96,14 @@ async function main() {
       });
     }
 
-    console.log(`[seed] creator ${i + 1}/2 complete.`);
+    seedLog("info", `creator ${i + 1}/2 complete`, { tenantId: creator.id, email });
   }
 
-  console.log("[seed] done.");
-  console.log("[seed] credentials:");
-  for (const c of seededCreators) {
-    console.log(`- email: ${c.email}`);
-  }
-  console.log("- password: Password123!");
+  seedLog("info", "seed done");
+  seedLog("info", "seed credentials (local only)", {
+    emails: seededCreators.map((c) => c.email),
+    passwordHint: "Password123!"
+  });
 }
 
 main()
@@ -85,7 +111,10 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e);
+    seedLog("error", "seed failed", {
+      err: e instanceof Error ? e.message : String(e),
+      stack: e instanceof Error ? e.stack : undefined
+    });
     await prisma.$disconnect();
     process.exit(1);
   });

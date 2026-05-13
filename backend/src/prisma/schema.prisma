@@ -8,8 +8,11 @@ datasource db {
 }
 
 /// Past-tense dotted identifiers persisted for audit filters (see `appendAuditLog`).
+/// Includes auth lifecycle: `auth.logged_out`, `auth.signed_up`, `auth.password_reset`.
 enum AuditLogAction {
   auth_logged_out @map("auth.logged_out")
+  auth_signed_up @map("auth.signed_up")
+  auth_password_reset @map("auth.password_reset")
   program_created @map("program.created")
   program_updated @map("program.updated")
   program_deleted @map("program.deleted")

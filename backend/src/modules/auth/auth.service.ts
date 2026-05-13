@@ -4,7 +4,7 @@ import * as bcrypt from "bcryptjs";
 import type { Env } from "../../config/env.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { HttpError } from "../../lib/httpError.js";
-import type { TenantId } from "../../types/tenant.js";
+import { toTenantId, type TenantId } from "../../types/tenant.js";
 import { signAccessToken, signPasswordResetToken, verifyPasswordResetToken } from "./jwt.js";
 import * as repo from "./repository.js";
 import type { ForgotPasswordBody, LoginBody, ResetPasswordBody, SignupBody } from "./schemas.js";
@@ -45,6 +45,14 @@ export async function signup(env: Env, body: SignupBody): Promise<AuthTokenBundl
     sub: creator.id,
     tenantId: creator.id,
     email: creator.email
+  });
+  const tenantId = toTenantId(creator.id);
+  await appendAuditLog({
+    tenantId,
+    actorId: creator.id,
+    action: AuditLogAction.auth_signed_up,
+    targetType: "creator",
+    targetId: creator.id
   });
   return {
     accessToken,
@@ -116,6 +124,15 @@ export async function resetPassword(env: Env, body: ResetPasswordBody): Promise<
 
   const passwordHash = await bcrypt.hash(body.newPassword, BCRYPT_ROUNDS);
   await repo.updatePassword(creator.id, passwordHash);
+
+  const tenantId = toTenantId(creator.id);
+  await appendAuditLog({
+    tenantId,
+    actorId: creator.id,
+    action: AuditLogAction.auth_password_reset,
+    targetType: "creator",
+    targetId: creator.id
+  });
 
   const accessToken = signAccessToken(env, {
     sub: creator.id,

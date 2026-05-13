@@ -77,6 +77,8 @@ Protected routes expect **`Authorization: Bearer <jwt>`** (use **Authorize** in 
    pnpm db:seed
    ```
 
+   Seed output is **one JSON object per line** (includes `request_id: "seed"`, `tenant_id` set to the creator id when relevant, or `pre_auth` for global steps) so it matches the spirit of structured logging used by the API.
+
    **Seeded logins (local):**
 
    - `creator1@wellspring.example` / `Password123!`
