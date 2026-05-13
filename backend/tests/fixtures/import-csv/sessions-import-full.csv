@@ -1,0 +1,34 @@
+client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
+mix-ok-1,cmp3viht60006ycdv8rmlfhnq,Valid row — baseline validation,360,Valid Coach,,,
+baseline-001,cmp3viht60006ycdv8rmlfhnq,Morning mobility flow,900,Coach Rivera,,,
+baseline-002,cmp3viht60006ycdv8rmlfhnq,"Cool-down stretch, lower body",1200,Alex Kim,,,
+baseline-003,cmp3viht60006ycdv8rmlfhnq,HIIT circuit — week 1,2700,Jordan Smith,,,
+tags-000,cmp3viht60006ycdv8rmlfhnq,Position zero anchor,60,Dr. Patel,"warmup, mobility",0
+tags-001,cmp3viht60006ycdv8rmlfhnq,Pipe-delimited tags,90,Chris Lee,focus|breathwork|beginner,1
+tags-002,cmp3viht60006ycdv8rmlfhnq,Mixed delimiters trim spaces,120,Morgan Taylor," a | b , c ",2
+tags-003,cmp3viht60006ycdv8rmlfhnq,Trailing empty tag tokens ignored,180,Sam Okonkwo,"x,,y|",3
+tags-004,cmp3viht60006ycdv8rmlfhnq,Unicode tags,240,Noor Haddad,"استرخاء|relaxation|リラックス",4
+uni-001,cmp3viht60006ycdv8rmlfhnq,"Session: ""quotes"" & ampersands <test>",180,教练 Wang 太郎,"中文|日本語|한국어",
+uni-002,cmp3viht60006ycdv8rmlfhnq,Emoji warm-up 🧘‍♀️🔥,240,Núñez O'Connor,"café|naïve",
+uni-003,cmp3viht60006ycdv8rmlfhnq,RTL snippet اختبار,300,מורה Cohen,hebrew|arabic|mixed,
+num-leading-0,cmp3viht60006ycdv8rmlfhnq,Leading zeros parse as decimal int,007,Coach,,,
+num-spaces,cmp3viht60006ycdv8rmlfhnq,Spaces trimmed around duration,  90  ,Coach,,,
+num-decimal,cmp3viht60006ycdv8rmlfhnq,300.9 parses as 300 via parseInt,300.9,Coach,,,
+num-partial,cmp3viht60006ycdv8rmlfhnq,99abc parses as 99 — know the quirk,99abc,Coach,,,
+num-sci,cmp3viht60006ycdv8rmlfhnq,1e2 parses as 1 — scientific notation quirk,1e2,Coach,,,
+shuffle-001,cmp3viht60006ycdv8rmlfhnq,Standard column order sanity row,450,Order Test,,,
+mix-float-looking,cmp3viht60006ycdv8rmlfhnq,Decimal string parses as int prefix,300.9,Someone,,,
+dup-same-id,cmp3viht60006ycdv8rmlfhnq,First row wins for this client_row_id,120,Coach A,,,
+dup-same-id,cmp3viht60006ycdv8rmlfhnq,Second row same id different title — expect idempotent not second session,999,Coach B,,,
+pos-col-a,cmp3viht60006ycdv8rmlfhnq,Claims position 5,60,Coach A,,5
+pos-col-b,cmp3viht60006ycdv8rmlfhnq,Also claims position 5 — expect failure on unique (programId+position),60,Coach B,,5
+,cmp3viht60006ycdv8rmlfhnq,Empty client_row_id cell,60,Someone,,,
+mix-empty-program,,Title present but program_id blank,60,Coach,,,
+mix-no-program,clnonexistentprogramid00000000,Valid text but wrong program,120,Someone,,
+mix-empty-title,cmp3viht60006ycdv8rmlfhnq,,120,Someone,,
+mix-empty-duration,cmp3viht60006ycdv8rmlfhnq,No duration,,Someone,,
+mix-zero-duration,cmp3viht60006ycdv8rmlfhnq,Zero duration,0,Someone,,
+mix-negative-pos,cmp3viht60006ycdv8rmlfhnq,Bad position,60,Someone,,-1
+mix-bad-pos,cmp3viht60006ycdv8rmlfhnq,Non-numeric position,60,Someone,,not-a-number
+mix-whitespace-instructor,cmp3viht60006ycdv8rmlfhnq,Whitespace instructor only,60,   ,,
+xtenant-001,clfakeprogramidxxxxxxxxxxxxxx,Should always fail program lookup,120,Coach,,,

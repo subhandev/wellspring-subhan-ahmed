@@ -1,3 +1,0 @@
-client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
-dup-same-id,cmp3viht60006ycdv8rmlfhnq,First row wins for this client_row_id,120,Coach A,,,
-dup-same-id,cmp3viht60006ycdv8rmlfhnq,Second row same id different title — expect idempotent not second session,999,Coach B,,,

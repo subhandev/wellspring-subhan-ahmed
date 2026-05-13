@@ -1,6 +1,0 @@
-client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
-tags-000,cmp3viht60006ycdv8rmlfhnq,Position zero anchor,60,Dr. Patel,"warmup, mobility",0
-tags-001,cmp3viht60006ycdv8rmlfhnq,Pipe-delimited tags,90,Chris Lee,focus|breathwork|beginner,1
-tags-002,cmp3viht60006ycdv8rmlfhnq,Mixed delimiters trim spaces,120,Morgan Taylor," a | b , c ",2
-tags-003,cmp3viht60006ycdv8rmlfhnq,Trailing empty tag tokens ignored,180,Sam Okonkwo,"x,,y|",3
-tags-004,cmp3viht60006ycdv8rmlfhnq,Unicode tags,240,Noor Haddad,"استرخاء|relaxation|リラックス",4

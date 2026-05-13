@@ -4,27 +4,26 @@ REQUIRED HEADER NAMES (all must appear on the first row; use lowercase names so 
   client_row_id      — non-empty per row; stable id for idempotency with clientImportId
   program_id         — must belong to the authenticated tenant
   title              — non-empty
-  duration_seconds   — positive integer (parseInt; see edge cases in 08 file)
+  duration_seconds   — positive integer (parseInt; see edge rows in sessions-import-full.csv)
   instructor_name    — non-empty
 
 OPTIONAL COLUMNS (omit entire column if unused):
   tags               — split on | or , ; trim each token; empty cell => no tags
   position           — non-negative integer; omit or leave empty => append after max position
 
-PROGRAM ID IN FIXTURES: CSVs use program id cmp3viht60006ycdv8rmlfhnq wherever a tenant-owned program is required (swap for a program id from your DB if yours differs). Exception: 10-program-not-found.csv keeps a fake id to exercise "program not found"; 03-mixed-validation-outcomes.csv includes blank program and a separate fake id row for the same checks.
+PROGRAM ID IN FIXTURES: CSVs use program id cmp3viht60006ycdv8rmlfhnq wherever a tenant-owned program is required (swap for a program id from your DB if yours differs). sessions-import-full.csv ends with a fake program id row for “program not found”.
 
-SCENARIO FILES:
-  01-baseline-happy-path.csv           — valid rows; auto positions; empty tags
-  02-tags-and-positions.csv            — pipe/comma tags, explicit positions including 0
-  03-mixed-validation-outcomes.csv     — one valid row + many expected failures
-  04-unicode-special-characters.csv    — unicode + punctuation in text fields
-  05-duplicate-client-row-id.csv       — same client_row_id twice in one file (second row idempotent)
-  06-explicit-position-collision.csv   — two rows same explicit position (second should fail DB unique)
-  07-headers-only-required.csv         — only the five required columns, shuffled header order
-  08-edge-numeric-strings.csv          — leading zeros, decimals, partial numeric strings
-  09-header-only-no-data-rows.csv      — header only; API should return 400 "CSV has no data rows"
-  10-program-not-found.csv             — valid row shape, fake program id (expect per-row not found)
+FIXTURE FILES (3):
 
-CROSS-TENANT / NOT FOUND: Use a random program id from another tenant or a fake id like clxxxxxxxxxxxxxxxxxxxxxxxxx — expect "program not found for this tenant".
+  sessions-import-full.csv
+    Single file covering: happy-path rows; tags (pipe/comma, trim, unicode tags); explicit positions including 0; unicode / punctuation / emoji in titles and instructors; duration edge cases (leading zeros, spaces, decimals, partial parse, scientific notation); duplicate client_row_id in one upload (second row idempotent); two rows same explicit position 5 (second fails unique); per-row validation failures (blank ids, bad program, empty fields, zero/invalid duration, bad position, whitespace-only instructor); program not found.
+
+  sessions-import-shuffled-headers.csv
+    Only the five required columns, different column order — same contract as full.csv, one valid data row.
+
+  sessions-import-header-only.csv
+    Header row only — API should return 400 “CSV has no data rows”.
+
+CROSS-TENANT / NOT FOUND: Use a random program id from another tenant or a fake id like clxxxxxxxxxxxxxxxxxxxxxxxxx — expect “program not found for this tenant”.
 
 IDEMPOTENCY (API-level): Re-post the same CSV with the same clientImportId; existing client_row_id rows return ok + idempotent true without duplicating sessions.
