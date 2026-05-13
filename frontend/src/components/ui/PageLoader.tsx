@@ -88,7 +88,7 @@ export function PageLoader({
         !fullScreen && usePanel && "items-stretch",
         !fullScreen &&
           !usePanel &&
-          (compact ? "min-h-[100px] py-10" : "min-h-[min(72vh,42rem)] py-12 md:py-16"),
+          (compact ? "min-h-[100px] py-10" : "min-h-[calc(100dvh-6rem)]"),
         !fullScreen && usePanel && "min-h-[200px] py-10 md:min-h-[240px] md:py-12",
         className
       )}

@@ -140,7 +140,7 @@ export default function AuditPage() {
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       {!rows ? (
-        <PageLoader message="Loading audit log…" className="py-16" />
+        <PageLoader compact message="Loading audit log…" className="min-h-[260px] py-12" />
       ) : filteredRows && filteredRows.length === 0 ? (
         <div className="rounded-xl border border-border bg-card px-4 py-10 text-center text-sm text-muted-foreground md:px-8">
           {rows.length === 0 ? (
