@@ -190,7 +190,7 @@ function ProgramsInner() {
           className="overflow-hidden rounded-xl border border-border bg-card"
           aria-labelledby="your-programs-heading"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border px-6 py-4">
             <h2 id="your-programs-heading" className="text-[15px] font-semibold tracking-tight text-foreground">
               Your Programs
             </h2>

@@ -108,7 +108,7 @@ export default function SessionDetailPage() {
         <Link href={`/programs/${programId}/sessions`} className={dashBackLink}>
           ← Back to sessions
         </Link>
-        <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className={dashPageTitle}>{session.title ?? "Session"}</h1>
             <p className={dashPageDescription}>Session details and media.</p>

@@ -100,7 +100,7 @@ export default function ProgramDetailPage() {
         <Link href="/programs" className={dashBackLink}>
           ← Back to programs
         </Link>
-        <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className={dashPageTitle}>Edit program</h1>
             <p className={dashPageDescription}>Update the title and description shown across the admin.</p>

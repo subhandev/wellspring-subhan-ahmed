@@ -231,8 +231,8 @@ export default function ImportPage() {
         </div>
       </form>
       {results ? (
-        <section className={cn(dashSectionCard, "space-y-4")}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <section className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-base font-semibold tracking-tight">Row results</h2>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -256,15 +256,25 @@ export default function ImportPage() {
           <div className="overflow-hidden rounded-lg border border-border bg-card shadow-[0_1px_2px_rgb(28_28_26/0.04)] dark:shadow-[0_1px_2px_rgb(0_0_0/0.2)]">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[32rem] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/60">
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      client_row_id
+                <thead className="sticky top-0 z-10 border-b border-border bg-muted/55 backdrop-blur-sm supports-[backdrop-filter]:bg-muted/45 dark:bg-muted/35 dark:supports-[backdrop-filter]:bg-muted/25">
+                  <tr>
+                    <th
+                      scope="col"
+                      title="CSV column: client_row_id"
+                      className="px-4 py-2.5 text-left align-bottom text-xs font-semibold leading-none text-foreground"
+                    >
+                      Client row ID
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="px-4 py-2.5 text-left align-bottom text-xs font-semibold leading-none text-foreground"
+                    >
                       Outcome
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="px-4 py-2.5 text-left align-bottom text-xs font-semibold leading-none text-foreground"
+                    >
                       Detail
                     </th>
                   </tr>
