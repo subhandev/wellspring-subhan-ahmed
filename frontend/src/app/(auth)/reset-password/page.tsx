@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -78,7 +77,7 @@ function ResetPasswordForm() {
         title="Reset password"
         description="Set a new password for your account. You will sign in on the next step."
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {showTokenPaste ? (
           <div className="space-y-1">
             <label className="text-sm font-medium leading-none" htmlFor="reset-token">
@@ -117,18 +116,16 @@ function ResetPasswordForm() {
         />
         <AuthFieldError message={errors.confirm?.message} />
         {error ? <AuthFieldError message={error} /> : null}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Updating…" : "Update password"}
-        </Button>
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="h-11 w-full rounded-lg text-[15px] font-medium tracking-tight disabled:opacity-60"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Updating…" : "Update password"}
+          </Button>
+        </div>
       </form>
-      <nav className="flex flex-col gap-2 text-center text-sm text-muted-foreground" aria-label="Account recovery">
-        <Link href="/forgot-password" className="underline underline-offset-4">
-          Request a new reset link
-        </Link>
-        <Link href="/login" className="underline underline-offset-4">
-          Back to sign in
-        </Link>
-      </nav>
     </section>
   );
 }

@@ -63,11 +63,11 @@ export default function ForgotPasswordPage() {
       <section className="space-y-4" aria-labelledby="forgot-heading">
         <AuthPageHeader
           titleId="forgot-heading"
-          title="Forgot password"
-          description="Enter the email for your account. We will send reset instructions when email delivery is enabled."
+          title="Forgot password?"
+          description="Enter your account email. We'll send reset instructions when email delivery is enabled."
         />
         {!done ? (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <AuthTextField
               id="email"
               label="Email"
@@ -78,9 +78,15 @@ export default function ForgotPasswordPage() {
             />
             <AuthFieldError message={errors.email?.message} />
             {error ? <AuthFieldError message={error} /> : null}
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Sending…" : "Send reset link"}
-            </Button>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                className="h-11 w-full rounded-lg text-[15px] font-medium tracking-tight disabled:opacity-60"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Sending…" : "Send reset link"}
+              </Button>
+            </div>
           </form>
         ) : (
           <div className="space-y-4">
@@ -106,11 +112,6 @@ export default function ForgotPasswordPage() {
             ) : null}
           </div>
         )}
-        <nav aria-label="Account access" className="text-center text-sm text-muted-foreground">
-          <Link href="/login" className="underline underline-offset-4">
-            Back to sign in
-          </Link>
-        </nav>
       </section>
     </RedirectIfAuthed>
   );

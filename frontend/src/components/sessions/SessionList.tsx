@@ -17,12 +17,13 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { ArrowRight, GripVertical } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { dashPrimaryLink, dashSectionCard } from "@/lib/dashboardUi";
 import { formatSessionDuration } from "@/lib/formatDisplay";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "@/types";
@@ -33,12 +34,14 @@ function SortableRow({
   session,
   programId,
   indexDisplay,
-  onRequestDelete
+  onRequestDelete,
+  isFirst
 }: {
   session: SessionRow;
   programId: string;
   indexDisplay: number;
   onRequestDelete: (s: SessionRow) => void;
+  isFirst: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: session.id
@@ -46,15 +49,12 @@ function SortableRow({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.85 : 1
+    opacity: isDragging ? 0.92 : 1,
+    zIndex: isDragging ? 1 : 0
   };
 
   const firstTag = session.tags?.[0];
-  const meta = [
-    session.instructorName,
-    formatSessionDuration(session.durationSeconds),
-    firstTag
-  ]
+  const meta = [session.instructorName, formatSessionDuration(session.durationSeconds), firstTag]
     .filter(Boolean)
     .join(" · ");
 
@@ -64,29 +64,34 @@ function SortableRow({
     <li
       ref={setNodeRef}
       style={style}
-      className="flex flex-wrap items-stretch gap-0 rounded-md border bg-card"
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 px-6 py-4 transition-shadow",
+        !isFirst && "border-t border-border"
+      )}
     >
-      <button
-        type="button"
-        className="flex shrink-0 cursor-grab touch-none items-center px-2 text-muted-foreground hover:text-foreground"
-        aria-label="Drag handle"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-4" aria-hidden />
-      </button>
-      <Link
-        href={viewHref}
-        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 outline-offset-[-2px] hover:bg-muted/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring"
-      >
+      <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
+        <button
+          type="button"
+          className="mt-0.5 shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="size-4" aria-hidden />
+        </button>
         <div className="min-w-0 flex-1">
-          <p className="font-medium">
-            <span className="text-muted-foreground">{indexDisplay}.</span> {session.title}
+          <p className="text-sm font-medium text-foreground">
+            <span className="tabular-nums text-muted-foreground">{indexDisplay}.</span>{" "}
+            {session.title}
           </p>
-          <p className="text-xs text-muted-foreground">{meta}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{meta}</p>
         </div>
-      </Link>
-      <div className="flex shrink-0 items-center gap-2 border-l bg-card px-3 py-2">
+      </div>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pl-9 sm:pl-0">
+        <Link href={viewHref} className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}>
+          View
+          <ArrowRight className="size-3.5" aria-hidden />
+        </Link>
         <Link
           href={`/programs/${programId}/sessions/${session.id}/edit`}
           className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
@@ -187,24 +192,31 @@ export function SessionList({
   }
 
   return (
-    <div className="space-y-2">
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={items.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-          <ul className="space-y-2">
-            {items.map((s, idx) => (
-              <SortableRow
-                key={s.id}
-                session={s}
-                programId={programId}
-                indexDisplay={idx + 1}
-                onRequestDelete={setDeleteTarget}
-              />
-            ))}
-          </ul>
-        </SortableContext>
-      </DndContext>
+    <div className="space-y-3">
+      {(error ?? saving) ? (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          {error ? <p className="text-destructive">{error}</p> : null}
+          {saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
+        </div>
+      ) : null}
+      <div className={cn(dashSectionCard, "overflow-hidden")}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={items.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+            <ul>
+              {items.map((s, idx) => (
+                <SortableRow
+                  key={s.id}
+                  session={s}
+                  programId={programId}
+                  indexDisplay={idx + 1}
+                  isFirst={idx === 0}
+                  onRequestDelete={setDeleteTarget}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      </div>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
@@ -216,16 +228,14 @@ export function SessionList({
         }}
         title="Delete session?"
         description={
-          deleteTarget
-            ? `This will permanently delete “${deleteTarget.title}”.`
-            : undefined
+          deleteTarget ? `This will permanently delete “${deleteTarget.title}”.` : undefined
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"
         confirmVariant="destructive"
         onConfirm={onConfirmDeleteSession}
       />
-      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
+      {deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
     </div>
   );
 }

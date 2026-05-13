@@ -9,11 +9,16 @@ export function AuthPageHeader({
   titleId?: string;
 }) {
   return (
-    <header className="space-y-1">
-      <h1 id={titleId} className="text-xl font-semibold tracking-tight">
+    <header className="mb-7">
+      <h1
+        id={titleId}
+        className="text-[22px] font-semibold tracking-tight text-foreground"
+      >
         {title}
       </h1>
-      {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+      {description ? (
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      ) : null}
     </header>
   );
 }

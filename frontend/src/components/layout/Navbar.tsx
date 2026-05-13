@@ -20,7 +20,7 @@ export function Navbar() {
           "mr-2 cursor-default px-2 font-semibold no-underline hover:no-underline"
         )}
       >
-        Wellspring Admin
+        Wellspring
       </Link>
       {links.map((l) => (
         <Link

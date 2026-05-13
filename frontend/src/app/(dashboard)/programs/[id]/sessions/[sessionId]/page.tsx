@@ -3,8 +3,18 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import {
+  DASH_PAGE_MAX,
+  dashBackLink,
+  dashInsetCard,
+  dashPageDescription,
+  dashPageTitle,
+  dashPrimaryLink,
+  dashSectionCard
+} from "@/lib/dashboardUi";
 import { formatSessionDuration } from "@/lib/formatDisplay";
 import { cn } from "@/lib/utils";
 
@@ -55,77 +65,90 @@ export default function SessionDetailPage() {
 
   if (state === "loading") {
     return (
-      <div className="max-w-lg space-y-4">
-        <p className="text-muted-foreground">Loading session…</p>
-        <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
-        <div className="h-24 w-full animate-pulse rounded-md bg-muted" />
+      <div className={cn(DASH_PAGE_MAX, "space-y-6")}>
+        <div className={cn(dashSectionCard, "p-8")}>
+          <p className="text-sm text-muted-foreground">Loading session…</p>
+          <div className="mt-4 space-y-3">
+            <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
+            <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (state === "error" || !session) {
-    return <p className="text-sm text-red-600">{error ?? "Failed to load session"}</p>;
+    return <p className="text-sm text-destructive">{error ?? "Failed to load session"}</p>;
   }
 
   const tags = session.tags?.length ? session.tags.join(", ") : "—";
   const mediaUrl = session.mediaUrl?.trim();
 
   return (
-    <div className="max-w-lg space-y-4">
-      <Link
-        href={`/programs/${programId}/sessions`}
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        ← Back to Sessions
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h1 className="text-2xl font-semibold">{session.title ?? "Session"}</h1>
-        <Link
-          href={`/programs/${programId}/sessions/${sessionId}/edit`}
-          className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-        >
-          Edit
+    <div className={cn(DASH_PAGE_MAX, "space-y-8")}>
+      <div>
+        <Link href={`/programs/${programId}/sessions`} className={dashBackLink}>
+          ← Back to sessions
         </Link>
-      </div>
-      <dl className="space-y-3 rounded-md border bg-card px-4 py-3 text-sm">
-        <div>
-          <dt className="text-muted-foreground">Instructor</dt>
-          <dd className="font-medium">{session.instructorName ?? "—"}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">Duration</dt>
-          <dd className="font-medium">
-            {typeof session.durationSeconds === "number"
-              ? formatSessionDuration(session.durationSeconds)
-              : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">Tags</dt>
-          <dd className="font-medium">{tags}</dd>
-        </div>
-        {mediaUrl ? (
+        <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <dt className="text-muted-foreground">Media</dt>
-            <dd className="break-all font-medium">
-              <a href={mediaUrl} className="text-primary underline underline-offset-4" target="_blank" rel="noreferrer">
-                {mediaUrl}
-              </a>
-              {session.mediaType ? (
-                <span className="mt-1 block text-xs text-muted-foreground">{session.mediaType}</span>
-              ) : null}
+            <h1 className={dashPageTitle}>{session.title ?? "Session"}</h1>
+            <p className={dashPageDescription}>Session details and media.</p>
+          </div>
+          <Link
+            href={`/programs/${programId}/sessions/${sessionId}/edit`}
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "shrink-0")}
+          >
+            Edit session
+          </Link>
+        </div>
+      </div>
+
+      <div className={dashSectionCard}>
+        <dl className="divide-y divide-border px-6 py-2 text-sm">
+          <div className="grid gap-1 py-4 sm:grid-cols-[140px_1fr] sm:gap-4">
+            <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Instructor</dt>
+            <dd className="font-medium text-foreground">{session.instructorName ?? "—"}</dd>
+          </div>
+          <div className="grid gap-1 py-4 sm:grid-cols-[140px_1fr] sm:gap-4">
+            <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Duration</dt>
+            <dd className="font-medium text-foreground">
+              {typeof session.durationSeconds === "number"
+                ? formatSessionDuration(session.durationSeconds)
+                : "—"}
             </dd>
           </div>
-        ) : (
-          <div>
-            <dt className="text-muted-foreground">Media</dt>
-            <dd className="font-medium">None</dd>
+          <div className="grid gap-1 py-4 sm:grid-cols-[140px_1fr] sm:gap-4">
+            <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Tags</dt>
+            <dd className="font-medium text-foreground">{tags}</dd>
           </div>
-        )}
-      </dl>
-      <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
-        Back to list
-      </Link>
+          <div className="grid gap-1 py-4 sm:grid-cols-[140px_1fr] sm:gap-4">
+            <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Media</dt>
+            <dd className="font-medium text-foreground">
+              {mediaUrl ? (
+                <>
+                  <a href={mediaUrl} className={cn(dashPrimaryLink, "inline-flex flex-wrap items-center gap-1 break-all")} target="_blank" rel="noreferrer">
+                    Open media
+                    <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                  </a>
+                  {session.mediaType ? (
+                    <span className="mt-1 block text-xs text-muted-foreground">{session.mediaType}</span>
+                  ) : null}
+                  <span className="mt-2 block max-w-xl break-all text-xs text-muted-foreground">{mediaUrl}</span>
+                </>
+              ) : (
+                "None"
+              )}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className={dashInsetCard}>
+        <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
+          Back to sessions list
+        </Link>
+      </div>
     </div>
   );
 }

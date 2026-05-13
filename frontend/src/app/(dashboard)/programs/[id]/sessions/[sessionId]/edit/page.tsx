@@ -9,6 +9,19 @@ import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, readApiErrorMessage, applyServerFieldErrors, readApiErrorDetails } from "@/lib/api";
+import {
+  DASH_PAGE_MAX,
+  dashBackLink,
+  dashFormSection,
+  dashInsetCard,
+  dashInputCn,
+  dashLabel,
+  dashPageDescription,
+  dashPageTitle,
+  dashPrimaryLink,
+  dashSectionCard,
+  dashSelectCn
+} from "@/lib/dashboardUi";
 import { fileAcceptForMediaKind, mimeToMediaKind, type MediaKind } from "@/lib/mediaKind";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -219,168 +232,158 @@ export default function EditSessionPage() {
 
   if (loadState === "loading") {
     return (
-      <div className="max-w-lg space-y-4">
-        <p className="text-muted-foreground">Loading session…</p>
-        <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
-        <div className="h-24 w-full animate-pulse rounded-md bg-muted" />
+      <div className={cn(DASH_PAGE_MAX, "space-y-6")}>
+        <div className={cn(dashSectionCard, "p-8")}>
+          <p className="text-sm text-muted-foreground">Loading session…</p>
+          <div className="mt-4 space-y-3">
+            <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
+            <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (loadState === "error" || loadError) {
-    return <p className="text-sm text-red-600">{loadError ?? "Failed to load session"}</p>;
+    return <p className="text-sm text-destructive">{loadError ?? "Failed to load session"}</p>;
   }
 
   return (
-    <div className="max-w-lg space-y-4">
-      <Link
-        href={`/programs/${programId}/sessions`}
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        ← Back to Sessions
-      </Link>
-      <h1 className="text-2xl font-semibold">Edit Session</h1>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-title">
-            Title <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="es-title"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("title")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-instructor">
-            Instructor Name <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="es-instructor"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("instructorName")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-duration">
-            Duration (seconds) <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="es-duration"
-            type="number"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("durationSeconds", { valueAsNumber: true })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-tags">
-            Tags (comma separated)
-          </label>
-          <input
-            id="es-tags"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("tags")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-media-kind">
-            Media type
-          </label>
-          <select
-            id="es-media-kind"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("mediaKind")}
-          >
-            <option value="none">None</option>
-            <option value="audio">Audio</option>
-            <option value="video">Video</option>
-          </select>
-        </div>
-        {mediaUrl ? (
-          <div className="space-y-2 rounded-md border p-3">
-            <p className="text-sm font-medium">Current media</p>
-            <p className="break-all text-sm">
-              <a href={mediaUrl} className="text-primary underline underline-offset-4" target="_blank" rel="noreferrer">
+    <div className={cn(DASH_PAGE_MAX, "space-y-8")}>
+      <div>
+        <Link href={`/programs/${programId}/sessions`} className={dashBackLink}>
+          ← Back to sessions
+        </Link>
+        <h1 className={cn(dashPageTitle, "mt-6")}>Edit session</h1>
+        <p className={dashPageDescription}>Update metadata, URLs, or replace media.</p>
+      </div>
+
+      <div className={dashSectionCard}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className={dashFormSection}>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-title">
+              Title <span className="text-destructive">*</span>
+            </label>
+            <input id="es-title" className={dashInputCn()} {...form.register("title")} />
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-instructor">
+              Instructor name <span className="text-destructive">*</span>
+            </label>
+            <input id="es-instructor" className={dashInputCn()} {...form.register("instructorName")} />
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-duration">
+              Duration (seconds) <span className="text-destructive">*</span>
+            </label>
+            <input
+              id="es-duration"
+              type="number"
+              className={dashInputCn()}
+              {...form.register("durationSeconds", { valueAsNumber: true })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-tags">
+              Tags <span className="text-muted-foreground">(comma separated)</span>
+            </label>
+            <input id="es-tags" className={dashInputCn()} {...form.register("tags")} />
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-media-kind">
+              Media type
+            </label>
+            <select id="es-media-kind" className={dashSelectCn} {...form.register("mediaKind")}>
+              <option value="none">None</option>
+              <option value="audio">Audio</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+
+          {mediaUrl ? (
+            <div className={dashInsetCard}>
+              <p className="text-sm font-medium text-foreground">Current media</p>
+              <a
+                href={mediaUrl}
+                className={cn(dashPrimaryLink, "mt-2 inline-flex break-all text-sm")}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {mediaUrl}
               </a>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => {
+                  if (fileRef.current) {
+                    fileRef.current.value = "";
+                  }
+                  fileRef.current?.click();
+                }}
+              >
+                Replace file
+              </Button>
+            </div>
+          ) : null}
+
+          <div className={dashInsetCard}>
+            <p className="text-sm font-medium text-foreground">
+              {mediaUrl ? "Upload replacement" : "Media file"}
             </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (fileRef.current) {
-                  fileRef.current.value = "";
-                }
-                fileRef.current?.click();
-              }}
-            >
-              Replace
+            <p className="mt-1 text-xs text-muted-foreground">
+              Choose a file and upload — or save the form after selecting to upload on submit.
+            </p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept={fileAcceptForMediaKind(mediaKind)}
+              className="mt-3 w-full max-w-full text-sm text-muted-foreground"
+              disabled={uploading}
+            />
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" onClick={() => void onPickFile()} disabled={uploading}>
+                {uploading ? "Uploading…" : "Upload"}
+              </Button>
+            </div>
+            {uploadMsg ? <p className="mt-2 text-xs text-muted-foreground">{uploadMsg}</p> : null}
+          </div>
+
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-media-url">
+              Media URL <span className="text-muted-foreground">(optional)</span>
+            </label>
+            <input id="es-media-url" className={dashInputCn()} {...form.register("mediaUrl")} />
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="es-media-type">
+              MIME type <span className="text-muted-foreground">(optional)</span>
+            </label>
+            <input id="es-media-type" className={dashInputCn()} {...form.register("mediaType")} />
+          </div>
+
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {Object.entries(form.formState.errors).map(([key, err]) =>
+            err?.message ? (
+              <p key={key} className="text-sm text-destructive">
+                {err.message}
+              </p>
+            ) : null
+          )}
+          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
+            <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
+              Cancel
+            </Link>
+            <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
+              {form.formState.isSubmitting ? "Saving…" : "Save changes"}
+            </Button>
+            <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
+              Delete session
             </Button>
           </div>
-        ) : null}
-        <div className="space-y-2 rounded-md border p-3">
-          <p className="text-sm font-medium">{mediaUrl ? "Upload replacement" : "Media file"}</p>
-          <p className="text-xs text-muted-foreground">
-            New file: Save uploads then persists (or Upload first).
-          </p>
-          <input
-            ref={fileRef}
-            type="file"
-            accept={fileAcceptForMediaKind(mediaKind)}
-            className="text-sm"
-            disabled={uploading}
-          />
-          <div className="flex gap-2">
-            <Button type="button" variant="secondary" onClick={() => void onPickFile()} disabled={uploading}>
-              {uploading ? "Uploading…" : "Upload"}
-            </Button>
-          </div>
-          {uploadMsg ? <p className="text-xs text-muted-foreground">{uploadMsg}</p> : null}
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-media-url">
-            Media URL
-          </label>
-          <input
-            id="es-media-url"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("mediaUrl")}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="es-media-type">
-            Media type (MIME)
-          </label>
-          <input
-            id="es-media-type"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            {...form.register("mediaType")}
-          />
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        {Object.entries(form.formState.errors).map(([key, err]) =>
-          err?.message ? (
-            <p key={key} className="text-sm text-red-600">
-              {err.message}
-            </p>
-          ) : null
-        )}
-        <div className="flex flex-wrap justify-end gap-2">
-          <Link
-            href={`/programs/${programId}/sessions`}
-            className={cn(buttonVariants({ variant: "outline" }))}
-          >
-            Cancel
-          </Link>
-          <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
-            {form.formState.isSubmitting ? "Saving…" : "Save Changes"}
-          </Button>
-          <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
-            Delete
-          </Button>
-        </div>
-      </form>
+        </form>
+      </div>
 
       <ConfirmDialog
         open={deleteOpen}
@@ -392,7 +395,7 @@ export default function EditSessionPage() {
         confirmVariant="destructive"
         onConfirm={onConfirmDelete}
       />
-      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
+      {deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
     </div>
   );
 }

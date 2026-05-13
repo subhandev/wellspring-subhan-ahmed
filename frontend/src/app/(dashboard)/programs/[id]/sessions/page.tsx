@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { SessionList } from "@/components/sessions/SessionList";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { dashBackLink, dashPageDescription, dashPageTitle, dashSectionCard } from "@/lib/dashboardUi";
 import { cn } from "@/lib/utils";
 import type { Program, SessionRow } from "@/types";
 
@@ -59,11 +60,11 @@ export default function SessionsPage() {
   }, [programId]);
 
   if (error) {
-    return <p className="text-sm text-red-600">{error}</p>;
+    return <p className="text-sm text-destructive">{error}</p>;
   }
   if (!sessions || !program) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 py-16">
+      <div className="flex flex-col items-center justify-center gap-3 py-24">
         <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
         <p className="text-sm text-muted-foreground">Loading sessions…</p>
       </div>
@@ -73,40 +74,51 @@ export default function SessionsPage() {
   const count = sessions.length;
 
   return (
-    <div className="space-y-4">
-      <Link
-        href="/programs"
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        ← Back to Programs
-      </Link>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-semibold">{program.title}</h1>
-          <p className="text-sm text-muted-foreground">
-            {count} session{count === 1 ? "" : "s"}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants())}>
-            New Session
-          </Link>
-          <Link
-            href={`/programs/${programId}/edit`}
-            className={cn(buttonVariants({ variant: "outline" }))}
-          >
-            Edit Program
-          </Link>
+    <div className="space-y-8">
+      <div>
+        <Link href="/programs" className={dashBackLink}>
+          ← Back to programs
+        </Link>
+        <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 space-y-1">
+            <h1 className={dashPageTitle}>{program.title}</h1>
+            <p className={dashPageDescription}>
+              {count} session{count === 1 ? "" : "s"}
+            </p>
+            {program.description ? (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground line-clamp-3">
+                {program.description}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "sm" }))}>
+              New session
+            </Link>
+            <Link
+              href={`/programs/${programId}/edit`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Edit program
+            </Link>
+          </div>
         </div>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Drag handles to reorder. Order saves automatically.
+
+      <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
+        Drag handles to reorder · order saves automatically
       </p>
+
       {sessions.length === 0 ? (
-        <div className="rounded-md border border-dashed bg-muted/20 px-6 py-10 text-center">
-          <p className="text-muted-foreground">No sessions yet. Add your first session.</p>
-          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants(), "mt-4 inline-flex")}>
-            New Session
+        <div
+          className={cn(
+            dashSectionCard,
+            "border-dashed bg-muted/15 px-8 py-14 text-center text-muted-foreground"
+          )}
+        >
+          <p>No sessions yet. Add your first session.</p>
+          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants(), "mt-5 inline-flex")}>
+            New session
           </Link>
         </div>
       ) : (

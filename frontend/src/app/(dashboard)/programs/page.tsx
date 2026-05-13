@@ -1,15 +1,28 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useCreatorEmail } from "@/components/layout/creatorContext";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
-import { formatProgramCreatedAt } from "@/lib/formatDisplay";
+import { formatRelativeShort } from "@/lib/formatDisplay";
 import { cn } from "@/lib/utils";
 import type { Program } from "@/types";
+
+function greetingNameFromEmail(email: string | null): string {
+  if (!email) {
+    return "";
+  }
+  const local = email.split("@")[0] ?? "";
+  const first = local.split(/[._-]/).filter(Boolean)[0] ?? local;
+  if (!first) {
+    return "";
+  }
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+}
 
 function ProgramsFallback() {
   return (
@@ -23,11 +36,40 @@ function ProgramsFallback() {
 function ProgramsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const creatorEmail = useCreatorEmail();
   const [programs, setPrograms] = useState<Program[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Program | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const greeting = greetingNameFromEmail(creatorEmail);
+
+  const stats = useMemo(() => {
+    if (!programs?.length) {
+      return {
+        totalPrograms: 0,
+        totalSessions: 0,
+        lastActivity: null as string | null
+      };
+    }
+    const totalSessions = programs.reduce((sum, p) => sum + (p.sessionCount ?? 0), 0);
+    const latest = programs.reduce((best, p) => {
+      const t = new Date(p.createdAt).getTime();
+      if (Number.isNaN(t)) {
+        return best;
+      }
+      if (!best || t > new Date(best).getTime()) {
+        return p.createdAt;
+      }
+      return best;
+    }, null as string | null);
+    return {
+      totalPrograms: programs.length,
+      totalSessions,
+      lastActivity: latest
+    };
+  }, [programs]);
 
   useEffect(() => {
     const created = searchParams.get("created");
@@ -96,70 +138,125 @@ function ProgramsInner() {
     return <ProgramsFallback />;
   }
 
+  const lastActivityLabel =
+    stats.lastActivity != null ? formatRelativeShort(stats.lastActivity) : "—";
+
   return (
-    <div className="space-y-4">
+    <div>
       {banner ? (
         <div
-          className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-100"
+          className="mb-8 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-100"
           role="status"
         >
           {banner}
         </div>
       ) : null}
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Programs</h1>
-        <Link href="/programs/new" className={cn(buttonVariants())}>
-          New Program
-        </Link>
-      </div>
+
+      <header className="mb-10">
+        <h1 className="text-[26px] font-semibold tracking-tight text-foreground">
+          Welcome back{greeting ? `, ${greeting}` : ""}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Here&apos;s what&apos;s happening across your programs today.
+        </p>
+      </header>
+
+      <section aria-label="Summary" className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-card px-5 py-5">
+          <div className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Total Programs</div>
+          <div className="mt-2 text-[26px] font-semibold tracking-tight text-foreground tabular-nums">
+            {stats.totalPrograms}
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card px-5 py-5">
+          <div className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Total Sessions</div>
+          <div className="mt-2 text-[26px] font-semibold tracking-tight text-foreground tabular-nums">
+            {stats.totalSessions}
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card px-5 py-5">
+          <div className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Last activity</div>
+          <div className="mt-2 text-[26px] font-semibold tracking-tight text-foreground">
+            {lastActivityLabel}
+          </div>
+        </div>
+      </section>
+
       {programs.length === 0 ? (
-        <div className="rounded-md border border-dashed bg-muted/20 px-6 py-10 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
           <p className="text-muted-foreground">No programs yet. Create your first program.</p>
           <Link href="/programs/new" className={cn(buttonVariants(), "mt-4 inline-flex")}>
             Create your first program
           </Link>
         </div>
       ) : (
-        <ul className="divide-y rounded-md border">
-          {programs.map((p) => {
-            const created = formatProgramCreatedAt(p.createdAt);
-            const count = p.sessionCount;
-            const countLabel = `${count} session${count === 1 ? "" : "s"}`;
-            const sessionsHref = `/programs/${p.id}/sessions`;
-            return (
-              <li key={p.id} className="flex flex-wrap items-stretch gap-0">
-                <Link
-                  href={sessionsHref}
-                  className="flex min-w-0 flex-1 flex-col gap-1 px-4 py-3 outline-offset-[-2px] hover:bg-muted/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring"
+        <section
+          className="overflow-hidden rounded-xl border border-border bg-card"
+          aria-labelledby="your-programs-heading"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
+            <h2 id="your-programs-heading" className="text-[15px] font-semibold tracking-tight text-foreground">
+              Your Programs
+            </h2>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/programs"
+                className="text-xs font-medium text-primary transition-opacity hover:opacity-80"
+              >
+                View all →
+              </Link>
+              <Link href="/programs/new" className={cn(buttonVariants({ size: "sm" }))}>
+                New program
+              </Link>
+            </div>
+          </div>
+          <ul>
+            {programs.map((p, index) => {
+              const count = p.sessionCount;
+              const countLabel = `${count} session${count === 1 ? "" : "s"}`;
+              const sessionsHref = `/programs/${p.id}/sessions`;
+              return (
+                <li
+                  key={p.id}
+                  className={cn(
+                    "flex flex-wrap items-center justify-between gap-3 px-6 py-4",
+                    index > 0 && "border-t border-border"
+                  )}
                 >
-                  <span className="font-medium">{p.title}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {created ? `${created} · ` : null}
-                    {countLabel}
-                  </span>
-                  {p.description ? (
-                    <span className="text-sm text-muted-foreground line-clamp-2">{p.description}</span>
-                  ) : null}
-                </Link>
-                <div className="flex shrink-0 flex-wrap items-center gap-2 border-l bg-card px-4 py-3">
-                  <Link
-                    href={`/programs/${p.id}/edit`}
-                    className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    className={cn(buttonVariants({ variant: "destructive", size: "sm" }))}
-                    onClick={() => setDeleteTarget(p)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-foreground">{p.title}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{countLabel}</div>
+                    {p.description ? (
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    <Link
+                      href={sessionsHref}
+                      className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-80"
+                    >
+                      View
+                      <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                    </Link>
+                    <Link
+                      href={`/programs/${p.id}/edit`}
+                      className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      className={cn(buttonVariants({ variant: "destructive", size: "sm" }))}
+                      onClick={() => setDeleteTarget(p)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       <ConfirmDialog
@@ -181,7 +278,7 @@ function ProgramsInner() {
         confirmVariant="destructive"
         onConfirm={onConfirmDeleteProgram}
       />
-      {deleteError ? <p className="text-sm text-red-600">{deleteError}</p> : null}
+      {deleteError ? <p className="mt-4 text-sm text-red-600">{deleteError}</p> : null}
     </div>
   );
 }

@@ -64,9 +64,10 @@
   --card-foreground: oklch(0.18 0.004 60);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.004 60);
-  --primary: oklch(0.52 0.045 145);
+  /* Primary ~ #5f715a (muted olive, sign-in mock) */
+  --primary: oklch(0.47 0.034 138);
   --primary-foreground: oklch(0.99 0 0);
-  --primary-hover: oklch(0.46 0.045 145);
+  --primary-hover: oklch(0.41 0.034 138);
   --secondary: oklch(0.96 0.004 95);
   --secondary-foreground: oklch(0.18 0.004 60);
   --muted: oklch(0.95 0.004 95);
@@ -92,6 +93,25 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+/*
+ * Auth shell — matches exported Lovable sign-in (semantic tokens only on `.auth-shell`).
+ * https:// — primary oklch(52% .045 145); field focus ring #59705926
+ */
+.auth-shell {
+  --primary: oklch(0.52 0.045 145);
+  --primary-hover: oklch(0.46 0.045 145);
+  --primary-foreground: oklch(0.99 0 0);
+  --ring: oklch(0.52 0.045 145);
+}
+
+.auth-shell .field input:focus {
+  box-shadow: 0 0 0 3px #59705926;
+}
+
+.auth-shell .field input:hover {
+  border-color: #cfceca;
 }
 
 .dark {
@@ -175,7 +195,7 @@
 
 .field input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px oklch(0.52 0.045 145 / 0.15);
+  box-shadow: 0 0 0 3px oklch(0.47 0.034 138 / 0.18);
 }
 
 .dark .field input:hover {

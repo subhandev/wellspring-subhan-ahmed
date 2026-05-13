@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Wellspring Admin"
+  title: "Wellspring"
 };
 
 export default function RootLayout({

@@ -20,11 +20,11 @@ export function AppBrandLink({ className }: { className?: string }) {
     <Link
       href={href}
       className={cn(
-        "cursor-default text-lg font-semibold tracking-tight text-foreground no-underline hover:no-underline",
+        "cursor-default text-[15px] font-semibold tracking-[0.18em] text-foreground uppercase no-underline hover:no-underline",
         className
       )}
     >
-      Wellspring Admin
+      Wellspring
     </Link>
   );
 }

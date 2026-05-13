@@ -42,16 +42,23 @@ export default function ImportPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Import</h1>
-      <p className="text-sm text-muted-foreground">
-        Required columns: <code className="text-xs">client_row_id</code>,{" "}
-        <code className="text-xs">program_id</code>, <code className="text-xs">title</code>,{" "}
-        <code className="text-xs">duration_seconds</code>,{" "}
-        <code className="text-xs">instructor_name</code>. Optional:{" "}
-        <code className="text-xs">tags</code> (comma or pipe),{" "}
-        <code className="text-xs">position</code>.
-      </p>
+    <div className="space-y-6">
+      <header className="space-y-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Bulk import</h1>
+          <p className="text-sm text-muted-foreground">
+            Upload session rows from CSV. Use a client-provided import ID so retries stay idempotent.
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Required columns: <code className="text-xs">client_row_id</code>,{" "}
+          <code className="text-xs">program_id</code>, <code className="text-xs">title</code>,{" "}
+          <code className="text-xs">duration_seconds</code>,{" "}
+          <code className="text-xs">instructor_name</code>. Optional:{" "}
+          <code className="text-xs">tags</code> (comma or pipe),{" "}
+          <code className="text-xs">position</code>.
+        </p>
+      </header>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1">
           <label className="text-sm font-medium">Client import ID</label>

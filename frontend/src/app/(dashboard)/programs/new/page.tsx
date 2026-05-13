@@ -7,6 +7,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import {
+  DASH_PAGE_MAX,
+  dashBackLink,
+  dashFormSection,
+  dashInputCn,
+  dashLabel,
+  dashPageDescription,
+  dashPageTitle,
+  dashSectionCard,
+  dashTextareaCn
+} from "@/lib/dashboardUi";
 import { newProgramFormSchema, type NewProgramForm } from "@/lib/programs";
 import { cn } from "@/lib/utils";
 
@@ -37,64 +48,67 @@ export default function NewProgramPage() {
   }
 
   return (
-    <div className="max-w-lg space-y-4">
-      <Link
-        href="/programs"
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        ← Back to Programs
-      </Link>
-      <h1 className="text-2xl font-semibold">Create Program</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="program-title">
-            Title <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="program-title"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm aria-invalid:border-destructive"
-            aria-invalid={Boolean(errors.title)}
-            {...register("title")}
-          />
-          {errors.title?.message ? (
-            <p className="text-sm text-red-600">{errors.title.message}</p>
-          ) : null}
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium" htmlFor="program-description">
-            Description
-          </label>
-          <textarea
-            id="program-description"
-            rows={3}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm aria-invalid:border-destructive"
-            aria-invalid={Boolean(errors.description)}
-            {...register("description")}
-          />
-          {errors.description?.message ? (
-            <p className="text-sm text-red-600">{errors.description.message}</p>
-          ) : null}
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="flex flex-wrap justify-end gap-2">
-          <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
-            Cancel
-          </Link>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <span className="inline-flex items-center gap-2">
-                <span
-                  className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"
-                  aria-hidden
-                />
-                Creating…
-              </span>
-            ) : (
-              "Create Program"
-            )}
-          </Button>
-        </div>
-      </form>
+    <div className={cn(DASH_PAGE_MAX, "space-y-8")}>
+      <div>
+        <Link href="/programs" className={dashBackLink}>
+          ← Back to programs
+        </Link>
+        <h1 className={cn(dashPageTitle, "mt-6")}>New program</h1>
+        <p className={dashPageDescription}>Create a program to organize sessions for your audience.</p>
+      </div>
+
+      <div className={dashSectionCard}>
+        <form onSubmit={handleSubmit(onSubmit)} className={dashFormSection}>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="program-title">
+              Title <span className="text-destructive">*</span>
+            </label>
+            <input
+              id="program-title"
+              className={dashInputCn(Boolean(errors.title))}
+              aria-invalid={Boolean(errors.title)}
+              {...register("title")}
+            />
+            {errors.title?.message ? (
+              <p className="text-sm text-destructive">{errors.title.message}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="program-description">
+              Description
+            </label>
+            <textarea
+              id="program-description"
+              rows={4}
+              className={dashTextareaCn(Boolean(errors.description))}
+              aria-invalid={Boolean(errors.description)}
+              {...register("description")}
+            />
+            {errors.description?.message ? (
+              <p className="text-sm text-destructive">{errors.description.message}</p>
+            ) : null}
+          </div>
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
+            <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
+              Cancel
+            </Link>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"
+                    aria-hidden
+                  />
+                  Creating…
+                </span>
+              ) : (
+                "Create program"
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -54,16 +54,16 @@ function LoginForm() {
   }
 
   return (
-    <section className="space-y-4" aria-labelledby="login-heading">
+    <section aria-labelledby="login-heading">
       <AuthPageHeader
         titleId="login-heading"
-        title="Sign in"
-        description="Use your creator account. You will land on Programs after a successful sign-in."
+        title="Welcome back"
+        description="Sign in to manage your wellness content."
       />
       {showPasswordResetNotice ? (
         <div
           role="status"
-          className="flex flex-col gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-50"
+          className="mb-4 flex flex-col gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-50"
         >
           <p>Password reset successfully. Please login.</p>
           <Button
@@ -77,7 +77,7 @@ function LoginForm() {
           </Button>
         </div>
       ) : null}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <AuthTextField
           id="email"
           label="Email"
@@ -96,20 +96,25 @@ function LoginForm() {
           {...register("password")}
         />
         <AuthFieldError message={errors.password?.message} />
+        <div className="-mt-1 flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-[13px] text-muted-foreground transition-colors hover:text-primary"
+          >
+            Forgot password?
+          </Link>
+        </div>
         {error ? <AuthFieldError message={error} /> : null}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in…" : "Continue"}
-        </Button>
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="h-11 w-full rounded-lg text-[15px] font-medium tracking-tight disabled:opacity-60"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing in…" : "Sign in"}
+          </Button>
+        </div>
       </form>
-      <nav aria-label="Other sign-in options" className="text-center text-sm text-muted-foreground">
-        <Link href="/signup" className="underline underline-offset-4">
-          Create account
-        </Link>
-        <span aria-hidden> · </span>
-        <Link href="/forgot-password" className="underline underline-offset-4">
-          Forgot password?
-        </Link>
-      </nav>
     </section>
   );
 }

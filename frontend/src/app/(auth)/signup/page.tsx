@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -59,10 +58,10 @@ export default function SignupPage() {
       <section className="space-y-4" aria-labelledby="signup-heading">
         <AuthPageHeader
           titleId="signup-heading"
-          title="Create account"
-          description="Register a creator account. You will land on Programs after sign-up."
+          title="Create your account"
+          description="Join as a creator to manage your wellness content."
         />
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <AuthTextField
             id="email"
             label="Email"
@@ -91,15 +90,16 @@ export default function SignupPage() {
           />
           <AuthFieldError message={errors.confirm?.message} />
           {error ? <AuthFieldError message={error} /> : null}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Creating…" : "Create account"}
-          </Button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              className="h-11 w-full rounded-lg text-[15px] font-medium tracking-tight disabled:opacity-60"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating…" : "Create account"}
+            </Button>
+          </div>
         </form>
-        <nav aria-label="Account access" className="text-center text-sm text-muted-foreground">
-          <Link href="/login" className="underline underline-offset-4">
-            Already have an account? Sign in
-          </Link>
-        </nav>
       </section>
     </RedirectIfAuthed>
   );

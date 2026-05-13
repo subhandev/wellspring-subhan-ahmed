@@ -41,8 +41,13 @@ export default function AuditPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Audit</h1>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Audit log</h1>
+        <p className="text-sm text-muted-foreground">
+          Filter admin actions by date range or action type.
+        </p>
+      </header>
       <div className="flex max-w-3xl flex-wrap items-end gap-3">
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">From (ISO date)</label>
@@ -94,7 +99,7 @@ export default function AuditPage() {
       ) : rows.length === 0 ? (
         <p className="text-muted-foreground">No events.</p>
       ) : (
-        <div className="overflow-x-auto rounded-md border">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-left text-sm">
             <thead className="border-b bg-muted/50">
               <tr>

@@ -1,5 +1,31 @@
 /** Display helpers for admin lists (locale: en-US). */
 
+/** Short relative time for dashboard stats (e.g. "2h ago"). */
+export function formatRelativeShort(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return "—";
+  }
+  const ms = Date.now() - d.getTime();
+  if (ms < 0) {
+    return "just now";
+  }
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) {
+    return "just now";
+  }
+  const min = Math.floor(sec / 60);
+  if (min < 60) {
+    return `${min}m ago`;
+  }
+  const h = Math.floor(min / 60);
+  if (h < 48) {
+    return `${h}h ago`;
+  }
+  const days = Math.floor(h / 24);
+  return `${days}d ago`;
+}
+
 export function formatProgramCreatedAt(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) {
