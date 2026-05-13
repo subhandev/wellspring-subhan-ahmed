@@ -15,8 +15,7 @@ export const AUDIT_ACTION_FILTERS: { value: string; label: string }[] = [
   { value: "session.deleted", label: "Session deleted" },
   { value: "session.reordered", label: "Session reordered" },
   { value: "sessions.imported", label: "Sessions imported" },
-  { value: "media.presigned", label: "Media presigned" },
-  { value: "media.relay_uploaded", label: "Media relay uploaded" }
+  { value: "media.presigned", label: "Media presigned" }
 ];
 
 const ACTION_LABEL_MAP = Object.fromEntries(
@@ -71,8 +70,7 @@ export function summarizeAuditRow(row: AuditLogRow): string | null {
       }
       return str(m.clientImportId);
     }
-    case "media.presigned":
-    case "media.relay_uploaded": {
+    case "media.presigned": {
       const ct = str(m.contentType);
       const bytes = num(m.bytes);
       const bits = [ct, bytes != null ? formatByteSize(bytes) : null].filter(Boolean) as string[];

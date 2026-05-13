@@ -100,8 +100,7 @@ Protected routes: **`Authorization: Bearer <jwt>`**.
 
 ## S3 session media
 
-1. `POST /v1/uploads/presign` → browser `PUT` to the signed URL (`Content-Type` must match the presign).
-2. If `PUT` fails (e.g. CORS), `POST /v1/uploads/relay` with body + `X-Wellspring-S3-Key` + matching `Content-Type`.
+`POST /v1/uploads/presign` → browser `PUT` to the signed URL (`Content-Type` must match the presign).
 
 Set `AWS_REGION` (must match bucket), credentials, `S3_BUCKET` in `backend/.env`. Optional: `S3_PUBLIC_BASE_URL`, `S3_ENDPOINT`. Bucket CORS must allow `PUT` (and `GET`/`HEAD` for playback) from your admin origins; include both `http://localhost:3000` and `http://127.0.0.1:3000` in dev if needed. IAM needs `s3:PutObject` on `tenants/*` (and `GetObject` if the same principal reads objects). Details stay in `.env.example` and [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md).
 

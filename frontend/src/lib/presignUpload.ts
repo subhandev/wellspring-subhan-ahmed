@@ -5,7 +5,10 @@ export type PresignPutResult =
   | { ok: true; publicUrl: string; contentType: string }
   | { ok: false; message: string };
 
-/** Presign → PUT to S3 (preferred); on failure, POST `/v1/uploads/relay` with same bytes. */
+const s3ReachabilityHint =
+  "Confirm the bucket CORS policy allows PUT from this admin origin (include http://localhost:3000 and http://127.0.0.1:3000 in dev), that the API's AWS_REGION matches the bucket's region, and that browser extensions or proxies are not blocking the S3 hostname.";
+
+/** Presign → browser PUT directly to S3 (signed URL). */
 export async function presignAndPutFile(file: File): Promise<PresignPutResult> {
   const contentTypeForPresign = inferFileContentType(file);
   if (contentTypeForPresign === "application/octet-stream") {
@@ -35,18 +38,8 @@ export async function presignAndPutFile(file: File): Promise<PresignPutResult> {
   if (!p.uploadUrl || !p.publicUrl || !p.key) {
     return { ok: false, message: "Invalid presign response" };
   }
-  const { uploadUrl, publicUrl, key: objectKey } = p;
+  const { uploadUrl, publicUrl } = p;
   const contentType = (p.contentType ?? contentTypeForPresign) || "application/octet-stream";
-
-  const relay = () =>
-    apiFetch("/uploads/relay", {
-      method: "POST",
-      headers: {
-        "Content-Type": contentType,
-        "X-Wellspring-S3-Key": objectKey
-      },
-      body: file.slice(0, file.size, contentType)
-    });
 
   let res: Response;
   try {
@@ -58,11 +51,12 @@ export async function presignAndPutFile(file: File): Promise<PresignPutResult> {
       headers: { "Content-Type": contentType }
     });
   } catch {
-    res = await relay();
+    return {
+      ok: false,
+      message: `Could not reach S3 from the browser (network error before any response). ${s3ReachabilityHint}`
+    };
   }
-  if (!res.ok && res.status === 403) {
-    res = await relay();
-  }
+
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
     return {
@@ -70,6 +64,7 @@ export async function presignAndPutFile(file: File): Promise<PresignPutResult> {
       message: readApiErrorMessage(errBody, `Upload failed (HTTP ${res.status})`)
     };
   }
+
   return {
     ok: true,
     publicUrl,
