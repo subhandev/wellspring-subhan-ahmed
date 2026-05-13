@@ -5,7 +5,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <ProtectedLayout>
       <DashboardShell>
-        <main className="mx-auto min-w-0 max-w-[1040px] px-10 py-12">{children}</main>
+        <main className="mx-auto min-w-0 max-w-[1040px] px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+          {children}
+        </main>
       </DashboardShell>
     </ProtectedLayout>
   );

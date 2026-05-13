@@ -12,10 +12,15 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 
 The repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each package directory (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
 
+### Tech stack
+
+- **Backend:** Node.js, Express, TypeScript, PostgreSQL, Prisma, Zod, Pino, Jest + Supertest, JWT.
+- **Frontend:** Next.js (App Router), React, TypeScript, **Tailwind CSS**, **shadcn/ui** (design tokens and shared primitives under `frontend/src/components/ui/`, Tailwind theme in `frontend/src/app/globals.css`), React Hook Form + Zod.
+
 ### What’s implemented
 
 - **Backend:** JWT auth (**signup**, **login**, **forgot-password** / **reset-password** — reset returns a JWT in the API response for local/dev; no email transport), **programs** and **sessions** CRUD, **session reorder** within a program, **CSV bulk import** with per-row errors and **client import id** idempotency, **S3 presign** (+ optional **relay** upload), **audit log** with filters (date range, action type). **Tenant isolation** is enforced in repositories/services; integration tests include multiple cases whose names contain **`rejects cross-tenant`**. **Pino** JSON logs include **`request_id`** and **`tenant_id`** (or **`pre_auth`** before JWT).
-- **Frontend:** Signup/login and password-reset flow, program list/create/edit, session list with **drag-and-drop reorder**, session create/edit with **media upload** (presign + PUT), **CSV import** with validation feedback, **audit log** viewer with filters.
+- **Frontend:** **Responsive** admin from small screens up (below the `md` breakpoint: sticky top bar + slide-out navigation drawer, backdrop dismiss, Escape to close; from `md` up: persistent sidebar). Signup/login and password-reset flow, program list/create/edit, session list with **drag-and-drop reorder**, session create/edit with **media upload** (presign + PUT), **CSV import** with validation feedback, **audit log** viewer with filters.
 - **Data:** Prisma **migrations only** under `backend/src/prisma/migrations/`. **Seed:** 2 creators, 3 programs each, 10 sessions per program.
 
 ### Package scripts
