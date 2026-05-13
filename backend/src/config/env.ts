@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+/**
+ * Optional `0`/`1` flags; many hosts expose toggles as `true`/`false`.
+ * Preserves strict rejection of unrecognized strings after normalization.
+ */
+function coerceOptionalZeroOneString(value: unknown): unknown {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "string" && value.trim() === "") return undefined;
+  const s = String(value).trim().toLowerCase();
+  if (s === "1" || s === "true" || s === "yes" || s === "on") return "1";
+  if (s === "0" || s === "false" || s === "no" || s === "off") return "0";
+  return value;
+}
+
+const optionalZeroOneFlagSchema = z.preprocess(
+  coerceOptionalZeroOneString,
+  z.enum(["0", "1"]).optional()
+);
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().default(4000),
@@ -12,7 +30,7 @@ const envSchema = z.object({
   /** Short-lived HS256 token for password reset (signed with secret derived from password hash). */
   JWT_RESET_EXPIRES_IN: z.string().default("15m"),
   /** In dev/test without SMTP, log reset URL at `debug` when issuing password reset. */
-  PASSWORD_RESET_DEBUG_LOG: z.enum(["0", "1"]).optional(),
+  PASSWORD_RESET_DEBUG_LOG: optionalZeroOneFlagSchema,
 
   AWS_REGION: z.string().min(1).optional(),
   AWS_ACCESS_KEY_ID: z.string().min(1).optional(),
@@ -28,7 +46,7 @@ const envSchema = z.object({
    * `1` = expose `GET /openapi.json` and `GET /api-docs` without auth.
    * `0` = hide docs. Default: hidden in production unless set to `1`.
    */
-  ENABLE_API_DOCS: z.enum(["0", "1"]).optional(),
+  ENABLE_API_DOCS: optionalZeroOneFlagSchema,
   /** Comma-separated allowed browser `Origin` values. In development/test, `http(s)://localhost:*` and 127.0.0.1 are allowed if unset. */
   CORS_ORIGIN: z.string().optional()
 });
