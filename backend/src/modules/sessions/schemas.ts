@@ -1,4 +1,7 @@
+import { SessionMediaType } from "@prisma/client";
 import { z } from "../../lib/zodOpenapi.js";
+
+const sessionMediaTypeField = z.nativeEnum(SessionMediaType).nullable().optional();
 
 export const createSessionBodySchema = z.object({
   programId: z.string().min(1),
@@ -12,7 +15,7 @@ export const createSessionBodySchema = z.object({
   instructorName: z.string().min(1).max(200),
   tags: z.array(z.string().max(100)).max(50).default([]),
   mediaUrl: z.string().max(2000).optional().nullable(),
-  mediaType: z.string().max(200).optional().nullable()
+  mediaType: sessionMediaTypeField
 });
 
 export const updateSessionBodySchema = z
@@ -28,7 +31,7 @@ export const updateSessionBodySchema = z
     instructorName: z.string().min(1).max(200).optional(),
     tags: z.array(z.string().max(100)).max(50).optional(),
     mediaUrl: z.string().max(2000).optional().nullable(),
-    mediaType: z.string().max(200).optional().nullable()
+    mediaType: sessionMediaTypeField
   })
   .refine((o) => Object.keys(o).length > 0, { message: "At least one field required" });
 

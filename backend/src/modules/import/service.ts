@@ -1,5 +1,5 @@
 import { parse } from "csv-parse/sync";
-import { Prisma } from "@prisma/client";
+import { AuditLogAction, Prisma, SessionImportKeyStatus } from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
@@ -155,7 +155,7 @@ export async function importSessionsFromCsv(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "sessions.imported",
+    action: AuditLogAction.sessions_imported,
     targetType: "import",
     targetId: body.clientImportId,
     metadata: {
@@ -207,7 +207,7 @@ async function processRow(
           tenantId: tenantId as string,
           clientImportId,
           clientRowId: row.clientRowId,
-          status: "pending",
+          status: SessionImportKeyStatus.pending,
           errorMsg: null,
           sessionId: null
         }
@@ -262,7 +262,7 @@ async function processRow(
       },
       data: {
         sessionId: session.id,
-        status: "success",
+        status: SessionImportKeyStatus.success,
         errorMsg: null
       }
     });

@@ -24,7 +24,7 @@ import {
   dashSectionCard,
   dashSelectCn
 } from "@/lib/dashboardUi";
-import { fileAcceptForMediaKind, mimeToMediaKind, type MediaKind } from "@/lib/mediaKind";
+import { fileAcceptForMediaKind, sessionMediaKindFromApi, sessionMediaTypeForApi, type MediaKind } from "@/lib/mediaKind";
 import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -97,17 +97,16 @@ export default function EditSessionPage() {
         instructorName?: string;
         tags?: string[];
         mediaUrl?: string | null;
-        mediaType?: string | null;
+        mediaType?: "AUDIO" | "VIDEO" | null;
       };
-      const mt = data.mediaType ?? "";
       form.reset({
         title: data.title ?? "",
         durationSeconds: data.durationSeconds ?? 0,
         instructorName: data.instructorName ?? "",
         tags: (data.tags ?? []).join(", "),
         mediaUrl: data.mediaUrl ?? "",
-        mediaType: mt,
-        mediaKind: mimeToMediaKind(mt || undefined)
+        mediaType: "",
+        mediaKind: sessionMediaKindFromApi(data.mediaType ?? undefined)
       });
       setLoadState("ready");
     })();
@@ -147,7 +146,7 @@ export default function EditSessionPage() {
         data = {
           ...data,
           mediaUrl,
-          mediaType
+          mediaType: uploadResult.contentType
         };
       } finally {
         setUploading(false);
@@ -161,7 +160,7 @@ export default function EditSessionPage() {
         instructorName: data.instructorName,
         tags: tagsFromString(data.tags),
         mediaUrl: data.mediaUrl?.trim() || null,
-        mediaType: data.mediaUrl?.trim() ? data.mediaType?.trim() || null : null
+        mediaType: sessionMediaTypeForApi(data.mediaKind, Boolean(data.mediaUrl?.trim()))
       })
     });
     const resBody = await res.json().catch(() => ({}));
@@ -208,7 +207,7 @@ export default function EditSessionPage() {
           instructorName: v.instructorName,
           tags: tagsFromString(v.tags),
           mediaUrl,
-          mediaType
+          mediaType: sessionMediaTypeForApi(v.mediaKind, true)
         })
       });
       const patchBody = await patchRes.json().catch(() => ({}));

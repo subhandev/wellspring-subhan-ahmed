@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { AuditLogAction, Prisma } from "@prisma/client";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { assertSessionMediaUrlForTenant } from "../../lib/sessionMediaUrl.js";
@@ -61,7 +61,7 @@ export async function createSession(tenantId: TenantId, actorId: string, body: C
     await appendAuditLog({
       tenantId,
       actorId,
-      action: "session.created",
+      action: AuditLogAction.session_created,
       targetType: "session",
       targetId: session.id,
       metadata: { programId: body.programId, title: session.title }
@@ -92,7 +92,7 @@ export async function updateSession(
     await appendAuditLog({
       tenantId,
       actorId,
-      action: "session.updated",
+      action: AuditLogAction.session_updated,
       targetType: "session",
       targetId: id,
       metadata: { programId: session.programId, title: session.title }
@@ -116,7 +116,7 @@ export async function removeSession(tenantId: TenantId, actorId: string, id: str
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.deleted",
+    action: AuditLogAction.session_deleted,
     targetType: "session",
     targetId: id,
     metadata: { programId: existing.programId, title: existing.title }
@@ -199,7 +199,7 @@ export async function reorderSessions(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "session.reordered",
+    action: AuditLogAction.session_reordered,
     targetType: "program",
     targetId: body.programId
   });

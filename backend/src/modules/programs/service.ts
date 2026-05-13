@@ -1,3 +1,4 @@
+import { AuditLogAction } from "@prisma/client";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import type { TenantId } from "../../types/tenant.js";
@@ -24,7 +25,7 @@ export async function createProgram(tenantId: TenantId, actorId: string, body: C
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.created",
+    action: AuditLogAction.program_created,
     targetType: "program",
     targetId: p.id,
     metadata: { title: p.title }
@@ -48,7 +49,7 @@ export async function updateProgram(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.updated",
+    action: AuditLogAction.program_updated,
     targetType: "program",
     targetId: p.id,
     metadata: { title: p.title }
@@ -68,7 +69,7 @@ export async function removeProgram(tenantId: TenantId, actorId: string, id: str
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "program.deleted",
+    action: AuditLogAction.program_deleted,
     targetType: "program",
     targetId: id,
     metadata: { title: existing.title }

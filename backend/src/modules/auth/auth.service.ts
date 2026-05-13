@@ -1,6 +1,6 @@
+import { AuditLogAction, Prisma } from "@prisma/client";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
-import { Prisma } from "@prisma/client";
 import type { Env } from "../../config/env.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { HttpError } from "../../lib/httpError.js";
@@ -20,7 +20,7 @@ export async function recordLogout(tenantId: TenantId, creatorId: string): Promi
   await appendAuditLog({
     tenantId,
     actorId: creatorId,
-    action: "auth.logged_out",
+    action: AuditLogAction.auth_logged_out,
     targetType: "creator",
     targetId: creatorId
   });

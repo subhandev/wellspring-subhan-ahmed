@@ -1,9 +1,11 @@
+import { SessionMediaType } from "@prisma/client";
 import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
   type ResponseConfig
 } from "@asteasolutions/zod-to-openapi";
 import { z } from "../lib/zodOpenapi.js";
+import { AUDIT_ACTION_API_VALUES, type AuditActionApiValue } from "../lib/auditActionWire.js";
 import {
   signupBodySchema,
   loginBodySchema,
@@ -19,6 +21,10 @@ import {
 import { presignBodySchema } from "../modules/uploads/schemas.js";
 import { importSessionsBodySchema } from "../modules/import/schemas.js";
 import { auditQuerySchema } from "../modules/audit/schemas.js";
+
+const auditActionOpenApi = z.enum(
+  AUDIT_ACTION_API_VALUES as unknown as [AuditActionApiValue, ...AuditActionApiValue[]]
+);
 
 const CreatorPublicSchema = z
   .object({
@@ -106,7 +112,7 @@ const SessionSchema = z
     instructorName: z.string(),
     tags: z.array(z.string()),
     mediaUrl: z.string().nullable(),
-    mediaType: z.string().nullable(),
+    mediaType: z.nativeEnum(SessionMediaType).nullable(),
     createdAt: z.union([z.string(), z.number()]),
     updatedAt: z.union([z.string(), z.number()])
   })
@@ -157,7 +163,7 @@ const AuditLogSchema = z
     tenantId: z.string(),
     actorId: z.string(),
     actorEmail: z.string().email(),
-    action: z.string(),
+    action: auditActionOpenApi,
     targetType: z.string(),
     targetId: z.string().nullable(),
     metadata: z.unknown().nullable(),

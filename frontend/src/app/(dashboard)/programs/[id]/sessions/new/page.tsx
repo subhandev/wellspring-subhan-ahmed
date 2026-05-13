@@ -22,7 +22,7 @@ import {
   dashSectionCard,
   dashSelectCn
 } from "@/lib/dashboardUi";
-import { fileAcceptForMediaKind, type MediaKind } from "@/lib/mediaKind";
+import { fileAcceptForMediaKind, sessionMediaTypeForApi, type MediaKind } from "@/lib/mediaKind";
 import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -153,7 +153,7 @@ export default function NewSessionPage() {
     const mu = data.mediaUrl?.trim();
     if (mu) {
       payload.mediaUrl = mu;
-      payload.mediaType = data.mediaType?.trim() || null;
+      payload.mediaType = sessionMediaTypeForApi(data.mediaKind, true);
     }
     const res = await apiFetch("/sessions", {
       method: "POST",

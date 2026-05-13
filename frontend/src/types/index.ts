@@ -16,7 +16,8 @@ export type SessionRow = {
   instructorName: string;
   tags: string[];
   mediaUrl?: string | null;
-  mediaType?: string | null;
+  /** Matches Prisma `SessionMediaType` (`AUDIO` | `VIDEO`). */
+  mediaType?: "AUDIO" | "VIDEO" | null;
 };
 
 export type AuditLogRow = {

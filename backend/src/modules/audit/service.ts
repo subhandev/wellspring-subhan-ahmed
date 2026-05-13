@@ -1,4 +1,6 @@
+import type { AuditLogAction } from "@prisma/client";
 import { prisma } from "../../config/database.js";
+import { auditActionApiToPrisma, auditActionToApi } from "../../lib/auditActionWire.js";
 import { HttpError } from "../../lib/httpError.js";
 import type { TenantId } from "../../types/tenant.js";
 import type { AuditQuery } from "./schemas.js";
@@ -7,7 +9,7 @@ export async function listAuditLogs(tenantId: TenantId, query: AuditQuery) {
   const where: {
     tenantId: string;
     createdAt?: { gte?: Date; lte?: Date };
-    action?: string;
+    action?: AuditLogAction;
   } = {
     tenantId: tenantId as string
   };
@@ -31,7 +33,7 @@ export async function listAuditLogs(tenantId: TenantId, query: AuditQuery) {
   }
 
   if (query.action) {
-    where.action = query.action;
+    where.action = auditActionApiToPrisma[query.action];
   }
 
   const logs = await prisma.auditLog.findMany({
@@ -45,6 +47,7 @@ export async function listAuditLogs(tenantId: TenantId, query: AuditQuery) {
 
   return logs.map(({ actor, ...row }) => ({
     ...row,
+    action: auditActionToApi(row.action),
     actorEmail: actor.email
   }));
 }

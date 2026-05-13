@@ -1,6 +1,6 @@
 import request from "supertest";
 import { randomUUID } from "crypto";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SessionMediaType } from "@prisma/client";
 import { createApp } from "../src/app";
 
 const prisma = new PrismaClient();
@@ -51,7 +51,7 @@ describeDb("session mediaUrl tenant prefix", () => {
         durationSeconds: 60,
         instructorName: "Coach",
         mediaUrl: forgedUrl,
-        mediaType: "audio/mpeg"
+        mediaType: SessionMediaType.AUDIO
       })
       .expect(400);
     expect(createBad.body).toMatchObject({
@@ -79,7 +79,7 @@ describeDb("session mediaUrl tenant prefix", () => {
     const patchBad = await request(app)
       .patch(`/v1/sessions/${sessionId}`)
       .set("Authorization", `Bearer ${tokenA}`)
-      .send({ mediaUrl: forgedUrl, mediaType: "audio/mpeg" })
+      .send({ mediaUrl: forgedUrl, mediaType: SessionMediaType.AUDIO })
       .expect(400);
     expect(patchBad.body).toMatchObject({
       success: false,
@@ -96,7 +96,7 @@ describeDb("session mediaUrl tenant prefix", () => {
     await request(app)
       .patch(`/v1/sessions/${sessionId}`)
       .set("Authorization", `Bearer ${tokenA}`)
-      .send({ mediaUrl: goodUrl, mediaType: "audio/mpeg" })
+      .send({ mediaUrl: goodUrl, mediaType: SessionMediaType.AUDIO })
       .expect(200);
 
     await prisma.session.deleteMany({ where: { programId } });

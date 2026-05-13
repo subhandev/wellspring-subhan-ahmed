@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SessionMediaType } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -61,7 +61,7 @@ async function main() {
                 instructorName: instructors[s % instructors.length],
                 tags: ["seed", ["breathwork", "movement", "sleep"][s % 3]],
                 mediaUrl,
-                mediaType: mediaUrl ? "audio/mpeg" : null
+                mediaType: mediaUrl ? SessionMediaType.AUDIO : null
               };
             })
           }

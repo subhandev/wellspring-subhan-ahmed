@@ -1,4 +1,4 @@
-import type { Program, Session } from "@prisma/client";
+import type { Program, Session, SessionMediaType } from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import type { TenantId } from "../../types/tenant.js";
 
@@ -48,7 +48,7 @@ export async function createSession(
     instructorName: string;
     tags: string[];
     mediaUrl: string | null | undefined;
-    mediaType: string | null | undefined;
+    mediaType: SessionMediaType | null | undefined;
   }
 ): Promise<Session> {
   return prisma.session.create({
@@ -76,7 +76,7 @@ export async function updateSession(
     instructorName?: string;
     tags?: string[];
     mediaUrl?: string | null;
-    mediaType?: string | null;
+    mediaType?: SessionMediaType | null;
   }
 ): Promise<Session | null> {
   const existing = await getSessionById(tenantId, id);

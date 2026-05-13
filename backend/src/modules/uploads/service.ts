@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import type { Readable } from "node:stream";
+import { AuditLogAction } from "@prisma/client";
 import { PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../../config/env.js";
@@ -95,7 +96,7 @@ export async function createPresignedPut(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "media.presigned",
+    action: AuditLogAction.media_presigned,
     targetType: "s3_object",
     targetId: key,
     metadata: { contentType: body.contentType }
@@ -170,7 +171,7 @@ export async function relayUploadStream(
   await appendAuditLog({
     tenantId,
     actorId,
-    action: "media.relay_uploaded",
+    action: AuditLogAction.media_relay_uploaded,
     targetType: "s3_object",
     targetId: key.trim(),
     metadata: { contentType: ctBase, bytes: contentLength }

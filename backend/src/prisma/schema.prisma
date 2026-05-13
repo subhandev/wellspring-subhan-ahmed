@@ -7,6 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Past-tense dotted identifiers persisted for audit filters (see `appendAuditLog`).
+enum AuditLogAction {
+  auth_logged_out @map("auth.logged_out")
+  program_created @map("program.created")
+  program_updated @map("program.updated")
+  program_deleted @map("program.deleted")
+  session_created @map("session.created")
+  session_updated @map("session.updated")
+  session_deleted @map("session.deleted")
+  session_reordered @map("session.reordered")
+  sessions_imported @map("sessions.imported")
+  media_presigned @map("media.presigned")
+  media_relay_uploaded @map("media.relay_uploaded")
+}
+
+enum SessionImportKeyStatus {
+  pending
+  success
+}
+
+/// Stored kind for session media (MIME from upload lives only in client / presign metadata).
+enum SessionMediaType {
+  AUDIO
+  VIDEO
+}
+
 /// Tenant (wellness creator). `id` is used as `tenantId` on child rows.
 model Creator {
   id           String   @id @default(cuid())
@@ -37,6 +63,9 @@ model Program {
   @@index([tenantId])
 }
 
+/// `tenantId` is denormalized for tenant-scoped queries without joining `Program`.
+/// There is no FK from `tenantId` to `Creator`: the value is always set from the
+/// owning program’s tenant at write time; repositories scope reads by `tenantId`.
 model Session {
   id              String   @id @default(cuid())
   tenantId        String
@@ -47,7 +76,7 @@ model Session {
   instructorName  String
   tags            String[] @default([])
   mediaUrl        String?
-  mediaType       String?
+  mediaType       SessionMediaType?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -63,7 +92,7 @@ model AuditLog {
   id         String   @id @default(cuid())
   tenantId   String
   actorId    String
-  action     String
+  action     AuditLogAction
   targetType String
   targetId   String?
   metadata   Json?
@@ -74,6 +103,7 @@ model AuditLog {
 
   @@index([tenantId, createdAt])
   @@index([tenantId, action])
+  @@index([actorId])
 }
 
 /// Idempotent CSV import: unique per tenant + client import + row id.
@@ -83,7 +113,7 @@ model SessionImportKey {
   clientImportId String
   clientRowId    String
   sessionId      String?
-  status         String   @default("success")
+  status         SessionImportKeyStatus @default(success)
   errorMsg       String?
   createdAt      DateTime @default(now())
 

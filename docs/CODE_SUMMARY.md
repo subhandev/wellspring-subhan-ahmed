@@ -32,7 +32,7 @@ Module-by-module tour for a new hire on day 1.
 
 **What it does:** [`schema.prisma`](../backend/src/prisma/schema.prisma) — `Creator` (incl. password reset fields), `Program`, `Session`, `AuditLog`, `SessionImportKey`. Migrations under [`migrations/`](../backend/src/prisma/migrations/). [`seed.ts`](../backend/src/prisma/seed.ts) — 2 creators × 3 programs × 10 sessions.
 
-**Design choices:** All CLI uses **`--schema src/prisma/schema.prisma`**.
+**Design choices:** All CLI uses **`--schema src/prisma/schema.prisma`**. **`Session.tenantId`** is denormalized (no FK to `Creator`) so tenant-owned rows can be filtered without joining `Program`; writers always copy the program’s tenant when inserting/updating. **`Session.mediaType`** is the Postgres enum **`AUDIO` | `VIDEO`** (MIME from upload is client-only). **`AuditLog.action`** is a Postgres enum at rest; **`GET /v1/audit`** still returns dotted strings (e.g. `program.created`) for stable clients. **`SessionImportKey.status`** is enum **`pending` | `success`**. **`AuditLog`** has **`@@index([actorId])`** for actor-scoped queries.
 
 ---
 
