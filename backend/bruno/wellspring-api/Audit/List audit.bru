@@ -4,6 +4,10 @@ meta {
   seq: 42
 }
 
+docs {
+  Returns `{ auditLogs }` (newest first, max 500). Each row includes `actorEmail`, `actorId`, `action`, `targetType`, `targetId`, optional `metadata`, and `createdAt`.
+}
+
 get {
   url: {{baseUrl}}/v1/audit
   body: none

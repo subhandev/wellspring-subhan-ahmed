@@ -37,8 +37,14 @@ export async function listAuditLogs(tenantId: TenantId, query: AuditQuery) {
   const logs = await prisma.auditLog.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    take: 500
+    take: 500,
+    include: {
+      actor: { select: { email: true } }
+    }
   });
 
-  return logs;
+  return logs.map(({ actor, ...row }) => ({
+    ...row,
+    actorEmail: actor.email
+  }));
 }

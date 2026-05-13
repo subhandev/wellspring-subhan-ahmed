@@ -26,6 +26,22 @@ export function formatRelativeShort(iso: string): string {
   return `${days}d ago`;
 }
 
+/** Audit log table: readable local time; use `title` on the cell for full ISO when needed. */
+export function formatAuditLogTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return "—";
+  }
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+}
+
 export function formatProgramCreatedAt(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) {
@@ -52,4 +68,23 @@ export function formatSessionDuration(seconds: number): string {
     return `${m} min`;
   }
   return `${m} min ${s}s`;
+}
+
+/** Compact byte size for audit / upload metadata (base-1024). */
+export function formatByteSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    return "—";
+  }
+  if (bytes < 1024) {
+    return `${Math.round(bytes)} B`;
+  }
+  const kb = bytes / 1024;
+  if (kb < 1024) {
+    return kb < 10 ? `${kb.toFixed(1)} KB` : `${Math.round(kb)} KB`;
+  }
+  const mb = kb / 1024;
+  if (mb < 1024) {
+    return mb < 10 ? `${mb.toFixed(1)} MB` : `${Math.round(mb)} MB`;
+  }
+  return `${(mb / 1024).toFixed(1)} GB`;
 }

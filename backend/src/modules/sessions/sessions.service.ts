@@ -94,7 +94,8 @@ export async function updateSession(
       actorId,
       action: "session.updated",
       targetType: "session",
-      targetId: id
+      targetId: id,
+      metadata: { programId: session.programId, title: session.title }
     });
     return session;
   } catch (err) {
@@ -104,6 +105,10 @@ export async function updateSession(
 }
 
 export async function removeSession(tenantId: TenantId, actorId: string, id: string) {
+  const existing = await repo.getSessionById(tenantId, id);
+  if (!existing) {
+    throw new HttpError(404, "Session not found", "not_found");
+  }
   const ok = await repo.deleteSession(tenantId, id);
   if (!ok) {
     throw new HttpError(404, "Session not found", "not_found");
@@ -113,7 +118,8 @@ export async function removeSession(tenantId: TenantId, actorId: string, id: str
     actorId,
     action: "session.deleted",
     targetType: "session",
-    targetId: id
+    targetId: id,
+    metadata: { programId: existing.programId, title: existing.title }
   });
 }
 

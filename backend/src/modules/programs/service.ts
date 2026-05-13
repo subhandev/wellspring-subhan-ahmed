@@ -50,12 +50,17 @@ export async function updateProgram(
     actorId,
     action: "program.updated",
     targetType: "program",
-    targetId: p.id
+    targetId: p.id,
+    metadata: { title: p.title }
   });
   return p;
 }
 
 export async function removeProgram(tenantId: TenantId, actorId: string, id: string) {
+  const existing = await repo.getProgramById(tenantId, id);
+  if (!existing) {
+    throw new HttpError(404, "Program not found", "not_found");
+  }
   const ok = await repo.deleteProgram(tenantId, id);
   if (!ok) {
     throw new HttpError(404, "Program not found", "not_found");
@@ -65,6 +70,7 @@ export async function removeProgram(tenantId: TenantId, actorId: string, id: str
     actorId,
     action: "program.deleted",
     targetType: "program",
-    targetId: id
+    targetId: id,
+    metadata: { title: existing.title }
   });
 }

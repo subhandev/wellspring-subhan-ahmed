@@ -23,6 +23,7 @@ export type AuditLogRow = {
   id: string;
   tenantId: string;
   actorId: string;
+  actorEmail: string;
   action: string;
   targetType: string;
   targetId: string | null;

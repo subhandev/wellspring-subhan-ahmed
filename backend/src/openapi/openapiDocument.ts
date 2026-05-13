@@ -156,6 +156,7 @@ const AuditLogSchema = z
     id: z.string(),
     tenantId: z.string(),
     actorId: z.string(),
+    actorEmail: z.string().email(),
     action: z.string(),
     targetType: z.string(),
     targetId: z.string().nullable(),
