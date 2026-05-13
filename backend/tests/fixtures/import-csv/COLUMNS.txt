@@ -1,0 +1,30 @@
+Bulk session CSV import — column contract (see backend/src/modules/import/service.ts)
+
+REQUIRED HEADER NAMES (all must appear on the first row; use lowercase names so row values are read correctly — mixed-case headers can pass the header check but leave row fields empty):
+  client_row_id      — non-empty per row; stable id for idempotency with clientImportId
+  program_id         — must belong to the authenticated tenant
+  title              — non-empty
+  duration_seconds   — positive integer (parseInt; see edge cases in 08 file)
+  instructor_name    — non-empty
+
+OPTIONAL COLUMNS (omit entire column if unused):
+  tags               — split on | or , ; trim each token; empty cell => no tags
+  position           — non-negative integer; omit or leave empty => append after max position
+
+PLACEHOLDER: Replace REPLACE_WITH_PROGRAM_ID with a real program id from your tenant (e.g. create a program in the admin UI or via POST /v1/programs).
+
+SCENARIO FILES:
+  01-baseline-happy-path.csv           — valid rows; auto positions; empty tags
+  02-tags-and-positions.csv            — pipe/comma tags, explicit positions including 0
+  03-mixed-validation-outcomes.csv     — one valid row (after replace) + many expected failures
+  04-unicode-special-characters.csv    — unicode + punctuation in text fields
+  05-duplicate-client-row-id.csv       — same client_row_id twice in one file (second row idempotent)
+  06-explicit-position-collision.csv   — two rows same explicit position (second should fail DB unique)
+  07-headers-only-required.csv         — only the five required columns, shuffled header order
+  08-edge-numeric-strings.csv          — leading zeros, decimals, partial numeric strings
+  09-header-only-no-data-rows.csv      — header only; API should return 400 "CSV has no data rows"
+  10-program-not-found.csv             — valid row shape, fake program id (expect per-row not found)
+
+CROSS-TENANT / NOT FOUND: Use a random program id from another tenant or a fake id like clxxxxxxxxxxxxxxxxxxxxxxxxx — expect "program not found for this tenant".
+
+IDEMPOTENCY (API-level): Re-post the same CSV with the same clientImportId; existing client_row_id rows return ok + idempotent true without duplicating sessions.

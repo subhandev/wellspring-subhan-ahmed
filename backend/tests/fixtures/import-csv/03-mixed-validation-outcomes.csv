@@ -1,0 +1,12 @@
+client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
+mix-ok-1,REPLACE_WITH_PROGRAM_ID,Only row that should succeed after ID replace,360,Valid Coach,,,
+,REPLACE_WITH_PROGRAM_ID,Empty client_row_id cell,60,Someone,,,
+mix-empty-program,,Title present but program_id blank,60,Coach,,,
+mix-no-program,clnonexistentprogramid00000000,Valid text but wrong program,120,Someone,,
+mix-empty-title,REPLACE_WITH_PROGRAM_ID,,120,Someone,,
+mix-empty-duration,REPLACE_WITH_PROGRAM_ID,No duration,,Someone,,
+mix-zero-duration,REPLACE_WITH_PROGRAM_ID,Zero duration,0,Someone,,
+mix-float-looking,REPLACE_WITH_PROGRAM_ID,Decimal string parses as int prefix,300.9,Someone,,
+mix-negative-pos,REPLACE_WITH_PROGRAM_ID,Bad position,60,Someone,,-1
+mix-bad-pos,REPLACE_WITH_PROGRAM_ID,Non-numeric position,60,Someone,,not-a-number
+mix-whitespace-instructor,REPLACE_WITH_PROGRAM_ID,Whitespace instructor only,60,   ,,

@@ -1,0 +1,3 @@
+client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
+pos-col-a,REPLACE_WITH_PROGRAM_ID,Claims position 0,60,Coach A,,0
+pos-col-b,REPLACE_WITH_PROGRAM_ID,Also claims position 0 — expect failure on unique (programId+position),60,Coach B,,0

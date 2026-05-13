@@ -1,0 +1,6 @@
+client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
+num-leading-0,REPLACE_WITH_PROGRAM_ID,Leading zeros parse as decimal int,007,Coach,,,
+num-spaces,REPLACE_WITH_PROGRAM_ID,Spaces trimmed around duration,  90  ,Coach,,,
+num-decimal,REPLACE_WITH_PROGRAM_ID,300.9 parses as 300 via parseInt,300.9,Coach,,,
+num-partial,REPLACE_WITH_PROGRAM_ID,99abc parses as 99 — know the quirk,99abc,Coach,,,
+num-sci,REPLACE_WITH_PROGRAM_ID,1e2 parses as 1 — scientific notation quirk,1e2,Coach,,,
