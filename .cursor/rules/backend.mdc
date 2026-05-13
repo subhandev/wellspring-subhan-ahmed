@@ -24,7 +24,6 @@ alwaysApply: false
 - `backend/src/prisma/schema.prisma`: Prisma schema (Postgres)
 - `backend/src/prisma/migrations/`: Prisma migrations (only way to change schema)
 - `backend/tests/`: Jest + Supertest integration/API tests
-- `backend/bruno/`: Bruno API collection (keep requests in sync with API changes)
 - `backend/.env.example`: backend env var template
 
 ## Layout (feature modules)

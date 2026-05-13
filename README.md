@@ -114,18 +114,6 @@ Set **`AWS_REGION`**, **`AWS_ACCESS_KEY_ID`**, **`AWS_SECRET_ACCESS_KEY`**, **`S
 
 ---
 
-## Bruno (API testing)
-
-1. Install [Bruno](https://www.usebruno.com/).
-2. **Open Collection** → choose [`backend/bruno/wellspring-api`](backend/bruno/wellspring-api).
-3. Select environment **Local**, run **`pnpm dev`** for the backend, **`pnpm db:seed`** for seed users (`creator1@wellspring-seed.example` / `Password123!` matches the Local env vars).
-4. Run **Auth → Login** first; the response script saves **`token`** to the environment for bearer-authenticated requests.
-5. Prefer **Programs → List programs** (or Create) before **Sessions**, **Import**, and similar calls so **`programId`** / **`sessionId`** are populated where applicable.
-
-You can regenerate or reconcile requests anytime by importing **`/openapi.json`** into Bruno if you prefer that workflow.
-
----
-
 ## Test
 
 ```bash
@@ -168,7 +156,7 @@ and then:
 
 | Path | Purpose |
 |------|---------|
-| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger + Bruno collection (`bruno/wellspring-api`) |
+| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger / OpenAPI |
 | `frontend/` | Next.js App Router admin |
 | `docs/` | Requirements copy, code summary, architecture review |
 | `ai-history/` | Exported AI sessions (chronological, uncurated) |

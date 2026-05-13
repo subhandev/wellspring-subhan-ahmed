@@ -1,6 +1,6 @@
 # Programs end-to-end QA prompt (copy-paste)
 
-Use this document as instructions for a human tester, Bruno runner, or AI agent. Substitute concrete values for placeholders and record pass/fail against the checklist in §12.
+Use this document as instructions for a human tester, API client, or AI agent. Substitute concrete values for placeholders and record pass/fail against the master checklist in §13.
 
 **API reference:** OpenAPI is registered in [`backend/src/openapi/openapiDocument.ts`](../backend/src/openapi/openapiDocument.ts). Routes mount in [`backend/src/app.ts`](../backend/src/app.ts).
 
@@ -242,19 +242,7 @@ Zod strips unknown keys; **`tenantId` in body must not override JWT.** Assert re
 
 ---
 
-## 13. Bruno collection reference
-
-Repo collection (paths relative to repo root):
-
-- [`backend/bruno/wellspring-api/Programs/`](../backend/bruno/wellspring-api/Programs/)
-- [`backend/bruno/wellspring-api/Auth/`](../backend/bruno/wellspring-api/Auth/)
-- [`backend/bruno/wellspring-api/Audit/List audit.bru`](../backend/bruno/wellspring-api/Audit/List%20audit.bru)
-
-Set environment `baseUrl` and `token` after login/signup.
-
----
-
-## 14. Master pass/fail checklist
+## 13. Master pass/fail checklist
 
 | # | Scenario | Pass criteria |
 |---|-----------|-----------------|
