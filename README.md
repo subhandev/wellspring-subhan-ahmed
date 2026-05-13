@@ -6,7 +6,8 @@
 
 ## Live admin (Vercel)
 
-**[https://wellspring-admin-six.vercel.app](https://wellspring-admin-six.vercel.app)** — production Next.js deploy; point Vercel **`NEXT_PUBLIC_API_URL`** at your public API (see `frontend/package.json` scripts `deploy:vercel` / `vercel:set-production-api`) and allow that origin in **`CORS_ORIGIN`** on the API.
+- **Admin (Vercel):** [https://wellspring-admin-six.vercel.app](https://wellspring-admin-six.vercel.app)
+- **Public API (Railway):** [https://wellspring-subhan-ahmed-production.up.railway.app](https://wellspring-subhan-ahmed-production.up.railway.app) — the production frontend’s **`NEXT_PUBLIC_API_URL`** should match this origin (no trailing slash). On Railway, set **`CORS_ORIGIN`** to include **`https://wellspring-admin-six.vercel.app`** (comma-separated if you add more origins). Redeploy the admin after changing Vercel env (`pnpm -C frontend deploy:vercel` or `vercel deploy --prod` from `frontend/`).
 
 Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. This README covers setup, run, test, and seed. The official brief and quality bars are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
 
