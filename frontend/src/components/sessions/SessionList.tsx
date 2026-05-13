@@ -4,7 +4,7 @@ import {
   DndContext,
   KeyboardSensor,
   PointerSensor,
-  closestCenter,
+  closestCorners,
   useSensor,
   useSensors,
   type DragEndEvent
@@ -19,12 +19,13 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { dashListActions, dashListRowLinkLayer, dashListRowSurface, dashSectionCard } from "@/lib/dashboardUi";
 import { formatSessionDuration } from "@/lib/formatDisplay";
+import { sessionOrderSignature, sortSessionsByPosition } from "@/lib/sessionOrder";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "@/types";
 
@@ -125,25 +126,39 @@ export function SessionList({
   /** Keeps parent list in sync so local order is not overwritten after reorder/delete. */
   onSessionsChanged?: (sessions: SessionRow[]) => void;
 }) {
-  const [items, setItems] = useState<SessionRow[]>(initialSessions);
+  const [items, setItems] = useState<SessionRow[]>(() => sortSessionsByPosition(initialSessions));
+
+  /** When set, local row order is ahead of `initialSessions` until reorder API finishes. */
+  const pendingOrderSigRef = useRef<string | null>(null);
 
   const multisetKey = useMemo(
     () => [...initialSessions.map((s) => s.id)].sort().join("|"),
     [initialSessions]
   );
 
+  const parentOrderSig = useMemo(() => sessionOrderSignature(initialSessions), [initialSessions]);
+
   useEffect(() => {
     setItems((prev) => {
-      if (prev.length !== initialSessions.length) {
-        return initialSessions;
+      const sortedInitial = sortSessionsByPosition(initialSessions);
+      if (prev.length !== sortedInitial.length) {
+        return sortedInitial;
       }
       const prevIds = new Set(prev.map((p) => p.id));
-      if (!initialSessions.every((s) => prevIds.has(s.id))) {
-        return initialSessions;
+      if (!sortedInitial.every((s) => prevIds.has(s.id))) {
+        return sortedInitial;
       }
-      return prev;
+      const prevSig = sessionOrderSignature(prev);
+      if (prevSig === parentOrderSig) {
+        return prev;
+      }
+      const pending = pendingOrderSigRef.current;
+      if (pending !== null && prevSig === pending) {
+        return prev;
+      }
+      return sortedInitial;
     });
-  }, [multisetKey, initialSessions]);
+  }, [multisetKey, parentOrderSig, initialSessions]);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,25 +173,30 @@ export function SessionList({
   async function persistOrder(nextIds: string[]): Promise<boolean> {
     setSaving(true);
     setError(null);
-    const res = await apiFetch("/sessions/reorder", {
-      method: "POST",
-      body: JSON.stringify({
-        programId,
-        orderedSessionIds: nextIds
-      })
-    });
-    const body = await res.json().catch(() => ({}));
-    setSaving(false);
-    if (!res.ok) {
-      setError(readApiErrorMessage(body, "Reorder failed"));
-      return false;
+    try {
+      const res = await apiFetch("/sessions/reorder", {
+        method: "POST",
+        body: JSON.stringify({
+          programId,
+          orderedSessionIds: nextIds
+        })
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(readApiErrorMessage(body, "Reorder failed"));
+        return false;
+      }
+      const data = body as { sessions?: SessionRow[] };
+      if (Array.isArray(data.sessions)) {
+        const next = sortSessionsByPosition(data.sessions);
+        setItems(next);
+        onSessionsChanged?.(next);
+      }
+      pendingOrderSigRef.current = null;
+      return true;
+    } finally {
+      setSaving(false);
     }
-    const data = body as { sessions?: SessionRow[] };
-    if (Array.isArray(data.sessions)) {
-      setItems(data.sessions);
-      onSessionsChanged?.(data.sessions);
-    }
-    return true;
   }
 
   function onDragEnd(ev: DragEndEvent) {
@@ -191,10 +211,12 @@ export function SessionList({
     }
     const previous = items;
     const reordered = arrayMove(items, oldIndex, newIndex);
+    pendingOrderSigRef.current = sessionOrderSignature(reordered);
     setItems(reordered);
     void (async () => {
       const ok = await persistOrder(reordered.map((s) => s.id));
       if (!ok) {
+        pendingOrderSigRef.current = null;
         setItems(previous);
       }
     })();
@@ -228,7 +250,7 @@ export function SessionList({
         </div>
       ) : null}
       <div className={cn(dashSectionCard, "overflow-hidden")}>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd}>
           <SortableContext items={items.map((s) => s.id)} strategy={verticalListSortingStrategy}>
             <ul>
               {items.map((s, idx) => (

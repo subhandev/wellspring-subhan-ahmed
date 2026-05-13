@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { getAccessToken } from "@/lib/auth";
 
 /**
@@ -20,11 +21,7 @@ export function RedirectIfAuthed({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   if (!allow) {
-    return (
-      <div className="flex min-h-[140px] items-center justify-center text-sm text-muted-foreground">
-        Checking session…
-      </div>
-    );
+    return <PageLoader compact className="min-h-[140px]" message="Checking your session…" />;
   }
 
   return <>{children}</>;

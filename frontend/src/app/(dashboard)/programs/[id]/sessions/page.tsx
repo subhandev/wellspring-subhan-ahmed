@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { SessionList } from "@/components/sessions/SessionList";
 import { buttonVariants } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { sortSessionsByPosition } from "@/lib/sessionOrder";
 import { dashBackLink, dashPageDescription, dashPageTitle, dashSectionCard } from "@/lib/dashboardUi";
 import { cn } from "@/lib/utils";
 import type { Program, SessionRow } from "@/types";
@@ -51,7 +52,7 @@ export default function SessionsPage() {
         sessionCount: typeof p.sessionCount === "number" ? p.sessionCount : 0
       });
       const s = sessBody as { sessions?: SessionRow[] };
-      setSessions(s.sessions ?? []);
+      setSessions(sortSessionsByPosition(s.sessions ?? []));
     })();
 
     return () => {
@@ -63,12 +64,7 @@ export default function SessionsPage() {
     return <p className="text-sm text-destructive">{error}</p>;
   }
   if (!sessions || !program) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-24">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
-        <p className="text-sm text-muted-foreground">Loading sessions…</p>
-      </div>
-    );
+    return <PageLoader message="Loading sessions for this program…" />;
   }
 
   const count = sessions.length;

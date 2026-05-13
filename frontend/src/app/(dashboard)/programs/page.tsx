@@ -1,12 +1,12 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useCreatorEmail } from "@/components/layout/creatorContext";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { buttonVariants } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { formatRelativeShort } from "@/lib/formatDisplay";
 import { dashListActions, dashListRowLinkLayer, dashListRowSurface } from "@/lib/dashboardUi";
@@ -26,12 +26,7 @@ function greetingNameFromEmail(email: string | null): string {
 }
 
 function ProgramsFallback() {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20">
-      <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
-      <p className="text-sm text-muted-foreground">Loading programs…</p>
-    </div>
-  );
+  return <PageLoader message="Loading your programs…" />;
 }
 
 function ProgramsInner() {

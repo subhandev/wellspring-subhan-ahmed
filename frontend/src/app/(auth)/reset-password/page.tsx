@@ -9,6 +9,7 @@ import { AuthFieldError } from "@/components/auth/AuthFieldError";
 import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 import { AuthTextField } from "@/components/auth/AuthTextField";
 import { Button } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage, setAccessToken } from "@/lib/api";
 
 const passwordSchema = z
@@ -133,11 +134,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-          Loading…
-        </div>
-      }
+      fallback={<PageLoader compact className="min-h-[120px]" message="Preparing password reset…" />}
     >
       <ResetPasswordForm />
     </Suspense>

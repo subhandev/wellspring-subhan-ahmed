@@ -11,6 +11,7 @@ import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 import { AuthTextField } from "@/components/auth/AuthTextField";
 import { RedirectIfAuthed } from "@/components/auth/RedirectIfAuthed";
 import { Button } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage, readAuthAccessToken, setAccessToken } from "@/lib/api";
 
 const schema = z.object({
@@ -124,9 +125,7 @@ export default function LoginPage() {
     <RedirectIfAuthed>
       <Suspense
         fallback={
-          <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-            Loading…
-          </div>
+          <PageLoader compact className="min-h-[120px]" message="Preparing sign-in…" />
         }
       >
         <LoginForm />

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { getAccessToken } from "@/lib/auth";
 
 /**
@@ -15,9 +16,5 @@ export function HomeRedirect() {
     router.replace(target);
   }, [router]);
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6 text-sm text-muted-foreground">
-      Redirecting…
-    </div>
-  );
+  return <PageLoader fullScreen message="Taking you to the right place…" />;
 }

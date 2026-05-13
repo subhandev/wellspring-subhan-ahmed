@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import {
   DASH_PAGE_MAX,
@@ -88,13 +89,7 @@ export default function ProgramDetailPage() {
   if (loadState === "loading") {
     return (
       <div className={cn(DASH_PAGE_MAX, "space-y-6")}>
-        <div className={cn(dashSectionCard, "p-8")}>
-          <p className="text-sm text-muted-foreground">Loading program…</p>
-          <div className="mt-4 space-y-3">
-            <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
-            <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-          </div>
-        </div>
+        <PageLoader withFormSkeleton message="Loading program…" />
       </div>
     );
   }
