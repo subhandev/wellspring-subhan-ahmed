@@ -1,6 +1,6 @@
 ---
 description: Next.js admin — layered src layout, RHF+Zod, apiFetch, protected dashboard
-globs: frontend/**/*.{ts,tsx}
+globs: frontend/**/*.ts, frontend/**/*.tsx
 alwaysApply: false
 ---
 
