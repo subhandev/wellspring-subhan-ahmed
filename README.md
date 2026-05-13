@@ -16,7 +16,7 @@ The repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no 
 
 ### Package scripts
 
-- **Backend (`backend/`)**: `pnpm dev`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`, `pnpm typecheck`, `pnpm lint`)
+- **Backend (`backend/`)**: `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`, `pnpm typecheck`, `pnpm lint`)
 - **Frontend (`frontend/`)**: `pnpm dev`, `pnpm test` (also `pnpm build`, `pnpm start`, `pnpm typecheck`, `pnpm lint`)
 
 ### API surface (quick reference)
@@ -151,7 +151,22 @@ API integration tests live under `backend/tests/`. At least three tests include 
 cd frontend && pnpm build && pnpm start
 ```
 
-**Backend:** development uses `tsx watch`. For production, add a compile step (for example `tsup` or `tsc`) and a `node dist/...` start script in `backend/package.json` if you deploy the API as a compiled artifact.
+**Backend** (compiled `dist/`; `NODE_ENV=production` is typical):
+
+```bash
+cd backend && pnpm build && pnpm start
+```
+
+`pnpm build` runs Prisma client generation and `tsc`. Railway and other hosts should run **`pnpm db:migrate`** before traffic (see below).
+
+### Deploy backend (Railway)
+
+1. Create a Railway project, add **PostgreSQL**, and connect a **GitHub** service to this repo.
+2. In the API service **Settings → Root Directory**, set **`backend`** (this repo has no root `package.json`).
+3. **Variables:** reference the Postgres plugin’s **`DATABASE_URL`** on the service. Set **`NODE_ENV=production`**, a long **`JWT_SECRET`** (≥16 characters), comma-separated **`CORS_ORIGIN`** with your deployed admin origin(s) (HTTPS), and optionally **`ENABLE_API_DOCS=0`**. Without `CORS_ORIGIN` in production, localhost is not auto-allowed.
+4. **Config as code:** [`backend/railway.json`](backend/railway.json) sets **`pnpm run build`**, **`pnpm run start`**, **`preDeployCommand`** (`pnpm run db:migrate`), and **`healthcheckPath`** `/health`.
+5. **Seed (optional, once):** the seed script refuses `NODE_ENV=production`. From a shell with DB access, run e.g. **`NODE_ENV=development pnpm db:seed`** once after migrations, or seed from your machine using the hosted **`DATABASE_URL`**.
+6. **Frontend:** set **`NEXT_PUBLIC_API_URL`** in the admin app to the Railway service **public URL** (HTTPS).
 
 ---
 
@@ -159,7 +174,7 @@ cd frontend && pnpm build && pnpm start
 
 | Path | Purpose |
 |------|---------|
-| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger / OpenAPI |
+| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger / OpenAPI, [`railway.json`](backend/railway.json) for Railway |
 | `frontend/` | Next.js App Router admin |
 | `docs/` | Requirements copy, code summary, architecture review |
 | `ai-history/` | Exported AI sessions (chronological, uncurated) |
