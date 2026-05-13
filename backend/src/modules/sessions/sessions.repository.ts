@@ -11,6 +11,47 @@ export async function assertProgramOwnedByTenant(
   });
 }
 
+/** Batch tenant-scoped program existence check for CSV import and similar paths. */
+export async function findProgramIdsOwnedByTenant(
+  tenantId: TenantId,
+  programIds: string[]
+): Promise<Set<string>> {
+  if (programIds.length === 0) {
+    return new Set();
+  }
+  const rows = await prisma.program.findMany({
+    where: { tenantId: tenantId as string, id: { in: programIds } },
+    select: { id: true }
+  });
+  return new Set(rows.map((r) => r.id));
+}
+
+/**
+ * Current max `Session.position` per program (scoped by tenant). Programs with no
+ * sessions get -1 so the next auto-assigned position is 0.
+ */
+export async function maxSessionPositionByProgramForTenant(
+  tenantId: TenantId,
+  programIds: string[]
+): Promise<Map<string, number>> {
+  const maxByProgram = new Map<string, number>();
+  for (const id of programIds) {
+    maxByProgram.set(id, -1);
+  }
+  if (programIds.length === 0) {
+    return maxByProgram;
+  }
+  const grouped = await prisma.session.groupBy({
+    by: ["programId"],
+    where: { tenantId: tenantId as string, programId: { in: programIds } },
+    _max: { position: true }
+  });
+  for (const g of grouped) {
+    maxByProgram.set(g.programId, g._max.position ?? -1);
+  }
+  return maxByProgram;
+}
+
 export async function listSessionsForProgram(
   tenantId: TenantId,
   programId: string

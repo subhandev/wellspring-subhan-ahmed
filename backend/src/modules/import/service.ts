@@ -1,5 +1,10 @@
 import { parse } from "csv-parse/sync";
-import { AuditLogAction, Prisma, SessionImportKeyStatus } from "@prisma/client";
+import {
+  AuditLogAction,
+  Prisma,
+  SessionImportKeyStatus,
+  type SessionImportKey
+} from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import { errorsForSessionImportCatch } from "../../lib/sessionPositionConflict.js";
 import { HttpError } from "../../lib/httpError.js";
@@ -11,6 +16,20 @@ import type { ImportSessionsBody } from "./schemas.js";
 type RowResult =
   | { clientRowId: string; ok: true; sessionId: string; idempotent?: boolean }
   | { clientRowId: string; ok: false; errors: string[] };
+
+type ValidatedImportRow = {
+  clientRowId: string;
+  programId: string;
+  title: string;
+  durationSeconds: number;
+  instructorName: string;
+  tags: string[];
+  position?: number;
+};
+
+type ParsedRowOutcome =
+  | { kind: "invalid"; result: RowResult }
+  | { kind: "valid"; row: ValidatedImportRow };
 
 const REQUIRED_HEADERS = [
   "client_row_id",
@@ -52,17 +71,20 @@ export async function importSessionsFromCsv(
     }
   }
 
-  const results: RowResult[] = [];
+  const parsedOutcomes: ParsedRowOutcome[] = [];
 
   for (let i = 0; i < records.length; i++) {
     const row = records[i];
     const line = i + 2;
     const clientRowId = (row.client_row_id ?? "").trim();
     if (!clientRowId) {
-      results.push({
-        clientRowId: `row_${line}`,
-        ok: false,
-        errors: ["client_row_id is required"]
+      parsedOutcomes.push({
+        kind: "invalid",
+        result: {
+          clientRowId: `row_${line}`,
+          ok: false,
+          errors: ["client_row_id is required"]
+        }
       });
       continue;
     }
@@ -117,22 +139,16 @@ export async function importSessionsFromCsv(
         : [];
 
     if (errs.length > 0) {
-      results.push({ clientRowId, ok: false, errors: errs });
-      continue;
-    }
-
-    const program = await sessionsRepo.assertProgramOwnedByTenant(tenantId, programId);
-    if (!program) {
-      results.push({
-        clientRowId,
-        ok: false,
-        errors: ["program not found for this tenant"]
+      parsedOutcomes.push({
+        kind: "invalid",
+        result: { clientRowId, ok: false, errors: errs }
       });
       continue;
     }
 
-    try {
-      const rowResult = await processRow(tenantId, body.clientImportId, {
+    parsedOutcomes.push({
+      kind: "valid",
+      row: {
         clientRowId,
         programId,
         title,
@@ -140,11 +156,93 @@ export async function importSessionsFromCsv(
         instructorName,
         tags,
         position
+      }
+    });
+  }
+
+  const validRows = parsedOutcomes.filter((o): o is { kind: "valid"; row: ValidatedImportRow } => {
+    return o.kind === "valid";
+  });
+  const distinctProgramIds = [...new Set(validRows.map((v) => v.row.programId))];
+
+  const [ownedProgramIds, maxPositionByProgram, existingImportKeys] = await Promise.all([
+    sessionsRepo.findProgramIdsOwnedByTenant(tenantId, distinctProgramIds),
+    sessionsRepo.maxSessionPositionByProgramForTenant(tenantId, distinctProgramIds),
+    prisma.sessionImportKey.findMany({
+      where: {
+        tenantId: tenantId as string,
+        clientImportId: body.clientImportId
+      }
+    })
+  ]);
+
+  const importKeyByRowId = new Map<string, SessionImportKey>(
+    existingImportKeys.map((k) => [k.clientRowId, k])
+  );
+
+  const results: RowResult[] = [];
+
+  for (const outcome of parsedOutcomes) {
+    if (outcome.kind === "invalid") {
+      results.push(outcome.result);
+      continue;
+    }
+
+    const { row } = outcome;
+
+    if (!ownedProgramIds.has(row.programId)) {
+      results.push({
+        clientRowId: row.clientRowId,
+        ok: false,
+        errors: ["program not found for this tenant"]
       });
+      continue;
+    }
+
+    const cachedKey = importKeyByRowId.get(row.clientRowId);
+    if (cachedKey?.sessionId) {
+      results.push({
+        clientRowId: row.clientRowId,
+        ok: true,
+        sessionId: cachedKey.sessionId,
+        idempotent: true
+      });
+      continue;
+    }
+
+    let precomputedAutoPosition: number | undefined;
+    if (row.position === undefined) {
+      const cur = maxPositionByProgram.get(row.programId) ?? -1;
+      precomputedAutoPosition = cur + 1;
+    }
+
+    try {
+      const rowResult = await processRow(
+        tenantId,
+        body.clientImportId,
+        {
+          clientRowId: row.clientRowId,
+          programId: row.programId,
+          title: row.title,
+          durationSeconds: row.durationSeconds,
+          instructorName: row.instructorName,
+          tags: row.tags,
+          position: row.position
+        },
+        { precomputedAutoPosition, importKeyByRowId }
+      );
       results.push(rowResult);
+      if (rowResult.ok) {
+        if (row.position !== undefined) {
+          const prev = maxPositionByProgram.get(row.programId) ?? -1;
+          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));
+        } else if (precomputedAutoPosition !== undefined) {
+          maxPositionByProgram.set(row.programId, precomputedAutoPosition);
+        }
+      }
     } catch (e) {
       results.push({
-        clientRowId,
+        clientRowId: row.clientRowId,
         ok: false,
         errors: errorsForSessionImportCatch(e)
       });
@@ -180,6 +278,10 @@ async function processRow(
     instructorName: string;
     tags: string[];
     position?: number;
+  },
+  ctx: {
+    importKeyByRowId: Map<string, SessionImportKey>;
+    precomputedAutoPosition?: number;
   }
 ): Promise<RowResult> {
   return prisma.$transaction(async (tx) => {
@@ -194,6 +296,7 @@ async function processRow(
     });
 
     if (existing?.sessionId) {
+      ctx.importKeyByRowId.set(row.clientRowId, existing);
       return {
         clientRowId: row.clientRowId,
         ok: true,
@@ -225,6 +328,7 @@ async function processRow(
           }
         });
         if (after?.sessionId) {
+          ctx.importKeyByRowId.set(row.clientRowId, after);
           return {
             clientRowId: row.clientRowId,
             ok: true,
@@ -237,7 +341,11 @@ async function processRow(
     }
 
     const pos =
-      row.position !== undefined ? row.position : await nextPositionTx(tx, tenantId, row.programId);
+      row.position !== undefined
+        ? row.position
+        : ctx.precomputedAutoPosition !== undefined
+          ? ctx.precomputedAutoPosition
+          : await nextPositionTx(tx, tenantId, row.programId);
 
     const session = await tx.session.create({
       data: {
@@ -253,7 +361,7 @@ async function processRow(
       }
     });
 
-    await tx.sessionImportKey.update({
+    const updatedKey = await tx.sessionImportKey.update({
       where: {
         tenantId_clientImportId_clientRowId: {
           tenantId: tenantId as string,
@@ -267,6 +375,8 @@ async function processRow(
         errorMsg: null
       }
     });
+
+    ctx.importKeyByRowId.set(row.clientRowId, updatedKey);
 
     return {
       clientRowId: row.clientRowId,

@@ -4,14 +4,31 @@
 
 **_[Add your 5–7 minute Loom URL here before submission.]_**
 
-Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. Full brief and quality bars live in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
+Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. This README covers setup, run, test, and seed. The official brief and quality bars are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
 
-This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each directory as below (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
+The repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each package directory (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
+
+### What’s implemented
+
+- **Backend:** JWT auth (**signup**, **login**, **forgot-password** / **reset-password** — reset returns a JWT in the API response for local/dev; no email transport), **programs** and **sessions** CRUD, **session reorder** within a program, **CSV bulk import** with per-row errors and **client import id** idempotency, **S3 presign** (+ optional **relay** upload), **audit log** with filters (date range, action type). **Tenant isolation** is enforced in repositories/services; integration tests include multiple cases whose names contain **`rejects cross-tenant`**. **Pino** JSON logs include **`request_id`** and **`tenant_id`** (or **`pre_auth`** before JWT).
+- **Frontend:** Signup/login and password-reset flow, program list/create/edit, session list with **drag-and-drop reorder**, session create/edit with **media upload** (presign + PUT), **CSV import** with validation feedback, **audit log** viewer with filters.
+- **Data:** Prisma **migrations only** under `backend/src/prisma/migrations/`. **Seed:** 2 creators, 3 programs each, 10 sessions per program.
 
 ### Package scripts
 
-- **Backend (`backend/`)**: `pnpm dev`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`)
-- **Frontend (`frontend/`)**: `pnpm dev`, `pnpm test` (also `pnpm build`, `pnpm start`)
+- **Backend (`backend/`)**: `pnpm dev`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`, `pnpm typecheck`, `pnpm lint`)
+- **Frontend (`frontend/`)**: `pnpm dev`, `pnpm test` (also `pnpm build`, `pnpm start`, `pnpm typecheck`, `pnpm lint`)
+
+### API surface (quick reference)
+
+| Area | Routes / notes |
+|------|-----------|
+| Health | `GET /health` |
+| Auth | **Public:** `POST /api/auth/signup`, `login`, `forgot-password`, `reset-password` — **Bearer:** `GET /api/auth/me`, `POST /api/auth/logout` |
+| Authenticated | `GET/PATCH …` under `/v1/programs`, `/v1/sessions`, `/v1/uploads`, `/v1/import`, `/v1/audit` |
+| Docs (when enabled) | `GET /api-docs`, `GET /openapi.json` |
+
+Protected routes expect **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or a token from login).
 
 ---
 
@@ -36,8 +53,8 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
 
 3. **Environment files**
 
-   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). For **S3 uploads**, set `AWS_REGION` **to the bucket’s region**, plus credentials and `S3_BUCKET`. Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI endpoints are gated by **`ENABLE_API_DOCS`** (`1`/`0`; see [.env.example](backend/.env.example)).
-   - Admin UI: copy `frontend/.env.example` to `frontend/.env.local` and set `NEXT_PUBLIC_API_URL` to your API base URL (e.g. `http://localhost:4000`).
+   - **API:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and set **`DATABASE_URL`**, **`JWT_SECRET`** (required for login and password-reset tokens), and optional `PORT`, `LOG_LEVEL`. For **S3 uploads**, set **`AWS_REGION`** to the bucket’s region, plus credentials and **`S3_BUCKET`**. Prisma schema: `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI is controlled by **`ENABLE_API_DOCS`** (`1`/`0`; see `.env.example`).
+   - **Admin UI:** copy [`frontend/.env.example`](frontend/.env.example) to `frontend/.env.local` and set **`NEXT_PUBLIC_API_URL`** to the API base URL (e.g. `http://localhost:4000`).
 
 4. **Database & Prisma** (from `backend/`):
 
@@ -54,15 +71,16 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
 
    For **local schema iteration** use `pnpm db:migrate:dev` (wraps `prisma migrate dev` with `--schema src/prisma/schema.prisma`). CI and production use `pnpm db:migrate` (`prisma migrate deploy`).
 
-5. **Seed** (from `backend/`; implements rubric counts when finished):
+5. **Seed** (from `backend/`; creates rubric data; refuses `NODE_ENV=production`):
 
    ```bash
    pnpm db:seed
    ```
 
-   Seeded credentials (Local):
-   - `creator1@wellspring-seed.example` / `Password123!`
-   - `creator2@wellspring-seed.example` / `Password123!`
+   **Seeded logins (local):**
+
+   - `creator1@wellspring.example` / `Password123!`
+   - `creator2@wellspring.example` / `Password123!`
 
 ---
 
@@ -81,16 +99,14 @@ cd frontend && pnpm dev
 - **API:** `http://localhost:4000` (e.g. `GET /health`)
 - **Admin:** `http://localhost:3000`
 
-When the API is running and docs are enabled (default in non-production environments):
+When the API is running and docs are enabled (default in non-production when `ENABLE_API_DOCS` is unset or `1`):
 
-- **API Docs:** `http://localhost:4000/api-docs` (when `ENABLE_API_DOCS=1`)
+- **API Docs:** `http://localhost:4000/api-docs`
 - **OpenAPI JSON:** `http://localhost:4000/openapi.json`
-
-Protected operations use **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or capture a token from login).
 
 ### S3 session media (browser uploads)
 
-Flow: **`POST /v1/uploads/presign`** → browser **`PUT`** to the signed URL ( **`Content-Type`** must match presign; SigV4 signs `content-type` ). If that **`PUT` fails**, **`POST /v1/uploads/relay`** sends the same body with header **`X-Wellspring-S3-Key`** = the presign response’s **`key`**, and matching **`Content-Type`**.
+Flow: **`POST /v1/uploads/presign`** → browser **`PUT`** to the signed URL (**`Content-Type`** must match presign; SigV4 signs `content-type`). If that **`PUT` fails**, **`POST /v1/uploads/relay`** sends the same body with header **`X-Wellspring-S3-Key`** = the presign response’s **`key`**, and matching **`Content-Type`**.
 
 Set **`AWS_REGION`**, **`AWS_ACCESS_KEY_ID`**, **`AWS_SECRET_ACCESS_KEY`**, **`S3_BUCKET`** in `backend/.env`. **`AWS_REGION` must match the bucket’s region.** Optional: **`S3_PUBLIC_BASE_URL`**, **`S3_ENDPOINT`**.
 
@@ -121,34 +137,19 @@ cd backend && pnpm test
 cd ../frontend && pnpm test
 ```
 
-API integration tests (including names containing **`rejects cross-tenant`**) live under `backend/tests/`.
+API integration tests live under `backend/tests/`. At least three tests include **`rejects cross-tenant`** in the name (reviewers grep for this).
 
 ---
 
 ## Build (production-style)
 
+**Frontend:**
+
 ```bash
 cd frontend && pnpm build && pnpm start
 ```
 
-The API can be run with `tsx` in development; add a production start command (e.g. `node dist/...`) when you compile the server to `dist/`.
-
-For production you’ll typically add `backend` scripts like:
-
-```bash
-pnpm -C backend add -D tsup
-```
-
-and then:
-
-```json
-{
-  "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts false --minify false --sourcemap",
-    "start": "node dist/index.js"
-  }
-}
-```
+**Backend:** development uses `tsx watch`. For production, add a compile step (for example `tsup` or `tsc`) and a `node dist/...` start script in `backend/package.json` if you deploy the API as a compiled artifact.
 
 ---
 
@@ -167,5 +168,6 @@ and then:
 
 - [ ] Public GitHub repo + email per [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
 - [ ] Loom URL at **top of this README**
-- [ ] `docs/CODE_SUMMARY.md` and `docs/ARCHITECTURE_REVIEW.md` completed
-- [x] `/ai-history` populated
+- [x] [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md) — module tour (keep updated if you add major areas)
+- [ ] [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md) — replace stub sections with your ~1000-word self-review before submission
+- [x] [`ai-history/`](ai-history/) populated with raw exports
