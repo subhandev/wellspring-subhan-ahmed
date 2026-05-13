@@ -111,6 +111,6 @@ Shared cross-cutting code: `src/middleware/`, `src/lib/` (logger factory, S3 hel
 `appendAuditLog({ action })` values must always use **past-tense** wording so filters and dashboards read as completed events:
 
 - Shape: **`<domain>.<past_participle>`** or **`<resource_plural>.<past_participle>`** when the target is a batch or cross-cutting concern (e.g. `sessions.imported`, `media.presigned`).
-- Examples in this repo: `program.created`, `program.updated`, `program.deleted`, `session.created`, `session.updated`, `session.deleted`, `session.reordered`, `sessions.imported`, `media.presigned`.
+- Examples in this repo: `program.created`, `program.updated`, `program.deleted`, `session.created`, `session.updated`, `session.deleted`, `session.reordered`, `sessions.imported`, `media.presigned`, `media.relay_uploaded`.
 
 Never use imperative or infinitive verbs (`create`, `update`, `presign`) in new code.

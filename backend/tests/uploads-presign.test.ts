@@ -142,6 +142,13 @@ describeDb("uploads presign API (requires DATABASE_URL)", () => {
 
     expect(res.body.key).toMatch(new RegExp(`^tenants/${creatorId}/media/`));
     expect(typeof res.body.publicUrl).toBe("string");
+    /**
+     * Browser PUT must not use URLs with flexible-checksum query params (raw body cannot satisfy CRC32 contract).
+     */
+    expect(String(res.body.uploadUrl)).not.toMatch(/x-amz-checksum|x-amz-sdk-checksum/i);
+
+    const signedHeaders = new URL(res.body.uploadUrl).searchParams.get("X-Amz-SignedHeaders") ?? "";
+    expect(signedHeaders).toContain("content-type");
 
     await prisma.creator.delete({ where: { id: creatorId } });
   });

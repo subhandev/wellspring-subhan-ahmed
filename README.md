@@ -36,7 +36,7 @@ This repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no
 
 3. **Environment files**
 
-   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI endpoints are gated by **`ENABLE_API_DOCS`** (`1`/`0`; see [.env.example](backend/.env.example)). If you want to test **presigned S3 uploads**, also set `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `S3_BUCKET` (plus optional `S3_ENDPOINT`, `S3_PUBLIC_BASE_URL`).
+   - API: copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` (and optional `PORT`, `LOG_LEVEL`). For **S3 uploads**, set `AWS_REGION` **to the bucket’s region**, plus credentials and `S3_BUCKET`. Prisma schema lives at `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI endpoints are gated by **`ENABLE_API_DOCS`** (`1`/`0`; see [.env.example](backend/.env.example)).
    - Admin UI: copy `frontend/.env.example` to `frontend/.env.local` and set `NEXT_PUBLIC_API_URL` to your API base URL (e.g. `http://localhost:4000`).
 
 4. **Database & Prisma** (from `backend/`):
@@ -90,25 +90,27 @@ Protected operations use **`Authorization: Bearer <jwt>`** (use **Authorize** in
 
 ### S3 session media (browser uploads)
 
-Session media uses **`POST /v1/uploads/presign`** (JWT required), then the browser **`PUT`s the file directly to S3**. Configure `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `S3_BUCKET` in `backend/.env` (see [`backend/.env.example`](backend/.env.example)). Optional: `S3_PUBLIC_BASE_URL` for CDN or a stable GET origin, `S3_ENDPOINT` for MinIO.
+Flow: **`POST /v1/uploads/presign`** → browser **`PUT`** to the signed URL ( **`Content-Type`** must match presign; SigV4 signs `content-type` ). If that **`PUT` fails**, **`POST /v1/uploads/relay`** sends the same body with header **`X-Wellspring-S3-Key`** = the presign response’s **`key`**, and matching **`Content-Type`**.
 
-1. **Bucket CORS** — The S3 bucket must allow browser **`PUT`** from your admin origin (e.g. `http://localhost:3000`), including the **`Content-Type`** header the client sends. Example CORS rules (adjust origins; use HTTPS in production):
+Set **`AWS_REGION`**, **`AWS_ACCESS_KEY_ID`**, **`AWS_SECRET_ACCESS_KEY`**, **`S3_BUCKET`** in `backend/.env`. **`AWS_REGION` must match the bucket’s region.** Optional: **`S3_PUBLIC_BASE_URL`**, **`S3_ENDPOINT`**.
+
+1. **Bucket CORS** — Allow **`PUT`** (and **`GET`** / **`HEAD`** for playback) from your admin origin(s). Include both **`localhost`** and **`127.0.0.1`** in dev if you use either URL bar.
 
 ```json
 [
   {
-    "AllowedHeaders": ["Content-Type"],
+    "AllowedHeaders": ["*"],
     "AllowedMethods": ["PUT", "GET", "HEAD"],
-    "AllowedOrigins": ["http://localhost:3000"],
+    "AllowedOrigins": ["http://localhost:3000", "http://127.0.0.1:3000"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3000
   }
 ]
 ```
 
-2. **Public GET for playback** — `<audio>` / `<video>` `src` uses the **`publicUrl`** returned by presign. Objects must be readable via that URL (e.g. bucket policy allowing `s3:GetObject` on `arn:aws:s3:::your-bucket/tenants/*`, or CloudFront in front of the bucket with `S3_PUBLIC_BASE_URL` pointing at the distribution).
+2. **Public GET** — Session **`publicUrl`** must be readable (`s3:GetObject` or CDN); configure **`S3_PUBLIC_BASE_URL`** if you front the bucket.
 
-3. **IAM** — Use an IAM user or role limited to **`s3:PutObject`** (and **`s3:GetObject`** if the same principal must read) on the bucket or `tenants/` prefix.
+3. **IAM** — **`s3:PutObject`** on `tenants/*` (and **`GetObject`** if the same principal reads objects).
 
 ---
 

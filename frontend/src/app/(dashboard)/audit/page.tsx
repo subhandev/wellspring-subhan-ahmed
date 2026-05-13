@@ -81,6 +81,7 @@ export default function AuditPage() {
             <option value="session.reordered" />
             <option value="sessions.imported" />
             <option value="media.presigned" />
+            <option value="media.relay_uploaded" />
           </datalist>
         </div>
         <Button type="button" onClick={load}>

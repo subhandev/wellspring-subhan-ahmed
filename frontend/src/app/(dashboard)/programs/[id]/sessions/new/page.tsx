@@ -76,6 +76,39 @@ export default function NewSessionPage() {
   async function onSubmit(data: Form) {
     setError(null);
     form.clearErrors();
+    const pendingFile = fileRef.current?.files?.[0];
+    if (pendingFile && !data.mediaUrl?.trim()) {
+      setUploading(true);
+      setUploadMsg(null);
+      try {
+        const uploadResult = await presignAndPutFile(pendingFile);
+        if (!uploadResult.ok) {
+          setError(uploadResult.message);
+          setUploadMsg(uploadResult.message);
+          return;
+        }
+        form.setValue("mediaUrl", uploadResult.publicUrl);
+        form.setValue("mediaType", uploadResult.contentType);
+        if (uploadResult.contentType.startsWith("audio/")) {
+          form.setValue("mediaKind", "audio");
+        } else if (uploadResult.contentType.startsWith("video/")) {
+          form.setValue("mediaKind", "video");
+        }
+        data = {
+          ...data,
+          mediaUrl: uploadResult.publicUrl,
+          mediaType: uploadResult.contentType,
+          mediaKind: uploadResult.contentType.startsWith("video/")
+            ? "video"
+            : uploadResult.contentType.startsWith("audio/")
+              ? "audio"
+              : data.mediaKind
+        };
+        setUploadMsg("Uploaded — saving session.");
+      } finally {
+        setUploading(false);
+      }
+    }
     const tags =
       data.tags
         ?.split(/[|,]/)
@@ -196,6 +229,9 @@ export default function NewSessionPage() {
         </div>
         <div className="space-y-2 rounded-md border p-3">
           <p className="text-sm font-medium">Media file</p>
+          <p className="text-xs text-muted-foreground">
+            Choose a file; use Upload to preview, or submit — Create Session uploads if a file is selected.
+          </p>
           <input
             ref={fileRef}
             type="file"

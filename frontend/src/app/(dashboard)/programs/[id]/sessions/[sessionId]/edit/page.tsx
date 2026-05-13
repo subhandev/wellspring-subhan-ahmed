@@ -322,8 +322,7 @@ export default function EditSessionPage() {
         <div className="space-y-2 rounded-md border p-3">
           <p className="text-sm font-medium">{mediaUrl ? "Upload replacement" : "Media file"}</p>
           <p className="text-xs text-muted-foreground">
-            If you pick a new file, saving the session will upload it to S3 (or use{" "}
-            <span className="font-medium">Upload</span> to apply immediately).
+            New file: Save uploads then persists (or Upload first).
           </p>
           <input
             ref={fileRef}

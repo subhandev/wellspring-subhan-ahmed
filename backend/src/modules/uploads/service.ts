@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import type { Readable } from "node:stream";
+import { PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../../config/env.js";
 import { HttpError } from "../../lib/httpError.js";
@@ -25,11 +26,31 @@ function getS3Client(env: Env): S3Client {
     region: env.AWS_REGION!,
     endpoint: env.S3_ENDPOINT,
     forcePathStyle: Boolean(env.S3_ENDPOINT),
+    /** Omit flexible checksum query params on presigned PUTs (raw browser uploads cannot satisfy CRC32). */
+    requestChecksumCalculation: "WHEN_REQUIRED",
     credentials: {
       accessKeyId: env.AWS_ACCESS_KEY_ID!,
       secretAccessKey: env.AWS_SECRET_ACCESS_KEY!
     }
   });
+}
+
+function tenantMediaKeyPrefix(tenantId: TenantId): string {
+  return `tenants/${tenantId as string}/media/`;
+}
+
+function assertRelayKeyForTenant(tenantId: TenantId, key: string): void {
+  const trimmed = key.trim();
+  if (!trimmed || trimmed.includes("..") || trimmed.includes("\\")) {
+    throw new HttpError(400, "Invalid object key", "validation_error");
+  }
+  if (!trimmed.startsWith(tenantMediaKeyPrefix(tenantId))) {
+    throw new HttpError(
+      400,
+      "Object key must use this tenant's media prefix from presign",
+      "validation_error"
+    );
+  }
 }
 
 export async function createPresignedPut(
@@ -56,7 +77,7 @@ export async function createPresignedPut(
   }
 
   const safeName = sanitizeFileName(body.fileName);
-  const key = `tenants/${tenantId as string}/media/${randomUUID()}-${safeName}`;
+  const key = `${tenantMediaKeyPrefix(tenantId)}${randomUUID()}-${safeName}`;
 
   const client = getS3Client(env);
   const command = new PutObjectCommand({
@@ -66,7 +87,10 @@ export async function createPresignedPut(
   });
 
   const expiresIn = env.PRESIGN_EXPIRES_SECONDS;
-  const uploadUrl = await getSignedUrl(client, command, { expiresIn });
+  const uploadUrl = await getSignedUrl(client, command, {
+    expiresIn,
+    signableHeaders: new Set(["content-type"])
+  });
 
   await appendAuditLog({
     tenantId,
@@ -87,6 +111,70 @@ export async function createPresignedPut(
     contentType: body.contentType,
     publicUrl
   };
+}
+
+/** `PutObject` from a stream requires `ContentLength` in Node. */
+export async function relayUploadStream(
+  env: Env,
+  tenantId: TenantId,
+  actorId: string,
+  key: string,
+  contentType: string,
+  body: Readable,
+  contentLength: number
+) {
+  assertRelayKeyForTenant(tenantId, key);
+
+  const ctBase = contentType.trim().split(";")[0]?.trim().toLowerCase() ?? "";
+  if (!ALLOWED_CONTENT_PREFIXES.some((p) => ctBase.startsWith(p))) {
+    throw new HttpError(
+      400,
+      "contentType must be audio/*, video/*, or image/*",
+      "validation_error"
+    );
+  }
+
+  if (!Number.isInteger(contentLength) || contentLength < 0) {
+    throw new HttpError(400, "Invalid Content-Length for relay upload", "validation_error", {
+      fieldErrors: { "content-length": ["Must be a non-negative integer (bytes)"] },
+      formErrors: [] as string[]
+    });
+  }
+
+  if (!s3Configured(env)) {
+    throw new HttpError(
+      503,
+      "S3 uploads are not configured (set AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET)",
+      "uploads_unconfigured"
+    );
+  }
+
+  const client = getS3Client(env);
+  try {
+    await client.send(
+      new PutObjectCommand({
+        Bucket: env.S3_BUCKET!,
+        Key: key.trim(),
+        ContentType: contentType.trim().split(";")[0]?.trim(),
+        ContentLength: contentLength,
+        Body: body
+      })
+    );
+  } catch (e) {
+    if (e instanceof S3ServiceException) {
+      throw new HttpError(502, e.message, "s3_upload_failed");
+    }
+    throw e;
+  }
+
+  await appendAuditLog({
+    tenantId,
+    actorId,
+    action: "media.relay_uploaded",
+    targetType: "s3_object",
+    targetId: key.trim(),
+    metadata: { contentType: ctBase, bytes: contentLength }
+  });
 }
 
 function publicObjectUrl(env: Env, key: string): string {

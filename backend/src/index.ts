@@ -7,6 +7,22 @@ const logger = createRootLogger(env);
 const app = createApp(env);
 
 const port = env.PORT;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info({ port, request_id: "boot", tenant_id: "pre_auth" }, "backend listening");
+});
+
+server.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EADDRINUSE") {
+    logger.fatal(
+      { port, request_id: "boot", tenant_id: "pre_auth", err: err.message },
+      `port ${port} in use — stop the other process or set PORT=4001 and NEXT_PUBLIC_API_URL`
+    );
+    process.exit(1);
+    return;
+  }
+  logger.fatal(
+    { port, request_id: "boot", tenant_id: "pre_auth", err: err.message },
+    "server listen error"
+  );
+  process.exit(1);
 });
