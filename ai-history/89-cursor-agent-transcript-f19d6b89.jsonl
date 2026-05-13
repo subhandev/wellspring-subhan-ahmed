@@ -1,0 +1,1 @@
+{"role":"user","message":{"content":[{"type":"text","text":"<user_query>\nCan you check and verify the codebase that it follows and comply with the rules and architecture we have defined. Just check for architecture, rules, etc across full codebase.\n</user_query>"}]}}

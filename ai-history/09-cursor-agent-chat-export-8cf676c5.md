@@ -2024,3 +2024,136 @@ Existing non-transcript files already used **`23`–`26`** (e.g. `23-session-flo
 Sync the new/updated agent transcripts into ai-history
 </user_query>
 
+---
+
+## Exchange 28
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && python3 ai-history/sync_agent_transcripts.py",
+  "description": "Run agent transcript sync from Cursor store into ai-history",
+  "required_permissions": [
+    "all"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Glob`
+
+```json
+{
+  "glob_pattern": "5[5-9]-*",
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed/ai-history"
+}
+```
+
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/ai-history && for f in 5[8-9]-cursor-agent-transcript-*.jsonl 6[0-9]-cursor-agent-transcript-*.jsonl 7[0-4]-cursor-agent-transcript-*.jsonl; do [ -f \"$f\" ] || continue; echo \"=== $f ===\"; head -1 \"$f\" | python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('message',{}).get('content',[{}])[0].get('text','')[:150].replace(chr(10),' '))\"; done",
+  "description": "Preview first user message for transcripts 58-74"
+}
+```
+
+### Assistant
+
+Updating the README with rows 58–74 and committing the sync.
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "new_string": "| 54 | [`54-cursor-agent-transcript-7a58e36a.jsonl`](./54-cursor-agent-transcript-7a58e36a.jsonl), [`54-cursor-agent-chat-export-7a58e36a.md`](./54-cursor-agent-chat-export-7a58e36a.md) | Session list: serial numbers vs drag UX |\n| 58 | [`58-cursor-agent-transcript-37d982de.jsonl`](./58-cursor-agent-transcript-37d982de.jsonl), [`58-cursor-agent-chat-export-37d982de.md`](./58-cursor-agent-chat-export-37d982de.md) | Bulk CSV: required columns + rich sample data |\n| 59 | [`59-cursor-agent-transcript-2048b769.jsonl`](./59-cursor-agent-transcript-2048b769.jsonl), [`59-cursor-agent-chat-export-2048b769.md`](./59-cursor-agent-chat-export-2048b769.md) | Remove Bruno from docs and Cursor rules |\n| 60 | [`60-cursor-agent-transcript-8f6130bc.jsonl`](./60-cursor-agent-transcript-8f6130bc.jsonl), [`60-cursor-agent-chat-export-8f6130bc.md`](./60-cursor-agent-chat-export-8f6130bc.md) | Import UI: clearer labels, form reset |\n| 61 | [`61-cursor-agent-transcript-b60b57ba.jsonl`](./61-cursor-agent-transcript-b60b57ba.jsonl), [`61-cursor-agent-chat-export-b60b57ba.md`](./61-cursor-agent-chat-export-b60b57ba.md) | Import results: header styling (no background) |\n| 62 | [`62-cursor-agent-transcript-30307d99.jsonl`](./62-cursor-agent-transcript-30307d99.jsonl), [`62-cursor-agent-chat-export-30307d99.md`](./62-cursor-agent-chat-export-30307d99.md) | Audit log: remove “open” column |\n| 63 | [`63-cursor-agent-transcript-c75e3f13.jsonl`](./63-cursor-agent-transcript-c75e3f13.jsonl), [`63-cursor-agent-chat-export-c75e3f13.md`](./63-cursor-agent-chat-export-c75e3f13.md) | Import results header / table styling follow-up |\n| 64 | [`64-cursor-agent-transcript-234eaf76.jsonl`](./64-cursor-agent-transcript-234eaf76.jsonl), [`64-cursor-agent-chat-export-234eaf76.md`](./64-cursor-agent-chat-export-234eaf76.md) | Explain import columns, client import id, client row id |\n| 65 | [`65-cursor-agent-transcript-f6a91f3f.jsonl`](./65-cursor-agent-transcript-f6a91f3f.jsonl), [`65-cursor-agent-chat-export-f6a91f3f.md`](./65-cursor-agent-chat-export-f6a91f3f.md) | Prisma schema / generator verification |\n| 66 | [`66-cursor-agent-transcript-64ce8323.jsonl`](./66-cursor-agent-transcript-64ce8323.jsonl), [`66-cursor-agent-chat-export-64ce8323.md`](./66-cursor-agent-chat-export-64ce8323.md) | Import CSV test fixtures — simplify layout |\n| 67 | [`67-cursor-agent-transcript-26739c32.jsonl`](./67-cursor-agent-transcript-26739c32.jsonl), [`67-cursor-agent-chat-export-26739c32.md`](./67-cursor-agent-chat-export-26739c32.md) | Clear DB data only (keep schema) |\n| 68 | [`68-cursor-agent-transcript-0037d2c4.jsonl`](./68-cursor-agent-transcript-0037d2c4.jsonl), [`68-cursor-agent-chat-export-0037d2c4.md`](./68-cursor-agent-chat-export-0037d2c4.md) | Page load / redirect loader vertical alignment |\n| 69 | [`69-cursor-agent-transcript-b192cb52.jsonl`](./69-cursor-agent-transcript-b192cb52.jsonl), [`69-cursor-agent-chat-export-b192cb52.md`](./69-cursor-agent-chat-export-b192cb52.md) | Seed script vs tightened schema verification |\n| 70 | [`70-cursor-agent-transcript-31f2bcd2.jsonl`](./70-cursor-agent-transcript-31f2bcd2.jsonl), [`70-cursor-agent-chat-export-31f2bcd2.md`](./70-cursor-agent-chat-export-31f2bcd2.md) | Import session screen form improvements |\n| 71 | [`71-cursor-agent-transcript-f5467281.jsonl`](./71-cursor-agent-transcript-f5467281.jsonl), [`71-cursor-agent-chat-export-f5467281.md`](./71-cursor-agent-chat-export-f5467281.md) | Bulk import results: error detail display |\n| 72 | [`72-cursor-agent-transcript-cce2d7dd.jsonl`](./72-cursor-agent-transcript-cce2d7dd.jsonl), [`72-cursor-agent-chat-export-cce2d7dd.md`](./72-cursor-agent-chat-export-cce2d7dd.md) | Audit log: Actor column — show or hide |\n| 73 | [`73-cursor-agent-transcript-253244d7.jsonl`](./73-cursor-agent-transcript-253244d7.jsonl), [`73-cursor-agent-chat-export-253244d7.md`](./73-cursor-agent-chat-export-253244d7.md) | Session ordering: rapid reorder / server errors |\n| 74 | [`74-cursor-agent-transcript-753c7b31.jsonl`](./74-cursor-agent-transcript-753c7b31.jsonl), [`74-cursor-agent-chat-export-753c7b31.md`](./74-cursor-agent-chat-export-753c7b31.md) | Session detail 404, media link, list drag polish |\n\n_Numbers `23`–`26` (and similar) may be used by **ad-hoc** markdown exports in this folder (e.g. `23-session-flow-validation-…`); new agent JSONL transcripts start at **`39`** so filenames never collide. `sync_agent_transcripts.py` reserves the next free numeric prefix automatically._",
+  "old_string": "| 54 | [`54-cursor-agent-transcript-7a58e36a.jsonl`](./54-cursor-agent-transcript-7a58e36a.jsonl), [`54-cursor-agent-chat-export-7a58e36a.md`](./54-cursor-agent-chat-export-7a58e36a.md) | Session list: serial numbers vs drag UX |\n\n_Numbers `23`–`26` (and similar) may be used by **ad-hoc** markdown exports in this folder (e.g. `23-session-flow-validation-…`); new agent JSONL transcripts start at **`39`** so filenames never collide. `sync_agent_transcripts.py` reserves the next free numeric prefix automatically._",
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/ai-history/README.md"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "new_string": "_Numbers like `23`–`26` and **`55`–`57`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._",
+  "old_string": "_Numbers `23`–`26` (and similar) may be used by **ad-hoc** markdown exports in this folder (e.g. `23-session-flow-validation-…`); new agent JSONL transcripts start at **`39`** so filenames never collide. `sync_agent_transcripts.py` reserves the next free numeric prefix automatically._",
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/ai-history/README.md"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git add ai-history/ && git status --short | head -50 && git commit -m \"chore(ai-history): sync transcripts 58-74 and refresh older exports\"",
+  "description": "Commit ai-history transcript sync and README",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git show --stat --oneline -1",
+  "description": "Verify last commit only touched ai-history"
+}
+```
+
+### Assistant
+
+Here’s what ran and what landed in the repo.
+
+### Sync (`python3 ai-history/sync_agent_transcripts.py`)
+- **17 new** main agent transcripts → **`58`–`74`** (each with `*-transcript-*.jsonl` + `*-chat-export-*.md`).
+- **3 updated** from Cursor (newer than what was in `ai-history/`): **`09`**, **`53`**, **`54`** (JSONL + regenerated Markdown).
+
+Prefixes **`58`+** were chosen so they don’t clash with existing ad-hoc files **`55`–`57`** (`55-session-ui-…`, `56-import-row-…`, `57-audit-log-screen-…`).
+
+### Docs
+- [`ai-history/README.md`](ai-history/README.md): added table rows **`58`–`74`** with short topics, and tweaked the note about ad-hoc `NN-` files vs transcript numbering.
+
+### Commit
+- **`385fa28`** — `chore(ai-history): sync transcripts 58-74 and refresh older exports`  
+  (only files under `ai-history/`.)
+
+To repeat later: **`python3 ai-history/sync_agent_transcripts.py`** from the repo root. Say if you want this pushed to `origin/develop`.
+
+[REDACTED]
+
+---
+
+## Exchange 29
+
+### User
+
+<user_query>
+Sync the new/updated agent transcripts into ai-history
+</user_query>
+

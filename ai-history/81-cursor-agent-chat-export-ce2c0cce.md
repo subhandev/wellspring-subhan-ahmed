@@ -1,0 +1,506 @@
+# Cursor agent session (Markdown export)
+
+**Source:** `81-cursor-agent-transcript-ce2c0cce.jsonl` · **conversation id:** `ce2c0cce`
+
+_This file is rendered from the JSONL transcript next to it: same turns, formatted for reading. The `.jsonl` is the authoritative raw export._
+
+---
+
+## Exchange 1
+
+### User
+
+<user_query>
+Sessions Imports are working but its taking much time for records even less than 100. Can you review and if it requirese optimisation ?
+</user_query>
+
+---
+
+## Exchange 2
+
+### Assistant
+
+Tracing the sessions CSV import flow to locate bottlenecks and assess whether optimization is warranted.
+
+[REDACTED]
+
+**Tool:** `SemanticSearch`
+
+```json
+{
+  "query": "Where is sessions CSV import handled and processed?",
+  "target_directories": [
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend"
+  ],
+  "num_results": 25
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend",
+  "pattern": "import.*session|sessions.*import|csv.*session",
+  "-i": true
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts"
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend",
+  "pattern": "assertProgramOwnedByTenant|SessionImportKey"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/sessions.repository.ts",
+  "limit": 80
+}
+```
+
+
+**Tool:** `Glob`
+
+```json
+{
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests",
+  "glob_pattern": "*import*"
+}
+```
+
+### Assistant
+
+Checking idempotent paths and whether tests assert transaction-per-row behavior:
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests/import-cross-tenant.test.ts"
+}
+```
+
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/tests",
+  "pattern": "import|clientImportId|idempotent"
+}
+```
+
+### Assistant
+
+Identifying root cause: fully sequential per-row database work (program checks, transactions, aggregates). Creating a concise optimization plan.
+
+[REDACTED]
+
+**Tool:** `CreatePlan`
+
+```json
+{
+  "name": "Sessions import perf",
+  "overview": "Slowness for &lt;100 rows comes from **O(rows)** sequential round-trips: a tenant-scoped program lookup per row, then a **separate Prisma transaction per row** that includes idempotency reads/writes and often a **max(position) aggregate**. Batching lookups and removing redundant aggregates preserves row-level outcomes and idempotency semantics.",
+  "plan": "# Sessions CSV import performance review\n\n## Diagnosis\n\nThe import pipeline is implemented in [`backend/src/modules/import/service.ts`](backend/src/modules/import/service.ts).\n\n**Per valid row** the handler currently:\n\n1. Awaits [`sessionsRepo.assertProgramOwnedByTenant`](backend/src/modules/sessions/sessions.repository.ts) — a `program.findFirst` scoped by `tenantId` + `programId` (lines 124–125 in `service.ts`). That is **one DB round-trip per row**, even when the CSV repeats the same `program_id` dozens of times.\n\n2. Awaits `processRow`, which wraps work in **`prisma.$transaction`** (lines 185–276). Inside each transaction it typically:\n   - `sessionImportKey.findUnique` (idempotency)\n   - `sessionImportKey.create` (pending row) or P2002 handling with another `findUnique`\n   - **`nextPositionTx`**: `session.aggregate` `_max.position`** when `position` is omitted (lines 239–240, 287–291) — **another query per auto-positioned row**, again repeated for the same program\n   - `session.create`\n   - `sessionImportKey.update`\n\nSo for ~100 rows targeting one program without `position`, you get on the order of **100 program lookups + ~100 transactions × (several statements each, including ~100 max-position aggregates)** — all **strictly sequential**. Latency stacks linearly; with a remote Postgres (e.g. cloud region), each round-trip dominates and “&lt;100 rows feels slow” is expected.\n\nCSV parsing (`csv-parse/sync`) is not the bottleneck here.\n\n```mermaid\nflowchart LR\n  subgraph perRow [Each row sequential]\n    A[assertProgramOwnedByTenant]\n    B[\"$transaction\"]\n    C[findUnique import key]\n    D[create import key]\n    E[aggregate max position]\n    F[create session]\n    G[update import key]\n  end\n  A --> B --> C --> D --> E --> F --> G\n```\n\n## Conclusion\n\n**Yes — optimization is justified** for the current design: the work is correct and tenant-safe, but it does redundant queries that scale with row count.\n\n## Recommended changes (behavior-preserving)\n\nAll of these keep **per-row success/failure** and **idempotent `clientImportId` + `client_row_id`** behavior; they only reduce redundant reads.\n\n1. **Batch program existence (tenant-scoped)**  \n   - After building the list of rows that passed field validation, collect **distinct** `program_id` values.  \n   - Add a small repository helper (e.g. `findProgramsForTenantByIds` in [`sessions.repository.ts`](backend/src/modules/sessions/sessions.repository.ts)) using `findMany` with `where: { tenantId, id: { in: [...] } }` and build a `Set` or `Map` of valid ids.  \n   - In the row loop, replace per-row `assertProgramOwnedByTenant` with an in-memory lookup and the same `\"program not found for this tenant\"` error string when missing.\n\n2. **Prefetch idempotency keys for this import**  \n   - Once per request: `sessionImportKey.findMany({ where: { tenantId, clientImportId } })` into a `Map<clientRowId, …>`.  \n   - If a row’s key already has `sessionId`, return the idempotent result **without** opening a transaction (same outcome as today’s fast path inside `processRow`).  \n   - After a successful insert for a row, **update the in-memory map** so duplicate `client_row_id` within the same CSV still behaves like today (second line hits P2002 path or sees the key once committed — keep P2002 handling if you still use create, or merge into map after commit).\n\n3. **Eliminate per-row `aggregate` for auto `position`**  \n   - For all distinct `program_id` values that appear on rows without an explicit `position`, run **one** `session.groupBy` / per-program seed (or reuse the same query as program batch if you combine carefully) to get current `_max.position` per program.  \n   - Maintain an in-memory `currentMaxPositionByProgramId` updated after **every** successful session create (for both explicit and implicit positions: `current = max(current, usedPosition)`).  \n   - For rows with no `position`, assign `current + 1` then set `current` to that value — this matches the sequential semantics of “each new row sees prior rows in this import” without a query per row.\n\n4. **Keep per-row `$transaction` for the create path**  \n   - Do **not** wrap the entire CSV in one transaction: that would change failure semantics (one DB error could roll back previously successful rows).  \n   - Retaining one transaction per mutating row preserves partial success and aligns with existing tests ([`bulk-import-multipart.test.ts`](backend/tests/bulk-import-multipart.test.ts), [`import-cross-tenant.test.ts`](backend/tests/import-cross-tenant.test.ts)).\n\n5. **Optional follow-up (larger change)**  \n   - If imports grow to thousands of rows: consider bounded concurrency (e.g. 5–10 parallel workers) **only** if idempotency and position uniqueness are proven safe under concurrency, or move to a bulk SQL path. Not required for the &lt;100-row pain you described.\n\n## Verification\n\n- Re-run existing import tests plus any manual fixture run against [`sessions-import-full.csv`](backend/tests/fixtures/import-csv/sessions-import-full.csv) (duplicate `client_row_id`, explicit positions, position conflict row).  \n- Optionally add a **timing-only** or coarse integration assertion (e.g. import N rows with same program completes under a threshold locally) — flaky on CI, so keep optional or use a dev-only benchmark script.\n\n## Non-goals\n\n- Changing API response shape, CSV columns, or audit logging.  \n- Schema migrations (indexes on `Program(id, tenantId)` may already be satisfied by PK + `tenantId` filters; the win is query count, not new indexes).\n",
+  "todos": [
+    {
+      "id": "batch-programs",
+      "content": "Add tenant-scoped batch program lookup; use in import loop instead of per-row assertProgramOwnedByTenant"
+    },
+    {
+      "id": "prefetch-import-keys",
+      "content": "Prefetch SessionImportKey for (tenantId, clientImportId); fast-path idempotent rows; sync map after creates"
+    },
+    {
+      "id": "position-cursor",
+      "content": "Seed max position per program once; in-memory cursor for rows without position; max() after explicit positions"
+    },
+    {
+      "id": "verify-tests",
+      "content": "Run backend Jest import / cross-tenant tests; spot-check sessions-import-full.csv scenarios"
+    }
+  ]
+}
+```
+
+---
+
+## Exchange 3
+
+### User
+
+<user_query>
+Sessions CSV import performance review
+
+Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+
+To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
+</user_query>
+
+---
+
+## Exchange 4
+
+### Assistant
+
+Implementing import performance optimizations: starting with batch program lookup, then prefetching import keys and position cursors.
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "todos": [
+    {
+      "id": "batch-programs",
+      "content": "Add tenant-scoped batch program lookup; use in import loop",
+      "status": "in_progress"
+    },
+    {
+      "id": "prefetch-import-keys",
+      "content": "Prefetch SessionImportKey; fast-path idempotent; sync map after creates",
+      "status": "pending"
+    },
+    {
+      "id": "position-cursor",
+      "content": "Seed max position per program; in-memory cursor for auto position",
+      "status": "pending"
+    },
+    {
+      "id": "verify-tests",
+      "content": "Run backend Jest import / cross-tenant tests",
+      "status": "pending"
+    }
+  ],
+  "merge": true
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/sessions.repository.ts"
+}
+```
+
+### Assistant
+
+Implementing repository helpers and refactoring the import service into a parse phase, batch prefetch, and a processing loop with position and import-key caches.
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/sessions.repository.ts",
+  "old_string": "export async function assertProgramOwnedByTenant(\n  tenantId: TenantId,\n  programId: string\n): Promise<Program | null> {\n  return prisma.program.findFirst({\n    where: { id: programId, tenantId: tenantId as string }\n  });\n}",
+  "new_string": "export async function assertProgramOwnedByTenant(\n  tenantId: TenantId,\n  programId: string\n): Promise<Program | null> {\n  return prisma.program.findFirst({\n    where: { id: programId, tenantId: tenantId as string }\n  });\n}\n\n/** Batch tenant-scoped program existence check for CSV import and similar paths. */\nexport async function findProgramIdsOwnedByTenant(\n  tenantId: TenantId,\n  programIds: string[]\n): Promise<Set<string>> {\n  if (programIds.length === 0) {\n    return new Set();\n  }\n  const rows = await prisma.program.findMany({\n    where: { tenantId: tenantId as string, id: { in: programIds } },\n    select: { id: true }\n  });\n  return new Set(rows.map((r) => r.id));\n}\n\n/**\n * Current max `Session.position` per program (scoped by tenant). Programs with no\n * sessions get -1 so the next auto-assigned position is 0.\n */\nexport async function maxSessionPositionByProgramForTenant(\n  tenantId: TenantId,\n  programIds: string[]\n): Promise<Map<string, number>> {\n  const maxByProgram = new Map<string, number>();\n  for (const id of programIds) {\n    maxByProgram.set(id, -1);\n  }\n  if (programIds.length === 0) {\n    return maxByProgram;\n  }\n  const grouped = await prisma.session.groupBy({\n    by: [\"programId\"],\n    where: { tenantId: tenantId as string, programId: { in: programIds } },\n    _max: { position: true }\n  });\n  for (const g of grouped) {\n    maxByProgram.set(g.programId, g._max.position ?? -1);\n  }\n  return maxByProgram;\n}"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "old_string": "import { parse } from \"csv-parse/sync\";\nimport { AuditLogAction, Prisma, SessionImportKeyStatus } from \"@prisma/client\";\nimport { prisma } from \"../../config/database.js\";",
+  "new_string": "import { parse } from \"csv-parse/sync\";\nimport {\n  AuditLogAction,\n  Prisma,\n  SessionImportKeyStatus,\n  type SessionImportKey\n} from \"@prisma/client\";\nimport { prisma } from \"../../config/database.js\";"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "old_string": "type RowResult =\n  | { clientRowId: string; ok: true; sessionId: string; idempotent?: boolean }\n  | { clientRowId: string; ok: false; errors: string[] };\n\nconst REQUIRED_HEADERS = [",
+  "new_string": "type RowResult =\n  | { clientRowId: string; ok: true; sessionId: string; idempotent?: boolean }\n  | { clientRowId: string; ok: false; errors: string[] };\n\ntype ValidatedImportRow = {\n  clientRowId: string;\n  programId: string;\n  title: string;\n  durationSeconds: number;\n  instructorName: string;\n  tags: string[];\n  position?: number;\n};\n\ntype ParsedRowOutcome =\n  | { kind: \"invalid\"; result: RowResult }\n  | { kind: \"valid\"; row: ValidatedImportRow };\n\nconst REQUIRED_HEADERS = ["
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "old_string": "  const results: RowResult[] = [];\n\n  for (let i = 0; i < records.length; i++) {\n    const row = records[i];\n    const line = i + 2;\n    const clientRowId = (row.client_row_id ?? \"\").trim();\n    if (!clientRowId) {\n      results.push({\n        clientRowId: `row_${line}`,\n        ok: false,\n        errors: [\"client_row_id is required\"]\n      });\n      continue;\n    }\n\n    const errs: string[] = [];\n    const programId = (row.program_id ?? \"\").trim();\n    const title = (row.title ?? \"\").trim();\n    const durationRaw = (row.duration_seconds ?? \"\").trim();\n    const instructorName = (row.instructor_name ?? \"\").trim();\n    const tagsRaw = (row.tags ?? \"\").trim();\n    const positionRaw = (row.position ?? \"\").trim();\n\n    if (!programId) {\n      errs.push(\"program_id is required\");\n    }\n    if (!title) {\n      errs.push(\"title is required\");\n    }\n    if (!durationRaw) {\n      errs.push(\"duration_seconds is required\");\n    }\n    if (!instructorName) {\n      errs.push(\"instructor_name is required\");\n    }\n\n    let durationSeconds = 0;\n    if (durationRaw) {\n      const d = Number.parseInt(durationRaw, 10);\n      if (!Number.isFinite(d) || d <= 0) {\n        errs.push(\"duration_seconds must be a positive integer\");\n      } else {\n        durationSeconds = d;\n      }\n    }\n\n    let position: number | undefined;\n    if (positionRaw) {\n      const p = Number.parseInt(positionRaw, 10);\n      if (!Number.isFinite(p) || p < 0) {\n        errs.push(\"position must be a non-negative integer\");\n      } else {\n        position = p;\n      }\n    }\n\n    const tags =\n      tagsRaw.length > 0\n        ? tagsRaw\n            .split(/[|,]/)\n            .map((t) => t.trim())\n            .filter(Boolean)\n        : [];\n\n    if (errs.length > 0) {\n      results.push({ clientRowId, ok: false, errors: errs });\n      continue;\n    }\n\n    const program = await sessionsRepo.assertProgramOwnedByTenant(tenantId, programId);\n    if (!program) {\n      results.push({\n        clientRowId,\n        ok: false,\n        errors: [\"program not found for this tenant\"]\n      });\n      continue;\n    }\n\n    try {\n      const rowResult = await processRow(tenantId, body.clientImportId, {\n        clientRowId,\n        programId,\n        title,\n        durationSeconds,\n        instructorName,\n        tags,\n        position\n      });\n      results.push(rowResult);\n    } catch (e) {\n      results.push({\n        clientRowId,\n        ok: false,\n        errors: errorsForSessionImportCatch(e)\n      });\n    }\n  }",
+  "new_string": "  const parsedOutcomes: ParsedRowOutcome[] = [];\n\n  for (let i = 0; i < records.length; i++) {\n    const row = records[i];\n    const line = i + 2;\n    const clientRowId = (row.client_row_id ?? \"\").trim();\n    if (!clientRowId) {\n      parsedOutcomes.push({\n        kind: \"invalid\",\n        result: {\n          clientRowId: `row_${line}`,\n          ok: false,\n          errors: [\"client_row_id is required\"]\n        }\n      });\n      continue;\n    }\n\n    const errs: string[] = [];\n    const programId = (row.program_id ?? \"\").trim();\n    const title = (row.title ?? \"\").trim();\n    const durationRaw = (row.duration_seconds ?? \"\").trim();\n    const instructorName = (row.instructor_name ?? \"\").trim();\n    const tagsRaw = (row.tags ?? \"\").trim();\n    const positionRaw = (row.position ?? \"\").trim();\n\n    if (!programId) {\n      errs.push(\"program_id is required\");\n    }\n    if (!title) {\n      errs.push(\"title is required\");\n    }\n    if (!durationRaw) {\n      errs.push(\"duration_seconds is required\");\n    }\n    if (!instructorName) {\n      errs.push(\"instructor_name is required\");\n    }\n\n    let durationSeconds = 0;\n    if (durationRaw) {\n      const d = Number.parseInt(durationRaw, 10);\n      if (!Number.isFinite(d) || d <= 0) {\n        errs.push(\"duration_seconds must be a positive integer\");\n      } else {\n        durationSeconds = d;\n      }\n    }\n\n    let position: number | undefined;\n    if (positionRaw) {\n      const p = Number.parseInt(positionRaw, 10);\n      if (!Number.isFinite(p) || p < 0) {\n        errs.push(\"position must be a non-negative integer\");\n      } else {\n        position = p;\n      }\n    }\n\n    const tags =\n      tagsRaw.length > 0\n        ? tagsRaw\n            .split(/[|,]/)\n            .map((t) => t.trim())\n            .filter(Boolean)\n        : [];\n\n    if (errs.length > 0) {\n      parsedOutcomes.push({\n        kind: \"invalid\",\n        result: { clientRowId, ok: false, errors: errs }\n      });\n      continue;\n    }\n\n    parsedOutcomes.push({\n      kind: \"valid\",\n      row: {\n        clientRowId,\n        programId,\n        title,\n        durationSeconds,\n        instructorName,\n        tags,\n        position\n      }\n    });\n  }\n\n  const validRows = parsedOutcomes.filter((o): o is { kind: \"valid\"; row: ValidatedImportRow } => {\n    return o.kind === \"valid\";\n  });\n  const distinctProgramIds = [...new Set(validRows.map((v) => v.row.programId))];\n\n  const [ownedProgramIds, maxPositionByProgram, existingImportKeys] = await Promise.all([\n    sessionsRepo.findProgramIdsOwnedByTenant(tenantId, distinctProgramIds),\n    sessionsRepo.maxSessionPositionByProgramForTenant(tenantId, distinctProgramIds),\n    prisma.sessionImportKey.findMany({\n      where: {\n        tenantId: tenantId as string,\n        clientImportId: body.clientImportId\n      }\n    })\n  ]);\n\n  const importKeyByRowId = new Map<string, SessionImportKey>(\n    existingImportKeys.map((k) => [k.clientRowId, k])\n  );\n\n  const results: RowResult[] = [];\n\n  for (const outcome of parsedOutcomes) {\n    if (outcome.kind === \"invalid\") {\n      results.push(outcome.result);\n      continue;\n    }\n\n    const { row } = outcome;\n\n    if (!ownedProgramIds.has(row.programId)) {\n      results.push({\n        clientRowId: row.clientRowId,\n        ok: false,\n        errors: [\"program not found for this tenant\"]\n      });\n      continue;\n    }\n\n    const cachedKey = importKeyByRowId.get(row.clientRowId);\n    if (cachedKey?.sessionId) {\n      results.push({\n        clientRowId: row.clientRowId,\n        ok: true,\n        sessionId: cachedKey.sessionId,\n        idempotent: true\n      });\n      continue;\n    }\n\n    let precomputedAutoPosition: number | undefined;\n    if (row.position === undefined) {\n      const cur = maxPositionByProgram.get(row.programId) ?? -1;\n      precomputedAutoPosition = cur + 1;\n    }\n\n    try {\n      const rowResult = await processRow(\n        tenantId,\n        body.clientImportId,\n        {\n          clientRowId: row.clientRowId,\n          programId: row.programId,\n          title: row.title,\n          durationSeconds: row.durationSeconds,\n          instructorName: row.instructorName,\n          tags: row.tags,\n          position: row.position\n        },\n        { precomputedAutoPosition, importKeyByRowId }\n      );\n      results.push(rowResult);\n      if (rowResult.ok) {\n        if (row.position !== undefined) {\n          const prev = maxPositionByProgram.get(row.programId) ?? -1;\n          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));\n        } else if (precomputedAutoPosition !== undefined) {\n          maxPositionByProgram.set(row.programId, precomputedAutoPosition);\n        }\n        importKeyByRowId.set(row.clientRowId, {\n          ...cachedKey,\n          tenantId: tenantId as string,\n          clientImportId: body.clientImportId,\n          clientRowId: row.clientRowId,\n          sessionId: rowResult.sessionId,\n          status: SessionImportKeyStatus.success,\n          errorMsg: null,\n          id: cachedKey?.id ?? \"\",\n          createdAt: cachedKey?.createdAt ?? new Date(),\n          updatedAt: new Date()\n        } as SessionImportKey);\n      }\n    } catch (e) {\n      results.push({\n        clientRowId: row.clientRowId,\n        ok: false,\n        errors: errorsForSessionImportCatch(e)\n      });\n    }\n  }"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/prisma/schema.prisma",
+  "pattern": "model SessionImportKey",
+  "-A": 25
+}
+```
+
+### Assistant
+
+Fixing cache updates: we'll set the import-key map inside `processRow` using Prisma's update return value, and correct the outer loop.
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "old_string": "      results.push(rowResult);\n      if (rowResult.ok) {\n        if (row.position !== undefined) {\n          const prev = maxPositionByProgram.get(row.programId) ?? -1;\n          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));\n        } else if (precomputedAutoPosition !== undefined) {\n          maxPositionByProgram.set(row.programId, precomputedAutoPosition);\n        }\n        importKeyByRowId.set(row.clientRowId, {\n          ...cachedKey,\n          tenantId: tenantId as string,\n          clientImportId: body.clientImportId,\n          clientRowId: row.clientRowId,\n          sessionId: rowResult.sessionId,\n          status: SessionImportKeyStatus.success,\n          errorMsg: null,\n          id: cachedKey?.id ?? \"\",\n          createdAt: cachedKey?.createdAt ?? new Date(),\n          updatedAt: new Date()\n        } as SessionImportKey);\n      }\n    } catch (e) {",
+  "new_string": "      results.push(rowResult);\n      if (rowResult.ok) {\n        if (row.position !== undefined) {\n          const prev = maxPositionByProgram.get(row.programId) ?? -1;\n          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));\n        } else if (precomputedAutoPosition !== undefined) {\n          maxPositionByProgram.set(row.programId, precomputedAutoPosition);\n        }\n      }\n    } catch (e) {"
+}
+```
+
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+  "old_string": "async function processRow(\n  tenantId: TenantId,\n  clientImportId: string,\n  row: {\n    clientRowId: string;\n    programId: string;\n    title: string;\n    durationSeconds: number;\n    instructorName: string;\n    tags: string[];\n    position?: number;\n  }\n): Promise<RowResult> {\n  return prisma.$transaction(async (tx) => {\n    const existing = await tx.sessionImportKey.findUnique({\n      where: {\n        tenantId_clientImportId_clientRowId: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId\n        }\n      }\n    });\n\n    if (existing?.sessionId) {\n      return {\n        clientRowId: row.clientRowId,\n        ok: true,\n        sessionId: existing.sessionId,\n        idempotent: true\n      };\n    }\n\n    try {\n      await tx.sessionImportKey.create({\n        data: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId,\n          status: SessionImportKeyStatus.pending,\n          errorMsg: null,\n          sessionId: null\n        }\n      });\n    } catch (e) {\n      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === \"P2002\") {\n        const after = await tx.sessionImportKey.findUnique({\n          where: {\n            tenantId_clientImportId_clientRowId: {\n              tenantId: tenantId as string,\n              clientImportId,\n              clientRowId: row.clientRowId\n            }\n          }\n        });\n        if (after?.sessionId) {\n          return {\n            clientRowId: row.clientRowId,\n            ok: true,\n            sessionId: after.sessionId,\n            idempotent: true\n          };\n        }\n      }\n      throw e;\n    }\n\n    const pos =\n      row.position !== undefined ? row.position : await nextPositionTx(tx, tenantId, row.programId);\n\n    const session = await tx.session.create({\n      data: {\n        tenantId: tenantId as string,\n        programId: row.programId,\n        title: row.title,\n        durationSeconds: row.durationSeconds,\n        position: pos,\n        instructorName: row.instructorName,\n        tags: row.tags,\n        mediaUrl: undefined,\n        mediaType: undefined\n      }\n    });\n\n    await tx.sessionImportKey.update({\n      where: {\n        tenantId_clientImportId_clientRowId: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId\n        }\n      },\n      data: {\n        sessionId: session.id,\n        status: SessionImportKeyStatus.success,\n        errorMsg: null\n      }\n    });\n\n    return {\n      clientRowId: row.clientRowId,\n      ok: true,\n      sessionId: session.id\n    };\n  });\n}",
+  "new_string": "async function processRow(\n  tenantId: TenantId,\n  clientImportId: string,\n  row: {\n    clientRowId: string;\n    programId: string;\n    title: string;\n    durationSeconds: number;\n    instructorName: string;\n    tags: string[];\n    position?: number;\n  },\n  ctx: {\n    importKeyByRowId: Map<string, SessionImportKey>;\n    precomputedAutoPosition?: number;\n  }\n): Promise<RowResult> {\n  return prisma.$transaction(async (tx) => {\n    const existing = await tx.sessionImportKey.findUnique({\n      where: {\n        tenantId_clientImportId_clientRowId: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId\n        }\n      }\n    });\n\n    if (existing?.sessionId) {\n      ctx.importKeyByRowId.set(row.clientRowId, existing);\n      return {\n        clientRowId: row.clientRowId,\n        ok: true,\n        sessionId: existing.sessionId,\n        idempotent: true\n      };\n    }\n\n    try {\n      await tx.sessionImportKey.create({\n        data: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId,\n          status: SessionImportKeyStatus.pending,\n          errorMsg: null,\n          sessionId: null\n        }\n      });\n    } catch (e) {\n      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === \"P2002\") {\n        const after = await tx.sessionImportKey.findUnique({\n          where: {\n            tenantId_clientImportId_clientRowId: {\n              tenantId: tenantId as string,\n              clientImportId,\n              clientRowId: row.clientRowId\n            }\n          }\n        });\n        if (after?.sessionId) {\n          ctx.importKeyByRowId.set(row.clientRowId, after);\n          return {\n            clientRowId: row.clientRowId,\n            ok: true,\n            sessionId: after.sessionId,\n            idempotent: true\n          };\n        }\n      }\n      throw e;\n    }\n\n    const pos =\n      row.position !== undefined\n        ? row.position\n        : ctx.precomputedAutoPosition !== undefined\n          ? ctx.precomputedAutoPosition\n          : await nextPositionTx(tx, tenantId, row.programId);\n\n    const session = await tx.session.create({\n      data: {\n        tenantId: tenantId as string,\n        programId: row.programId,\n        title: row.title,\n        durationSeconds: row.durationSeconds,\n        position: pos,\n        instructorName: row.instructorName,\n        tags: row.tags,\n        mediaUrl: undefined,\n        mediaType: undefined\n      }\n    });\n\n    const updatedKey = await tx.sessionImportKey.update({\n      where: {\n        tenantId_clientImportId_clientRowId: {\n          tenantId: tenantId as string,\n          clientImportId,\n          clientRowId: row.clientRowId\n        }\n      },\n      data: {\n        sessionId: session.id,\n        status: SessionImportKeyStatus.success,\n        errorMsg: null\n      }\n    });\n\n    ctx.importKeyByRowId.set(row.clientRowId, updatedKey);\n\n    return {\n      clientRowId: row.clientRowId,\n      ok: true,\n      sessionId: session.id\n    };\n  });\n}"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `ReadLints`
+
+```json
+{
+  "paths": [
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts",
+    "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/sessions/sessions.repository.ts"
+  ]
+}
+```
+
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test -- --testPathPattern=\"bulk-import|import-cross\" 2>&1",
+  "description": "Run Jest tests for CSV import flows"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test 2>&1",
+  "description": "Run full backend Jest suite"
+}
+```
+
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "merge": true,
+  "todos": [
+    {
+      "id": "batch-programs",
+      "status": "completed"
+    },
+    {
+      "id": "prefetch-import-keys",
+      "status": "completed"
+    },
+    {
+      "id": "position-cursor",
+      "status": "completed"
+    },
+    {
+      "id": "verify-tests",
+      "status": "in_progress"
+    }
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/.cursor/projects/Users-subhan-Work-wellspring-subhan-ahmed/agent-tools/e0c2305d-2119-4aa8-8a16-d0310169b7e0.txt",
+  "limit": 30,
+  "offset": 90
+}
+```
+
+
+**Tool:** `Glob`
+
+```json
+{
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed",
+  "glob_pattern": "**/ai-history/**"
+}
+```
+
+### Assistant
+
+Fixing a bug: idempotent returns from `processRow` (inside the transaction) must not advance `maxPositionByProgram`, or auto-positions for later rows will be wrong.
+
+[REDACTED]
+
+**Tool:** `StrReplace`
+
+```json
+{
+  "new_string": "      results.push(rowResult);\n      if (rowResult.ok && rowResult.idempotent !== true) {\n        if (row.position !== undefined) {\n          const prev = maxPositionByProgram.get(row.programId) ?? -1;\n          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));\n        } else if (precomputedAutoPosition !== undefined) {\n          maxPositionByProgram.set(row.programId, precomputedAutoPosition);\n        }\n      }",
+  "old_string": "      results.push(rowResult);\n      if (rowResult.ok) {\n        if (row.position !== undefined) {\n          const prev = maxPositionByProgram.get(row.programId) ?? -1;\n          maxPositionByProgram.set(row.programId, Math.max(prev, row.position));\n        } else if (precomputedAutoPosition !== undefined) {\n          maxPositionByProgram.set(row.programId, precomputedAutoPosition);\n        }\n      }",
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/modules/import/service.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test -- --testPathPattern=\"bulk-import|import-cross\" 2>&1",
+  "description": "Re-run import-related Jest tests after idempotent fix"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/ai-history/76-sessions-import-perf-2026-05-13.md",
+  "contents": "# Sessions CSV import performance (2026-05-13)\n\nRaw notes for reviewer.\n\n- Implemented batch `findProgramIdsOwnedByTenant` + `maxSessionPositionByProgramForTenant` in `sessions.repository.ts`.\n- Refactored `importSessionsFromCsv` in `import/service.ts`: parse phase, `Promise.all` prefetch (programs, max positions, import keys), in-memory position cursor, idempotent fast path before per-row transaction.\n- `processRow` now takes `precomputedAutoPosition` and mutable `importKeyByRowId`; updates map from `sessionImportKey.update` return; keeps `nextPositionTx` fallback.\n- Fixed outer-loop max-position update to skip rows where `rowResult.idempotent === true` so idempotent txn returns do not advance the cursor.\n\nTests: `pnpm test` (backend) all green.\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `TodoWrite`
+
+```json
+{
+  "merge": true,
+  "todos": [
+    {
+      "id": "verify-tests",
+      "status": "completed"
+    }
+  ]
+}
+```
+
+### Assistant
+
+Here is what was implemented.
+
+### 1. [`backend/src/modules/sessions/sessions.repository.ts`](backend/src/modules/sessions/sessions.repository.ts)
+
+- **`findProgramIdsOwnedByTenant`** — one `findMany` with `{ tenantId, id: { in: programIds } }`, returns a `Set` of valid program ids.
+- **`maxSessionPositionByProgramForTenant`** — one `groupBy` on `Session` by `programId` with `_max.position`; every distinct program id from the CSV is seeded to `-1` when it has no rows so auto-position still starts at `0`.
+
+### 2. [`backend/src/modules/import/service.ts`](backend/src/modules/import/service.ts)
+
+- **Parse pass** — builds `ParsedRowOutcome[]` (field errors vs `ValidatedImportRow`) in CSV order.
+- **Prefetch** — `Promise.all` loads owned program ids, max positions, and all `SessionImportKey` rows for `(tenantId, clientImportId)` in parallel.
+- **Process pass** — in-memory `ownedProgramIds`, `importKeyByRowId`, and `maxPositionByProgram`:
+  - Rows with an import key that already has `sessionId` return idempotently **without** a transaction.
+  - Auto `position` uses `precomputedAutoPosition` from the in-memory cursor; **`maxPositionByProgram` is only updated when `rowResult.ok && rowResult.idempotent !== true`** so idempotent txn returns do not advance the cursor (fixes a race with the precomputed path).
+- **`processRow`** — takes `{ importKeyByRowId, precomputedAutoPosition? }`; uses `precomputedAutoPosition` when `row.position` is omitted, otherwise falls back to `nextPositionTx`; writes the **`sessionImportKey.update` return value** into the map for same-CSV duplicate `client_row_id` handling.
+
+### 3. Tests
+
+- Full backend **`pnpm test`**: 12 suites, 28 tests passed.
+- Import-focused tests re-run after the idempotent cursor fix.
+
+### 4. AI history
+
+- Added [`ai-history/76-sessions-import-perf-2026-05-13.md`](ai-history/76-sessions-import-perf-2026-05-13.md) with a short raw summary per repo convention.
+
+You should see fewer round-trips: one batch for programs, one for max positions, one for import keys, no per-row program lookup, no per-row `aggregate` for auto positions, and no transaction for rows that are already idempotent from the prefetch.
+
+[REDACTED]
+

@@ -65,8 +65,19 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 72 | [`72-cursor-agent-transcript-cce2d7dd.jsonl`](./72-cursor-agent-transcript-cce2d7dd.jsonl), [`72-cursor-agent-chat-export-cce2d7dd.md`](./72-cursor-agent-chat-export-cce2d7dd.md) | Audit log: Actor column — show or hide |
 | 73 | [`73-cursor-agent-transcript-253244d7.jsonl`](./73-cursor-agent-transcript-253244d7.jsonl), [`73-cursor-agent-chat-export-253244d7.md`](./73-cursor-agent-chat-export-253244d7.md) | Session ordering: rapid reorder / server errors |
 | 74 | [`74-cursor-agent-transcript-753c7b31.jsonl`](./74-cursor-agent-transcript-753c7b31.jsonl), [`74-cursor-agent-chat-export-753c7b31.md`](./74-cursor-agent-chat-export-753c7b31.md) | Session detail 404, media link, list drag polish |
+| 79 | [`79-cursor-agent-transcript-b1163fe5.jsonl`](./79-cursor-agent-transcript-b1163fe5.jsonl), [`79-cursor-agent-chat-export-b1163fe5.md`](./79-cursor-agent-chat-export-b1163fe5.md) | README update near feature-complete |
+| 80 | [`80-cursor-agent-transcript-7fa0ba25.jsonl`](./80-cursor-agent-transcript-7fa0ba25.jsonl), [`80-cursor-agent-chat-export-7fa0ba25.md`](./80-cursor-agent-chat-export-7fa0ba25.md) | Simplify `.env` / `.env.example` comments |
+| 81 | [`81-cursor-agent-transcript-ce2c0cce.jsonl`](./81-cursor-agent-transcript-ce2c0cce.jsonl), [`81-cursor-agent-chat-export-ce2c0cce.md`](./81-cursor-agent-chat-export-ce2c0cce.md) | Session CSV import performance review |
+| 82 | [`82-cursor-agent-transcript-d85032b4.jsonl`](./82-cursor-agent-transcript-d85032b4.jsonl), [`82-cursor-agent-chat-export-d85032b4.md`](./82-cursor-agent-chat-export-d85032b4.md) | Session list spacing / reorder hint copy |
+| 83 | [`83-cursor-agent-transcript-8e43e2fc.jsonl`](./83-cursor-agent-transcript-8e43e2fc.jsonl), [`83-cursor-agent-chat-export-8e43e2fc.md`](./83-cursor-agent-chat-export-8e43e2fc.md) | Session delete: React “update while rendering” error |
+| 84 | [`84-cursor-agent-transcript-474a952c.jsonl`](./84-cursor-agent-transcript-474a952c.jsonl), [`84-cursor-agent-chat-export-474a952c.md`](./84-cursor-agent-chat-export-474a952c.md) | Session edit: replace control when no media |
+| 85 | [`85-cursor-agent-transcript-a6655c1d.jsonl`](./85-cursor-agent-transcript-a6655c1d.jsonl), [`85-cursor-agent-chat-export-a6655c1d.md`](./85-cursor-agent-chat-export-a6655c1d.md) | S3 object URL access / presigned GET |
+| 86 | [`86-cursor-agent-transcript-4a5a4b86.jsonl`](./86-cursor-agent-transcript-4a5a4b86.jsonl), [`86-cursor-agent-chat-export-4a5a4b86.md`](./86-cursor-agent-chat-export-4a5a4b86.md) | New session: position conflict + duplicate error UI |
+| 87 | [`87-cursor-agent-transcript-1ff76e2c.jsonl`](./87-cursor-agent-transcript-1ff76e2c.jsonl), [`87-cursor-agent-chat-export-1ff76e2c.md`](./87-cursor-agent-chat-export-1ff76e2c.md) | README completeness review |
+| 88 | [`88-cursor-agent-transcript-ee67ca65.jsonl`](./88-cursor-agent-transcript-ee67ca65.jsonl), [`88-cursor-agent-chat-export-ee67ca65.md`](./88-cursor-agent-chat-export-ee67ca65.md) | Frontend `.mdc` glob pattern warning |
+| 89 | [`89-cursor-agent-transcript-f19d6b89.jsonl`](./89-cursor-agent-transcript-f19d6b89.jsonl), [`89-cursor-agent-chat-export-f19d6b89.md`](./89-cursor-agent-chat-export-f19d6b89.md) | Codebase vs architecture / rules compliance check |
 
-_Numbers like `23`–`26` and **`55`–`57`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
+_Numbers like `23`–`26`, **`55`–`57`**, and **`75`–`78`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
 
 ## Raw vs Markdown
 
