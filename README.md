@@ -1,200 +1,130 @@
-# Wellspring (Breakthrough take-home)
+# Wellspring
 
-## Loom walkthrough (required)
+**_[Loom walkthrough (5–7 min): add URL before submission.]_**
 
-**_[Add your 5–7 minute Loom URL here before submission.]_**
+Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. The repo is **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**.
 
-## Live admin (Vercel)
+## Live
 
-- **Admin (Vercel):** [https://wellspring-admin-six.vercel.app](https://wellspring-admin-six.vercel.app)
-- **Public API (Railway):** [https://wellspring-subhan-ahmed-production.up.railway.app](https://wellspring-subhan-ahmed-production.up.railway.app) — the production frontend’s **`NEXT_PUBLIC_API_URL`** should match this origin (no trailing slash). On Railway, set **`CORS_ORIGIN`** to include **`https://wellspring-admin-six.vercel.app`** (comma-separated if you add more origins). Redeploy the admin after changing Vercel env (`pnpm -C frontend deploy:vercel` or `vercel deploy --prod` from `frontend/`).
+| Service | URL |
+|---------|-----|
+| Admin (Vercel) | https://wellspring-admin-six.vercel.app |
+| API (Railway) | https://wellspring-subhan-ahmed-production.up.railway.app |
 
-Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. This README covers setup, run, test, and seed. The official brief and quality bars are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
+**Wiring:** Set **`NEXT_PUBLIC_API_URL`** on the frontend to the API origin (HTTPS, **no trailing slash**). On the API, set **`CORS_ORIGIN`** to a comma-separated list of allowed admin origins (must include the Vercel URL in production). Redeploy the admin after changing `NEXT_PUBLIC_API_URL`.
 
-The repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each package directory (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
+## Documentation
 
-### Tech stack
+- Brief and rubric: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
+- Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md)
+- Architecture self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md)
+- AI session exports: [`ai-history/`](ai-history/)
 
-- **Backend:** Node.js, Express, TypeScript, PostgreSQL, Prisma, Zod, Pino, Jest + Supertest, JWT.
-- **Frontend:** Next.js (App Router), React, TypeScript, **Tailwind CSS**, **shadcn/ui** (design tokens and shared primitives under `frontend/src/components/ui/`, Tailwind theme in `frontend/src/app/globals.css`), React Hook Form + Zod.
+## Stack (short)
 
-### What’s implemented
+**Backend:** Node.js 20+, Express, TypeScript, PostgreSQL, Prisma, Zod, Pino (JSON logs with `request_id` and `tenant_id`, or `pre_auth` before JWT), JWT, Jest + Supertest.
 
-- **Backend:** JWT auth (**signup**, **login**, **forgot-password** / **reset-password** — reset returns a JWT in the API response for local/dev; no email transport), **programs** and **sessions** CRUD, **session reorder** within a program, **CSV bulk import** with per-row errors and **client import id** idempotency, **S3 presign** (+ optional **relay** upload), **audit log** with filters (date range, action type). **Tenant isolation** is enforced in repositories/services; integration tests include multiple cases whose names contain **`rejects cross-tenant`**. **Pino** JSON logs include **`request_id`** and **`tenant_id`** (or **`pre_auth`** before JWT).
-- **Frontend:** **Responsive** admin from small screens up (below the `md` breakpoint: sticky top bar + slide-out navigation drawer, backdrop dismiss, Escape to close; from `md` up: persistent sidebar). Signup/login and password-reset flow, program list/create/edit, session list with **drag-and-drop reorder**, session create/edit with **media upload** (presign + PUT), **CSV import** with validation feedback, **audit log** viewer with filters.
-- **Data:** Prisma **migrations only** under `backend/src/prisma/migrations/`. **Seed:** 2 creators, 3 programs each, 10 sessions per program.
+**Frontend:** Next.js (App Router), React, TypeScript, Tailwind, shadcn-style UI under `frontend/src/components/ui/`, React Hook Form + Zod.
 
-### Package scripts
-
-- **Backend (`backend/`)**: `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm test`, `pnpm db:migrate`, `pnpm db:seed` (also `pnpm db:generate`, `pnpm db:migrate:dev`, `pnpm typecheck`, `pnpm lint`)
-- **Frontend (`frontend/`)**: `pnpm dev`, `pnpm test` (also `pnpm build`, `pnpm start`, `pnpm typecheck`, `pnpm lint`)
-
-### API surface (quick reference)
-
-| Area | Routes / notes |
-|------|-----------|
-| Health | `GET /health` |
-| Auth | **Public:** `POST /api/auth/signup`, `login`, `forgot-password`, `reset-password` — **Bearer:** `GET /api/auth/me`, `POST /api/auth/logout` |
-| Authenticated | `GET/PATCH …` under `/v1/programs`, `/v1/sessions`, `/v1/uploads`, `/v1/import`, `/v1/audit` |
-| Docs (when enabled) | `GET /api-docs`, `GET /openapi.json` |
-
-Protected routes expect **`Authorization: Bearer <jwt>`** (use **Authorize** in Swagger or a token from login).
-
----
+**Notable behavior:** Tenant isolation in repositories (not only routes). CSV import with row errors and client import id idempotency. S3 presigned uploads (tenant-scoped keys, time-limited). Audit log with filters. Prisma **migrations only** under `backend/src/prisma/migrations/`. Seed: 2 creators, 3 programs each, 10 sessions per program.
 
 ## Prerequisites
 
-- **Node.js** 20+ (LTS recommended)
-- **pnpm** 9+ (`corepack enable` then `corepack prepare pnpm@9.15.0 --activate`, or install pnpm globally)
-- **PostgreSQL** 14+ (local or Docker) for the API
+- Node.js **20+** and **pnpm 9+** (see `packageManager` in each `package.json`; e.g. `corepack prepare pnpm@9.15.0 --activate` after `corepack enable`)
+- PostgreSQL **14+** for local API development
 
----
+## Local setup
 
-## Setup
+```bash
+cd backend && pnpm install
+cd ../frontend && pnpm install
+```
 
-1. **Clone** the repository.
+1. **Env:** [`backend/.env.example`](backend/.env.example) → `backend/.env`. [`frontend/.env.example`](frontend/.env.example) → `frontend/.env.local` (`NEXT_PUBLIC_API_URL=http://localhost:4000` for local API).
 
-2. **Install dependencies** (once per package):
-
-   ```bash
-   cd backend && pnpm install
-   cd ../frontend && pnpm install
-   ```
-
-3. **Environment files**
-
-   - **API:** copy [`backend/.env.example`](backend/.env.example) to `backend/.env` and set **`DATABASE_URL`**, **`JWT_SECRET`** (required for login and password-reset tokens), and optional `PORT`, `LOG_LEVEL`. For **S3 uploads**, set **`AWS_REGION`** to the bucket’s region, plus credentials and **`S3_BUCKET`**. Prisma schema: `backend/src/prisma/schema.prisma` (all `pnpm db:*` scripts pass `--schema` there). OpenAPI is controlled by **`ENABLE_API_DOCS`** (`1`/`0`; see `.env.example`).
-   - **Admin UI:** copy [`frontend/.env.example`](frontend/.env.example) to `frontend/.env.local` and set **`NEXT_PUBLIC_API_URL`** to the API base URL (e.g. `http://localhost:4000`).
-
-4. **Database & Prisma** (from `backend/`):
+2. **Database** (from `backend/`):
 
    ```bash
-   cd backend
    pnpm db:generate
-   ```
-
-   After migration files exist in `backend/src/prisma/migrations/`, apply them:
-
-   ```bash
    pnpm db:migrate
    ```
 
-   For **local schema iteration** use `pnpm db:migrate:dev` (wraps `prisma migrate dev` with `--schema src/prisma/schema.prisma`). CI and production use `pnpm db:migrate` (`prisma migrate deploy`).
+   Schema iteration: `pnpm db:migrate:dev` (wraps `prisma migrate dev` with `--schema src/prisma/schema.prisma`).
 
-5. **Seed** (from `backend/`; creates rubric data; refuses `NODE_ENV=production`):
+3. **Seed** (refuses `NODE_ENV=production`):
 
    ```bash
    pnpm db:seed
    ```
 
-   Seed output is **one JSON object per line** (includes `request_id: "seed"`, `tenant_id` set to the creator id when relevant, or `pre_auth` for global steps) so it matches the spirit of structured logging used by the API.
+   Seeded accounts (same password for both): **`nora.chen@wellspring.example`** and **`marcus.ortiz@wellspring.example`** — **`Password123!`**
 
-   **Seeded logins (local):**
+## Run and test
 
-   - `creator1@wellspring.example` / `Password123!`
-   - `creator2@wellspring.example` / `Password123!`
-
----
-
-## Run
-
-Use **two terminals** — API and web run separately.
+Two terminals:
 
 ```bash
-# Terminal 1 — API (default port 4000)
-cd backend && pnpm dev
-
-# Terminal 2 — Admin UI (port 3000)
-cd frontend && pnpm dev
+cd backend && pnpm dev    # http://localhost:4000 — GET /health
+cd frontend && pnpm dev   # http://localhost:3000
 ```
 
-- **API:** `http://localhost:4000` (e.g. `GET /health`)
-- **Admin:** `http://localhost:3000`
-
-When the API is running and docs are enabled (default in non-production when `ENABLE_API_DOCS` is unset or `1`):
-
-- **API Docs:** `http://localhost:4000/api-docs`
-- **OpenAPI JSON:** `http://localhost:4000/openapi.json`
-
-### S3 session media (browser uploads)
-
-Flow: **`POST /v1/uploads/presign`** → browser **`PUT`** to the signed URL (**`Content-Type`** must match presign; SigV4 signs `content-type`). If that **`PUT` fails**, **`POST /v1/uploads/relay`** sends the same body with header **`X-Wellspring-S3-Key`** = the presign response’s **`key`**, and matching **`Content-Type`**.
-
-Set **`AWS_REGION`**, **`AWS_ACCESS_KEY_ID`**, **`AWS_SECRET_ACCESS_KEY`**, **`S3_BUCKET`** in `backend/.env`. **`AWS_REGION` must match the bucket’s region.** Optional: **`S3_PUBLIC_BASE_URL`**, **`S3_ENDPOINT`**.
-
-1. **Bucket CORS** — Allow **`PUT`** (and **`GET`** / **`HEAD`** for playback) from your admin origin(s). Include both **`localhost`** and **`127.0.0.1`** in dev if you use either URL bar.
-
-```json
-[
-  {
-    "AllowedHeaders": ["*"],
-    "AllowedMethods": ["PUT", "GET", "HEAD"],
-    "AllowedOrigins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-    "ExposeHeaders": ["ETag"],
-    "MaxAgeSeconds": 3000
-  }
-]
-```
-
-2. **Public GET** — Session **`publicUrl`** must be readable (`s3:GetObject` or CDN); configure **`S3_PUBLIC_BASE_URL`** if you front the bucket.
-
-3. **IAM** — **`s3:PutObject`** on `tenants/*` (and **`GetObject`** if the same principal reads objects).
-
----
-
-## Test
+With `ENABLE_API_DOCS=1` (default in dev): Swagger at `/api-docs`, spec at `/openapi.json`.
 
 ```bash
 cd backend && pnpm test
-cd ../frontend && pnpm test
+cd frontend && pnpm test
 ```
 
-API integration tests live under `backend/tests/`. At least three tests include **`rejects cross-tenant`** in the name (reviewers grep for this).
+Integration tests under `backend/tests/`; several names include **`rejects cross-tenant`** (rubric grep).
 
----
+## Package scripts
 
-## Build (production-style)
+| Package | Common |
+|---------|--------|
+| `backend/` | `dev`, `build`, `start`, `test`, `db:migrate`, `db:migrate:dev`, `db:seed`, `db:generate`, `typecheck`, `lint` |
+| `frontend/` | `dev`, `build`, `start`, `test`, `deploy:vercel`, `typecheck`, `lint` |
 
-**Frontend:**
+## API (quick)
 
-```bash
-cd frontend && pnpm build && pnpm start
-```
+| Area | Notes |
+|------|--------|
+| Health | `GET /health` |
+| Auth (public) | `POST /api/auth/signup`, `login`, `forgot-password`, `reset-password` |
+| Auth (Bearer) | `GET /api/auth/me`, `POST /api/auth/logout` |
+| App (Bearer) | `/v1/programs`, `/v1/sessions`, `/v1/uploads`, `/v1/import`, `/v1/audit` |
+| Docs (if enabled) | `GET /api-docs`, `GET /openapi.json` |
 
-**Backend** (compiled `dist/`; `NODE_ENV=production` is typical):
+Protected routes: **`Authorization: Bearer <jwt>`**.
+
+## S3 session media
+
+1. `POST /v1/uploads/presign` → browser `PUT` to the signed URL (`Content-Type` must match the presign).
+2. If `PUT` fails (e.g. CORS), `POST /v1/uploads/relay` with body + `X-Wellspring-S3-Key` + matching `Content-Type`.
+
+Set `AWS_REGION` (must match bucket), credentials, `S3_BUCKET` in `backend/.env`. Optional: `S3_PUBLIC_BASE_URL`, `S3_ENDPOINT`. Bucket CORS must allow `PUT` (and `GET`/`HEAD` for playback) from your admin origins; include both `http://localhost:3000` and `http://127.0.0.1:3000` in dev if needed. IAM needs `s3:PutObject` on `tenants/*` (and `GetObject` if the same principal reads objects). Details stay in `.env.example` and [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md).
+
+## Production builds
 
 ```bash
 cd backend && pnpm build && pnpm start
+cd frontend && pnpm build && pnpm start
 ```
 
-`pnpm build` runs Prisma client generation and `tsc`. Railway and other hosts should run **`pnpm db:migrate`** before traffic (see below).
+Run migrations before serving the API (`pnpm db:migrate` from `backend/`, or your host’s equivalent).
 
-### Deploy backend (Railway)
+## Deploy
 
-1. Create a Railway project, add **PostgreSQL**, and connect a **GitHub** service to this repo.
-2. In the API service **Settings → Root Directory**, set **`backend`** (this repo has no root `package.json`).
-3. **Variables:** reference the Postgres plugin’s **`DATABASE_URL`** on the service. Set **`NODE_ENV=production`**, a long **`JWT_SECRET`** (≥16 characters), comma-separated **`CORS_ORIGIN`** with your deployed admin origin(s) (HTTPS), and optionally **`ENABLE_API_DOCS=0`**. Without `CORS_ORIGIN` in production, localhost is not auto-allowed.
-4. **Config as code:** [`backend/railway.json`](backend/railway.json) sets **`pnpm run build`**, **`pnpm run start`**, **`preDeployCommand`** (`pnpm run db:migrate`), and **`healthcheckPath`** `/health`.
-5. **Seed (optional, once):** the seed script refuses `NODE_ENV=production`. From a shell with DB access, run e.g. **`NODE_ENV=development pnpm db:seed`** once after migrations, or seed from your machine using the hosted **`DATABASE_URL`**.
-6. **Frontend:** set **`NEXT_PUBLIC_API_URL`** in the admin app to the Railway service **public URL** (HTTPS).
+**API (Railway)**  
+Service **root directory:** `backend`. Link Postgres **`DATABASE_URL`**. Set `NODE_ENV=production`, a long `JWT_SECRET` (≥16 chars), `CORS_ORIGIN` (HTTPS admin origins). Optional: `ENABLE_API_DOCS=0`. [`backend/railway.json`](backend/railway.json): build `pnpm run build`, start `node dist/index.js`, **`preDeployCommand`** runs `npx prisma migrate deploy --schema src/prisma/schema.prisma`, health check `GET /health`. Seed is blocked when `NODE_ENV=production`; to load demo data once, run seed from a shell with DB access using e.g. `NODE_ENV=development`.
 
----
+**Admin (Vercel)**  
+Point **`NEXT_PUBLIC_API_URL`** at the public Railway API origin, then redeploy (`pnpm -C frontend deploy:vercel` or Vercel dashboard).
 
-## Project layout
+## Layout
 
-| Path | Purpose |
-|------|---------|
-| `backend/` | Express API, Prisma schema & migrations, seed, Jest + Supertest, Swagger / OpenAPI, [`railway.json`](backend/railway.json) for Railway |
-| `frontend/` | Next.js App Router admin |
-| `docs/` | Requirements copy, code summary, architecture review |
-| `ai-history/` | Exported AI sessions (chronological, uncurated) |
-
----
-
-## Submission checklist
-
-- [ ] Public GitHub repo + email per [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
-- [ ] Loom URL at **top of this README**
-- [x] [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md) — module tour (keep updated if you add major areas)
-- [ ] [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md) — replace stub sections with your ~1000-word self-review before submission
-- [x] [`ai-history/`](ai-history/) populated with raw exports
+| Path | Role |
+|------|------|
+| `backend/` | API, Prisma, seed, Jest, OpenAPI, Railway config |
+| `frontend/` | Next.js admin |
+| `docs/` | Requirements, code summary, architecture review |
+| `ai-history/` | Raw AI exports |
