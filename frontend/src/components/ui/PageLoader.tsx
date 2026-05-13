@@ -39,7 +39,7 @@ export function PageLoader({
   const body = (
     <div
       className={cn(
-        "flex flex-col items-center text-center",
+        "flex w-full flex-col items-center text-center",
         compact ? "gap-3" : "gap-4",
         usePanel && "px-6 pt-8",
         usePanel && withFormSkeleton && "pb-2"
@@ -50,8 +50,8 @@ export function PageLoader({
       </div>
       <p
         className={cn(
-          "max-w-xs text-pretty text-muted-foreground",
-          compact ? "text-xs leading-snug" : "text-sm leading-relaxed"
+          "text-pretty text-muted-foreground",
+          compact ? "max-w-xs text-xs leading-snug" : "max-w-md text-sm leading-relaxed"
         )}
       >
         {message}
@@ -67,7 +67,7 @@ export function PageLoader({
   ) : null;
 
   const inner = usePanel ? (
-    <div className={cn(dashSectionCard, "overflow-hidden shadow-card")}>
+    <div className={cn(dashSectionCard, "w-full overflow-hidden shadow-card")}>
       {body}
       {skeleton}
     </div>
@@ -83,9 +83,13 @@ export function PageLoader({
       className={cn(
         fullScreen &&
           "flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background via-background to-muted/25 px-6 py-16",
-        !fullScreen && "flex flex-col items-center justify-center",
-        !fullScreen && !usePanel && (compact ? "min-h-[100px] py-10" : "py-20 md:py-24"),
-        !fullScreen && usePanel && "w-full",
+        !fullScreen && "flex w-full flex-col justify-center",
+        !fullScreen && !usePanel && "items-center",
+        !fullScreen && usePanel && "items-stretch",
+        !fullScreen &&
+          !usePanel &&
+          (compact ? "min-h-[100px] py-10" : "min-h-[min(72vh,42rem)] py-12 md:py-16"),
+        !fullScreen && usePanel && "min-h-[200px] py-10 md:min-h-[240px] md:py-12",
         className
       )}
     >

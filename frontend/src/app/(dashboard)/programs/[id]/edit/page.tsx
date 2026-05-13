@@ -87,11 +87,7 @@ export default function ProgramDetailPage() {
   }
 
   if (loadState === "loading") {
-    return (
-      <div className={cn(DASH_PAGE_MAX, "space-y-6")}>
-        <PageLoader withFormSkeleton message="Loading program…" />
-      </div>
-    );
+    return <PageLoader message="Loading program…" />;
   }
 
   if (loadState === "error" || loadError) {

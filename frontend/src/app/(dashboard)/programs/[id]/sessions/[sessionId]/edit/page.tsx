@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage, applyServerFieldErrors, readApiErrorDetails } from "@/lib/api";
 import {
@@ -58,8 +57,6 @@ export default function EditSessionPage() {
   const [error, setError] = useState<string | null>(null);
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const form = useForm<Form>({
     resolver: zodResolver(schema),
@@ -231,25 +228,10 @@ export default function EditSessionPage() {
     }
   }
 
-  async function onConfirmDelete() {
-    setDeleteError(null);
-    const res = await apiFetch(`/sessions/${sessionId}`, { method: "DELETE" });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setDeleteError(readApiErrorMessage(body, "Delete failed"));
-      throw new Error("delete failed");
-    }
-    router.push(`/programs/${programId}/sessions`);
-  }
-
   const mediaUrl = form.watch("mediaUrl")?.trim();
 
   if (loadState === "loading") {
-    return (
-      <div className={cn(DASH_PAGE_MAX, "space-y-6")}>
-        <PageLoader withFormSkeleton message="Loading session…" />
-      </div>
-    );
+    return <PageLoader message="Loading session…" />;
   }
 
   if (loadState === "error" || loadError) {
@@ -413,24 +395,9 @@ export default function EditSessionPage() {
             <Button type="submit" size="md" disabled={form.formState.isSubmitting || uploading}>
               {form.formState.isSubmitting ? "Saving…" : "Save changes"}
             </Button>
-            <Button type="button" variant="destructive" size="md" onClick={() => setDeleteOpen(true)}>
-              Delete session
-            </Button>
           </div>
         </form>
       </div>
-
-      <ConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="Delete session?"
-        description="This cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        confirmVariant="destructive"
-        onConfirm={onConfirmDelete}
-      />
-      {deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
     </div>
   );
 }

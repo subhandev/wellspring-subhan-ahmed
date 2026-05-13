@@ -34,13 +34,11 @@ export type { SessionRow };
 function SortableRow({
   session,
   programId,
-  indexDisplay,
   onRequestDelete,
   isFirst
 }: {
   session: SessionRow;
   programId: string;
-  indexDisplay: number;
   onRequestDelete: (s: SessionRow) => void;
   isFirst: boolean;
 }) {
@@ -76,12 +74,12 @@ function SortableRow({
         className={dashListRowLinkLayer}
         aria-label={`Open session ${session.title}`}
       />
-      <div className="relative z-[1] flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
+      <div className="pointer-events-none relative z-[1] flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
         <button
           type="button"
           className={cn(
             buttonVariants({ variant: "ghost", size: "icon-sm" }),
-            "mt-0.5 touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
+            "pointer-events-auto mt-0.5 touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
           )}
           aria-label="Drag to reorder"
           {...attributes}
@@ -89,10 +87,8 @@ function SortableRow({
         >
           <GripVertical className="size-4" aria-hidden />
         </button>
-        <div className="pointer-events-none min-w-0 flex-1">
-          <p className="text-sm font-medium text-foreground">
-            <span className="tabular-nums text-muted-foreground">{indexDisplay}.</span> {session.title}
-          </p>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-foreground">{session.title}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">{meta}</p>
         </div>
       </div>
@@ -258,7 +254,6 @@ export function SessionList({
                   key={s.id}
                   session={s}
                   programId={programId}
-                  indexDisplay={idx + 1}
                   isFirst={idx === 0}
                   onRequestDelete={setDeleteTarget}
                 />
