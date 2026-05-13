@@ -1,4 +1,5 @@
 import { AuditLogAction, Prisma } from "@prisma/client";
+import { SESSION_POSITION_CONFLICT_USER_MESSAGE } from "../../lib/sessionPositionConflict.js";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import { assertSessionMediaUrlForTenant } from "../../lib/sessionMediaUrl.js";
@@ -7,13 +8,10 @@ import type { TenantId } from "../../types/tenant.js";
 import type { CreateSessionBody, ReorderSessionsBody, UpdateSessionBody } from "./schemas.js";
 import * as repo from "./sessions.repository.js";
 
-const POSITION_CONFLICT_MESSAGE =
-  "Position is already in use for this program. Choose another position or use the reorder endpoint.";
-
 function throwIfSessionPositionConflict(err: unknown): void {
   if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-    throw new HttpError(409, POSITION_CONFLICT_MESSAGE, "position_conflict", {
-      fieldErrors: { position: [POSITION_CONFLICT_MESSAGE] },
+    throw new HttpError(409, SESSION_POSITION_CONFLICT_USER_MESSAGE, "position_conflict", {
+      fieldErrors: { position: [SESSION_POSITION_CONFLICT_USER_MESSAGE] },
       formErrors: [] as string[]
     });
   }

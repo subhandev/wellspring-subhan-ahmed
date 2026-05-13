@@ -1,6 +1,7 @@
 import { parse } from "csv-parse/sync";
 import { AuditLogAction, Prisma, SessionImportKeyStatus } from "@prisma/client";
 import { prisma } from "../../config/database.js";
+import { errorsForSessionImportCatch } from "../../lib/sessionPositionConflict.js";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import * as sessionsRepo from "../sessions/sessions.repository.js";
@@ -145,7 +146,7 @@ export async function importSessionsFromCsv(
       results.push({
         clientRowId,
         ok: false,
-        errors: [e instanceof Error ? e.message : "import failed"]
+        errors: errorsForSessionImportCatch(e)
       });
     }
   }
