@@ -101,40 +101,6 @@ export function truncateAuditId(id: string | null, max = 16): { short: string; f
   return { short: `${id.slice(0, max)}…`, full: id };
 }
 
-export type AuditPrimaryLink = { href: string; label: string };
-
-/** In-app link when routing is known from row shape + metadata. */
-export function getAuditPrimaryLink(row: AuditLogRow): AuditPrimaryLink | null {
-  const m = metaRecord(row.metadata);
-  const programIdFromMeta = m ? str(m.programId) : null;
-
-  if (row.targetType === "program" && row.targetId) {
-    if (row.action === "session.reordered") {
-      return { href: `/programs/${row.targetId}/sessions`, label: "Open sessions" };
-    }
-    return { href: `/programs/${row.targetId}/edit`, label: "Open program" };
-  }
-
-  if (row.targetType === "session" && row.targetId && programIdFromMeta) {
-    if (
-      row.action === "session.created" ||
-      row.action === "session.updated" ||
-      row.action === "session.deleted"
-    ) {
-      return {
-        href: `/programs/${programIdFromMeta}/sessions/${row.targetId}`,
-        label: "Open session"
-      };
-    }
-  }
-
-  if (row.targetType === "import" && row.action === "sessions.imported") {
-    return { href: "/import", label: "Open import" };
-  }
-
-  return null;
-}
-
 export function targetTypeLabel(type: string): string {
   const map: Record<string, string> = {
     program: "Program",

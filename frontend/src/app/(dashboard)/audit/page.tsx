@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { PageLoader } from "@/components/ui/PageLoader";
@@ -8,7 +7,6 @@ import {
   AUDIT_ACTION_FILTERS,
   AUDIT_LIST_MAX,
   auditRowMatchesSearch,
-  getAuditPrimaryLink,
   humanAuditAction,
   summarizeAuditRow,
   targetTypeLabel,
@@ -185,13 +183,11 @@ export default function AuditPage() {
                   <th className="px-3 py-2.5 font-medium">Action</th>
                   <th className="px-3 py-2.5 font-medium">Target</th>
                   <th className="px-3 py-2.5 font-medium">Details</th>
-                  <th className="px-3 py-2.5 font-medium"> </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRows!.map((r) => {
                   const details = summarizeAuditRow(r);
-                  const link = getAuditPrimaryLink(r);
                   const targetIdParts = truncateAuditId(r.targetId);
                   return (
                     <tr key={r.id} className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/25">
@@ -220,18 +216,6 @@ export default function AuditPage() {
                         ) : null}
                       </td>
                       <td className="max-w-[280px] px-3 py-2.5 align-top text-muted-foreground">{details ?? "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-2.5 align-top text-right">
-                        {link ? (
-                          <Link
-                            href={link.href}
-                            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-                          >
-                            {link.label}
-                          </Link>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </td>
                     </tr>
                   );
                 })}
