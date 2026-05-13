@@ -4,7 +4,9 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 
 ## Tools used
 
-**Cursor only** (Agent / Composer sessions for this repo). No Claude.ai, ChatGPT, or other vendors were used for this submission.
+**Cursor** — Agent / Composer sessions for this repo (raw `.jsonl` under `~/.cursor/.../agent-transcripts`, synced here).
+
+**Claude.ai** — A small set of planning, debugging, and review threads **outside** the IDE, exported to markdown and added here as **`100`–`104`** (see table). No ChatGPT or other vendors.
 
 ## Files (chronological prefix `NN-`)
 
@@ -76,8 +78,22 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 87 | [`87-cursor-agent-transcript-1ff76e2c.jsonl`](./87-cursor-agent-transcript-1ff76e2c.jsonl), [`87-cursor-agent-chat-export-1ff76e2c.md`](./87-cursor-agent-chat-export-1ff76e2c.md) | README completeness review |
 | 88 | [`88-cursor-agent-transcript-ee67ca65.jsonl`](./88-cursor-agent-transcript-ee67ca65.jsonl), [`88-cursor-agent-chat-export-ee67ca65.md`](./88-cursor-agent-chat-export-ee67ca65.md) | Frontend `.mdc` glob pattern warning |
 | 89 | [`89-cursor-agent-transcript-f19d6b89.jsonl`](./89-cursor-agent-transcript-f19d6b89.jsonl), [`89-cursor-agent-chat-export-f19d6b89.md`](./89-cursor-agent-chat-export-f19d6b89.md) | Codebase vs architecture / rules compliance check |
+| 91 | [`91-cursor-agent-transcript-8d698a08.jsonl`](./91-cursor-agent-transcript-8d698a08.jsonl), [`91-cursor-agent-chat-export-8d698a08.md`](./91-cursor-agent-chat-export-8d698a08.md) | Create develop → main PR and merge |
+| 92 | [`92-cursor-agent-transcript-39ee7fa1.jsonl`](./92-cursor-agent-transcript-39ee7fa1.jsonl), [`92-cursor-agent-chat-export-39ee7fa1.md`](./92-cursor-agent-chat-export-39ee7fa1.md) | Plan backend deploy to Railway |
+| 93 | [`93-cursor-agent-transcript-33f1a5f0.jsonl`](./93-cursor-agent-transcript-33f1a5f0.jsonl), [`93-cursor-agent-chat-export-33f1a5f0.md`](./93-cursor-agent-chat-export-33f1a5f0.md) | Railway build / healthcheck failure; `PASSWORD_RESET_DEBUG_LOG` enum vs `false` |
+| 94 | [`94-cursor-agent-transcript-95e60330.jsonl`](./94-cursor-agent-transcript-95e60330.jsonl), [`94-cursor-agent-chat-export-95e60330.md`](./94-cursor-agent-chat-export-95e60330.md) | Admin UI responsiveness audit and fixes |
+| 95 | [`95-cursor-agent-transcript-50ea0c98.jsonl`](./95-cursor-agent-transcript-50ea0c98.jsonl), [`95-cursor-agent-chat-export-50ea0c98.md`](./95-cursor-agent-chat-export-50ea0c98.md) | Vercel deployment wiring, env vars, public URLs in README |
+| 96 | [`96-cursor-agent-transcript-5c521f1d.jsonl`](./96-cursor-agent-transcript-5c521f1d.jsonl), [`96-cursor-agent-chat-export-5c521f1d.md`](./96-cursor-agent-chat-export-5c521f1d.md) | Seed data: drop broken media, more realistic demo copy |
+| 97 | [`97-cursor-agent-transcript-1f32fc2d.jsonl`](./97-cursor-agent-transcript-1f32fc2d.jsonl), [`97-cursor-agent-chat-export-1f32fc2d.md`](./97-cursor-agent-chat-export-1f32fc2d.md) | Post-deploy README pass; demo credentials question |
+| 98 | [`98-cursor-agent-transcript-c2a78989.jsonl`](./98-cursor-agent-transcript-c2a78989.jsonl), [`98-cursor-agent-chat-export-c2a78989.md`](./98-cursor-agent-chat-export-c2a78989.md) | Organize `.env` / `.env.example`, credential-rotation follow-up |
+| 99 | [`99-cursor-agent-transcript-66bad203.jsonl`](./99-cursor-agent-transcript-66bad203.jsonl), [`99-cursor-agent-chat-export-66bad203.md`](./99-cursor-agent-chat-export-66bad203.md) | Sync new/updated agent transcripts into `ai-history` |
+| 100 | [`100-claude-architecture-decisions-and-tradeoffs.md`](./100-claude-architecture-decisions-and-tradeoffs.md) | Claude.ai — architecture tradeoffs (Turborepo, shared packages, test scope) |
+| 101 | [`101-claude-s3-region-bug-debugging.md`](./101-claude-s3-region-bug-debugging.md) | Claude.ai — S3 region / presign upload debugging |
+| 102 | [`102-claude-schema-review-accepted-and-questioned.md`](./102-claude-schema-review-accepted-and-questioned.md) | Claude.ai — Prisma schema review (accepted vs pushed back) |
+| 103 | [`103-claude-import-flow-and-requirements-crosscheck.md`](./103-claude-import-flow-and-requirements-crosscheck.md) | Claude.ai — CSV import flow vs requirements cross-check |
+| 104 | [`104-claude-ui-reviews-and-product-judgment.md`](./104-claude-ui-reviews-and-product-judgment.md) | Claude.ai — UI review, product judgment, presigned GET follow-up |
 
-_Numbers like `23`–`26`, **`55`–`57`**, and **`75`–`78`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
+_Numbers like `23`–`26`, **`55`–`57`**, **`75`–`78`**, and **`90`** may be used by **ad-hoc** markdown exports in this folder; **`100`+** is reserved for **non-Cursor** exports (e.g. Claude.ai markdown). New Cursor agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**, **`91`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
 
 ## Raw vs Markdown
 
