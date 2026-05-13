@@ -41,6 +41,7 @@ export default function SessionDetailPage() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<SessionDetail | null>(null);
+  const [programName, setProgramName] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -53,6 +54,7 @@ export default function SessionDetailPage() {
     let cancelled = false;
     setState("loading");
     setError(null);
+    setProgramName(null);
     void (async () => {
       const res = await apiFetch(`/sessions/${sessionId}`);
       const body = await res.json().catch(() => ({}));
@@ -64,13 +66,28 @@ export default function SessionDetailPage() {
         setState("error");
         return;
       }
-      setSession(body as SessionDetail);
+      const s = body as SessionDetail;
+      const programLookupId = s.programId ?? programId;
+      let title: string | null = null;
+      if (programLookupId) {
+        const pr = await apiFetch(`/programs/${programLookupId}`);
+        const pb = await pr.json().catch(() => ({}));
+        if (!cancelled && pr.ok && typeof (pb as { title?: unknown }).title === "string") {
+          const t = (pb as { title: string }).title.trim();
+          title = t.length > 0 ? t : null;
+        }
+      }
+      if (cancelled) {
+        return;
+      }
+      setSession(s);
+      setProgramName(title);
       setState("ready");
     })();
     return () => {
       cancelled = true;
     };
-  }, [sessionId]);
+  }, [sessionId, programId]);
 
   async function onConfirmDelete() {
     setDeleteError(null);
@@ -95,7 +112,6 @@ export default function SessionDetailPage() {
   const mediaUrl = session.mediaUrl?.trim();
   const mediaTypeLabel =
     session.mediaType === "AUDIO" ? "Audio" : session.mediaType === "VIDEO" ? "Video" : null;
-  const resolvedProgramId = session.programId ?? programId;
   const durationLabel =
     typeof session.durationSeconds === "number"
       ? formatSessionDuration(session.durationSeconds)
@@ -176,15 +192,7 @@ export default function SessionDetailPage() {
           </div>
           <div className="grid gap-1 py-4 sm:grid-cols-[160px_1fr] sm:gap-4">
             <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Program</dt>
-            <dd className="font-medium text-foreground">
-              {resolvedProgramId ? (
-                <Link href={`/programs/${resolvedProgramId}/edit`} className={dashPrimaryLink}>
-                  View program
-                </Link>
-              ) : (
-                "—"
-              )}
-            </dd>
+            <dd className="font-medium text-foreground">{programName?.trim() ? programName.trim() : "—"}</dd>
           </div>
           <div className="grid gap-1 py-4 sm:grid-cols-[160px_1fr] sm:gap-4">
             <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">List order</dt>
