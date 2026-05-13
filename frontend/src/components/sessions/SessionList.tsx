@@ -58,28 +58,35 @@ function SortableRow({
     .filter(Boolean)
     .join(" · ");
 
+  const viewHref = `/programs/${programId}/sessions/${session.id}`;
+
   return (
     <li
       ref={setNodeRef}
       style={style}
-      className="flex flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2"
+      className="flex flex-wrap items-stretch gap-0 rounded-md border bg-card"
     >
       <button
         type="button"
-        className="cursor-grab touch-none text-muted-foreground hover:text-foreground"
+        className="flex shrink-0 cursor-grab touch-none items-center px-2 text-muted-foreground hover:text-foreground"
         aria-label="Drag handle"
         {...attributes}
         {...listeners}
       >
         <GripVertical className="size-4" aria-hidden />
       </button>
-      <div className="min-w-0 flex-1">
-        <p className="font-medium">
-          <span className="text-muted-foreground">{indexDisplay}.</span> {session.title}
-        </p>
-        <p className="text-xs text-muted-foreground">{meta}</p>
-      </div>
-      <div className="flex shrink-0 gap-2">
+      <Link
+        href={viewHref}
+        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 outline-offset-[-2px] hover:bg-muted/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">
+            <span className="text-muted-foreground">{indexDisplay}.</span> {session.title}
+          </p>
+          <p className="text-xs text-muted-foreground">{meta}</p>
+        </div>
+      </Link>
+      <div className="flex shrink-0 items-center gap-2 border-l bg-card px-3 py-2">
         <Link
           href={`/programs/${programId}/sessions/${session.id}/edit`}
           className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}

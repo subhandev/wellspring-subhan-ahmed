@@ -125,27 +125,23 @@ function ProgramsInner() {
             const created = formatProgramCreatedAt(p.createdAt);
             const count = p.sessionCount;
             const countLabel = `${count} session${count === 1 ? "" : "s"}`;
+            const sessionsHref = `/programs/${p.id}/sessions`;
             return (
-              <li
-                key={p.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-              >
-                <div className="min-w-0 flex-1 space-y-1">
-                  <Link
-                    href={`/programs/${p.id}/sessions`}
-                    className="block font-medium hover:underline"
-                  >
-                    {p.title}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">
+              <li key={p.id} className="flex flex-wrap items-stretch gap-0">
+                <Link
+                  href={sessionsHref}
+                  className="flex min-w-0 flex-1 flex-col gap-1 px-4 py-3 outline-offset-[-2px] hover:bg-muted/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="font-medium">{p.title}</span>
+                  <span className="text-sm text-muted-foreground">
                     {created ? `${created} · ` : null}
                     {countLabel}
-                  </p>
+                  </span>
                   {p.description ? (
-                    <p className="text-sm text-muted-foreground line-clamp-2">{p.description}</p>
+                    <span className="text-sm text-muted-foreground line-clamp-2">{p.description}</span>
                   ) : null}
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
+                </Link>
+                <div className="flex shrink-0 flex-wrap items-center gap-2 border-l bg-card px-4 py-3">
                   <Link
                     href={`/programs/${p.id}/edit`}
                     className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}

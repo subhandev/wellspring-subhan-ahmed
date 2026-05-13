@@ -100,6 +100,35 @@ export default function EditSessionPage() {
   async function onSubmit(data: Form) {
     setError(null);
     form.clearErrors();
+    const pendingFile = fileRef.current?.files?.[0];
+    if (pendingFile) {
+      setUploading(true);
+      setUploadMsg(null);
+      try {
+        const uploadResult = await presignAndPutFile(pendingFile);
+        if (!uploadResult.ok) {
+          setError(uploadResult.message);
+          setUploadMsg(uploadResult.message);
+          return;
+        }
+        const mediaUrl = uploadResult.publicUrl;
+        const mediaType = uploadResult.contentType;
+        form.setValue("mediaUrl", mediaUrl);
+        form.setValue("mediaType", mediaType);
+        if (mediaType.startsWith("audio/")) {
+          form.setValue("mediaKind", "audio");
+        } else if (mediaType.startsWith("video/")) {
+          form.setValue("mediaKind", "video");
+        }
+        data = {
+          ...data,
+          mediaUrl,
+          mediaType
+        };
+      } finally {
+        setUploading(false);
+      }
+    }
     const res = await apiFetch(`/sessions/${sessionId}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -120,7 +149,7 @@ export default function EditSessionPage() {
       }
       return;
     }
-    router.refresh();
+    router.push(`/programs/${programId}/sessions`);
   }
 
   async function onPickFile() {
@@ -292,6 +321,10 @@ export default function EditSessionPage() {
         ) : null}
         <div className="space-y-2 rounded-md border p-3">
           <p className="text-sm font-medium">{mediaUrl ? "Upload replacement" : "Media file"}</p>
+          <p className="text-xs text-muted-foreground">
+            If you pick a new file, saving the session will upload it to S3 (or use{" "}
+            <span className="font-medium">Upload</span> to apply immediately).
+          </p>
           <input
             ref={fileRef}
             type="file"
