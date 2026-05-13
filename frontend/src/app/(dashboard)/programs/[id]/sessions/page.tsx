@@ -101,29 +101,31 @@ export default function SessionsPage() {
         </div>
       </div>
 
-      <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
-        Drag handles to reorder · order saves automatically
-      </p>
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
+          Drag handles to reorder · order saves automatically
+        </p>
 
-      {sessions.length === 0 ? (
-        <div
-          className={cn(
-            dashSectionCard,
-            "border-dashed bg-muted/15 px-8 py-14 text-center text-muted-foreground"
-          )}
-        >
-          <p>No sessions yet. Add your first session.</p>
-          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "md" }), "mt-5 inline-flex")}>
-            New session
-          </Link>
-        </div>
-      ) : (
-        <SessionList
-          programId={programId}
-          initialSessions={sessions}
-          onSessionsChanged={setSessions}
-        />
-      )}
+        {sessions.length === 0 ? (
+          <div
+            className={cn(
+              dashSectionCard,
+              "border-dashed bg-muted/15 px-8 py-14 text-center text-muted-foreground"
+            )}
+          >
+            <p>No sessions yet. Add your first session.</p>
+            <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "md" }), "mt-5 inline-flex")}>
+              New session
+            </Link>
+          </div>
+        ) : (
+          <SessionList
+            programId={programId}
+            initialSessions={sessions}
+            onSessionsChanged={setSessions}
+          />
+        )}
+      </div>
     </div>
   );
 }

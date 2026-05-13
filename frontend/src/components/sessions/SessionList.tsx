@@ -294,9 +294,10 @@ export function SessionList({
 
   return (
     <div className="space-y-3">
-      <div className="min-h-[1.75rem] text-sm" aria-live="polite">
+      {/* Fixed slot: same height idle vs saving so the list card does not jump on reorder */}
+      <div className="flex min-h-[1.75rem] items-center text-sm" aria-live="polite">
         {error ? <p className="text-destructive">{error}</p> : null}
-        {saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
+        {!error && saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
       </div>
       <div className={cn(dashSectionCard, "overflow-hidden")}>
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd}>
