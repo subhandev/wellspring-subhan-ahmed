@@ -148,7 +148,7 @@ function ProgramsInner() {
         </div>
       ) : null}
 
-      <header className="mb-10">
+      <header className="mb-6">
         <h1 className="text-[26px] font-semibold tracking-tight text-foreground">
           Welcome back{greeting ? `, ${greeting}` : ""}
         </h1>
@@ -157,7 +157,7 @@ function ProgramsInner() {
         </p>
       </header>
 
-      <section aria-label="Summary" className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section aria-label="Summary" className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-card px-5 py-5">
           <div className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Total Programs</div>
           <div className="mt-2 text-[26px] font-semibold tracking-tight text-foreground tabular-nums">

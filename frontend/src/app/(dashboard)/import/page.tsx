@@ -7,13 +7,36 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
-import { dashFormSection, dashInputCn, dashLabel, dashSectionCard } from "@/lib/dashboardUi";
+import {
+  dashFormActions,
+  dashFormSection,
+  dashInputCn,
+  dashInsetCard,
+  dashLabel,
+  dashPageDescription,
+  dashPageTitle,
+  dashPrimaryLink,
+  dashSectionCard
+} from "@/lib/dashboardUi";
 import { cn } from "@/lib/utils";
 import type { CsvImportRowResult } from "@/types";
 
 /** Header row for session CSV import; must stay aligned with backend import validation. */
 const SESSIONS_IMPORT_CSV_TEMPLATE =
   "client_row_id,program_id,title,duration_seconds,instructor_name,tags,position\n";
+
+const REQUIRED_COLUMNS = [
+  "client_row_id",
+  "program_id",
+  "title",
+  "duration_seconds",
+  "instructor_name"
+] as const;
+
+const OPTIONAL_COLUMNS = ["tags", "position"] as const;
+
+const columnChipCn =
+  "inline-flex items-center rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] leading-none text-foreground";
 
 const importFormSchema = z
   .object({
@@ -137,86 +160,125 @@ export default function ImportPage() {
       }
     : null;
 
+  const clientImportIdError = form.formState.errors.clientImportId;
+  const csvFileError = form.formState.errors.csvFile;
+
   return (
-    <div className="space-y-6">
-      <header className="space-y-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Import sessions from CSV</h1>
-          <p className="text-sm text-muted-foreground">
-            Upload a CSV of sessions. Use a client import ID so safe retries do not create duplicate rows.
-          </p>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Required columns: <code className="text-xs">client_row_id</code>,{" "}
-          <code className="text-xs">program_id</code>, <code className="text-xs">title</code>,{" "}
-          <code className="text-xs">duration_seconds</code>,{" "}
-          <code className="text-xs">instructor_name</code>. Optional:{" "}
-          <code className="text-xs">tags</code> (comma or pipe),{" "}
-          <code className="text-xs">position</code>.
+    <div className="space-y-8">
+      <header className="space-y-1.5">
+        <h1 className={dashPageTitle}>Import sessions from CSV</h1>
+        <p className={dashPageDescription}>
+          Upload a CSV of sessions. Re-using a client import ID makes retries safe — duplicate rows
+          will not be created.
         </p>
       </header>
+
       <form onSubmit={form.handleSubmit(onSubmit)} className={dashSectionCard}>
         <div className={dashFormSection}>
-          <div className="space-y-2">
-            <label className={dashLabel} htmlFor="import-client-id">
-              Client import ID
-            </label>
-            <input
-              id="import-client-id"
-              className={cn(dashInputCn(), "max-w-md")}
-              placeholder="e.g. weekly-sync-2026-05-12"
-              {...form.register("clientImportId")}
-            />
-            {form.formState.errors.clientImportId ? (
-              <p className="text-sm text-destructive">{form.formState.errors.clientImportId.message}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className={dashLabel} htmlFor="import-csv-file">
-                CSV file
-              </label>
-              <a
-                href={`data:text/csv;charset=utf-8,${encodeURIComponent(SESSIONS_IMPORT_CSV_TEMPLATE)}`}
-                download="wellspring-sessions-import-template.csv"
-                className="text-sm font-medium text-primary underline underline-offset-4 hover:no-underline"
-              >
-                Download template
-              </a>
-            </div>
-            <Controller
-              name="csvFile"
-              control={form.control}
-              render={({ field: { onChange, onBlur, name, ref } }) => (
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className={dashLabel} htmlFor="import-client-id">
+                  Client import ID <span className="text-destructive">*</span>
+                </label>
                 <input
-                  key={csvFileInputKey}
-                  id="import-csv-file"
-                  name={name}
-                  ref={ref}
-                  type="file"
-                  accept=".csv,text/csv,text/plain"
-                  onBlur={onBlur}
-                  className={cn(
-                    dashInputCn(),
-                    "cursor-pointer py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
-                  )}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    onChange(f);
-                  }}
+                  id="import-client-id"
+                  className={dashInputCn(Boolean(clientImportIdError))}
+                  placeholder="e.g. weekly-sync-2026-05-12"
+                  aria-invalid={Boolean(clientImportIdError)}
+                  {...form.register("clientImportId")}
                 />
-              )}
-            />
-            {form.formState.errors.csvFile ? (
-              <p className="text-sm text-destructive">
-                {typeof form.formState.errors.csvFile.message === "string"
-                  ? form.formState.errors.csvFile.message
-                  : "Invalid file"}
+                <p className="text-xs text-muted-foreground">
+                  A stable identifier for this import. Submitting the same ID again will skip rows
+                  already imported.
+                </p>
+                {clientImportIdError ? (
+                  <p className="text-sm text-destructive">{clientImportIdError.message}</p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className={dashLabel} htmlFor="import-csv-file">
+                    CSV file <span className="text-destructive">*</span>
+                  </label>
+                  <a
+                    href={`data:text/csv;charset=utf-8,${encodeURIComponent(SESSIONS_IMPORT_CSV_TEMPLATE)}`}
+                    download="wellspring-sessions-import-template.csv"
+                    className={dashPrimaryLink}
+                  >
+                    Download template
+                  </a>
+                </div>
+                <Controller
+                  name="csvFile"
+                  control={form.control}
+                  render={({ field: { onChange, onBlur, name, ref } }) => (
+                    <input
+                      key={csvFileInputKey}
+                      id="import-csv-file"
+                      name={name}
+                      ref={ref}
+                      type="file"
+                      accept=".csv,text/csv,text/plain"
+                      onBlur={onBlur}
+                      aria-invalid={Boolean(csvFileError)}
+                      className={cn(
+                        dashInputCn(Boolean(csvFileError)),
+                        "cursor-pointer py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
+                      )}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        onChange(f);
+                      }}
+                    />
+                  )}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Accepts <code className="font-mono">.csv</code> files. Maximum one file per
+                  import.
+                </p>
+                {csvFileError ? (
+                  <p className="text-sm text-destructive">
+                    {typeof csvFileError.message === "string" ? csvFileError.message : "Invalid file"}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <aside className={cn(dashInsetCard, "space-y-3 lg:self-start")}>
+              <p className="text-xs font-medium text-foreground">Expected CSV columns</p>
+              <dl className="space-y-2 text-xs">
+                <div className="space-y-1.5">
+                  <dt className="text-muted-foreground">Required</dt>
+                  <dd className="flex flex-wrap gap-1.5">
+                    {REQUIRED_COLUMNS.map((col) => (
+                      <code key={col} className={columnChipCn}>
+                        {col}
+                      </code>
+                    ))}
+                  </dd>
+                </div>
+                <div className="space-y-1.5">
+                  <dt className="text-muted-foreground">Optional</dt>
+                  <dd className="flex flex-wrap gap-1.5">
+                    {OPTIONAL_COLUMNS.map((col) => (
+                      <code key={col} className={columnChipCn}>
+                        {col}
+                      </code>
+                    ))}
+                  </dd>
+                </div>
+              </dl>
+              <p className="text-xs text-muted-foreground">
+                <code className="font-mono">tags</code> accepts values separated by commas or pipes.
               </p>
-            ) : null}
+            </aside>
           </div>
+
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <div className="border-t border-border pt-6">
+
+          <div className={dashFormActions}>
             <Button type="submit" size="md" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? (
                 <>
@@ -224,7 +286,7 @@ export default function ImportPage() {
                   Importing…
                 </>
               ) : (
-                "Run Import Sessions (CSV)"
+                "Import sessions"
               )}
             </Button>
           </div>
