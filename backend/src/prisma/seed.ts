@@ -30,7 +30,7 @@ async function main() {
   const seededCreators: Array<{ email: string; id: string }> = [];
 
   for (let i = 0; i < 2; i++) {
-    const email = `creator${i + 1}@wellspring-seed.example`;
+    const email = `creator${i + 1}@wellspring.example`;
     console.log(`[seed] creating creator ${i + 1}/2 (${email})...`);
     const creator = await prisma.creator.create({
       data: {
