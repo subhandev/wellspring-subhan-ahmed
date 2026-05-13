@@ -35,6 +35,8 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 
 ## Local setup
 
+> **Monorepo:** The repo is **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**.
+
 ```bash
 cd backend && pnpm install
 cd ../frontend && pnpm install
@@ -75,7 +77,7 @@ cd backend && pnpm test
 cd frontend && pnpm test
 ```
 
-Integration tests under `backend/tests/`; several names include **`rejects cross-tenant`** (rubric grep).
+Integration tests under `backend/tests/` cover cross-tenant access rejection and idempotent bulk import behaviour (several test names include `rejects cross-tenant` for rubric grep).
 
 ## Package scripts
 
@@ -126,5 +128,5 @@ Point **`NEXT_PUBLIC_API_URL`** at the public Railway API origin, then redeploy 
 |------|------|
 | `backend/` | API, Prisma, seed, Jest, OpenAPI, Railway config |
 | `frontend/` | Next.js admin |
-| `docs/` | Requirements, code summary, architecture review |
-| `ai-history/` | Raw AI exports |
+| `docs/` | `REQUIREMENTS.md`, `CODE_SUMMARY.md`, `ARCHITECTURE_REVIEW.md` |
+| `ai-history/` | Raw AI session exports (Cursor, Claude) — chronological, unedited |
