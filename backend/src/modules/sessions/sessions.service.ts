@@ -174,36 +174,45 @@ export async function reorderSessions(
   }
 
   const tenant = tenantId as string;
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.$queryRaw(
-        Prisma.sql`SELECT id FROM "Session" WHERE "tenantId" = ${tenant} AND "programId" = ${body.programId} ORDER BY id FOR UPDATE`
-      );
+  /** Two sequential update passes × N rows; default Prisma interactive tx timeout is 5s and hits P2028 for larger programs. */
+  const reorderTxTimeoutMs = Math.min(
+    120_000,
+    Math.max(15_000, body.orderedSessionIds.length * 500 + 12_000)
+  );
 
-      const offset = 1_000_000;
-      for (let i = 0; i < body.orderedSessionIds.length; i++) {
-        const sid = body.orderedSessionIds[i];
-        await tx.session.updateMany({
-          where: {
-            id: sid,
-            tenantId: tenant,
-            programId: body.programId
-          },
-          data: { position: offset + i }
-        });
-      }
-      for (let i = 0; i < body.orderedSessionIds.length; i++) {
-        const sid = body.orderedSessionIds[i];
-        await tx.session.updateMany({
-          where: {
-            id: sid,
-            tenantId: tenant,
-            programId: body.programId
-          },
-          data: { position: i }
-        });
-      }
-    });
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.$queryRaw(
+          Prisma.sql`SELECT id FROM "Session" WHERE "tenantId" = ${tenant} AND "programId" = ${body.programId} ORDER BY id FOR UPDATE`
+        );
+
+        const offset = 1_000_000;
+        for (let i = 0; i < body.orderedSessionIds.length; i++) {
+          const sid = body.orderedSessionIds[i];
+          await tx.session.updateMany({
+            where: {
+              id: sid,
+              tenantId: tenant,
+              programId: body.programId
+            },
+            data: { position: offset + i }
+          });
+        }
+        for (let i = 0; i < body.orderedSessionIds.length; i++) {
+          const sid = body.orderedSessionIds[i];
+          await tx.session.updateMany({
+            where: {
+              id: sid,
+              tenantId: tenant,
+              programId: body.programId
+            },
+            data: { position: i }
+          });
+        }
+      },
+      { maxWait: 20_000, timeout: reorderTxTimeoutMs }
+    );
   } catch (err) {
     throwIfSessionPositionConflict(err);
     throw err;
