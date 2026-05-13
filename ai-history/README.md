@@ -76,8 +76,17 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 87 | [`87-cursor-agent-transcript-1ff76e2c.jsonl`](./87-cursor-agent-transcript-1ff76e2c.jsonl), [`87-cursor-agent-chat-export-1ff76e2c.md`](./87-cursor-agent-chat-export-1ff76e2c.md) | README completeness review |
 | 88 | [`88-cursor-agent-transcript-ee67ca65.jsonl`](./88-cursor-agent-transcript-ee67ca65.jsonl), [`88-cursor-agent-chat-export-ee67ca65.md`](./88-cursor-agent-chat-export-ee67ca65.md) | Frontend `.mdc` glob pattern warning |
 | 89 | [`89-cursor-agent-transcript-f19d6b89.jsonl`](./89-cursor-agent-transcript-f19d6b89.jsonl), [`89-cursor-agent-chat-export-f19d6b89.md`](./89-cursor-agent-chat-export-f19d6b89.md) | Codebase vs architecture / rules compliance check |
+| 91 | [`91-cursor-agent-transcript-8d698a08.jsonl`](./91-cursor-agent-transcript-8d698a08.jsonl), [`91-cursor-agent-chat-export-8d698a08.md`](./91-cursor-agent-chat-export-8d698a08.md) | Create develop → main PR and merge |
+| 92 | [`92-cursor-agent-transcript-39ee7fa1.jsonl`](./92-cursor-agent-transcript-39ee7fa1.jsonl), [`92-cursor-agent-chat-export-39ee7fa1.md`](./92-cursor-agent-chat-export-39ee7fa1.md) | Plan backend deploy to Railway |
+| 93 | [`93-cursor-agent-transcript-33f1a5f0.jsonl`](./93-cursor-agent-transcript-33f1a5f0.jsonl), [`93-cursor-agent-chat-export-33f1a5f0.md`](./93-cursor-agent-chat-export-33f1a5f0.md) | Railway build / healthcheck failure; `PASSWORD_RESET_DEBUG_LOG` enum vs `false` |
+| 94 | [`94-cursor-agent-transcript-95e60330.jsonl`](./94-cursor-agent-transcript-95e60330.jsonl), [`94-cursor-agent-chat-export-95e60330.md`](./94-cursor-agent-chat-export-95e60330.md) | Admin UI responsiveness audit and fixes |
+| 95 | [`95-cursor-agent-transcript-50ea0c98.jsonl`](./95-cursor-agent-transcript-50ea0c98.jsonl), [`95-cursor-agent-chat-export-50ea0c98.md`](./95-cursor-agent-chat-export-50ea0c98.md) | Vercel deployment wiring, env vars, public URLs in README |
+| 96 | [`96-cursor-agent-transcript-5c521f1d.jsonl`](./96-cursor-agent-transcript-5c521f1d.jsonl), [`96-cursor-agent-chat-export-5c521f1d.md`](./96-cursor-agent-chat-export-5c521f1d.md) | Seed data: drop broken media, more realistic demo copy |
+| 97 | [`97-cursor-agent-transcript-1f32fc2d.jsonl`](./97-cursor-agent-transcript-1f32fc2d.jsonl), [`97-cursor-agent-chat-export-1f32fc2d.md`](./97-cursor-agent-chat-export-1f32fc2d.md) | Post-deploy README pass; demo credentials question |
+| 98 | [`98-cursor-agent-transcript-c2a78989.jsonl`](./98-cursor-agent-transcript-c2a78989.jsonl), [`98-cursor-agent-chat-export-c2a78989.md`](./98-cursor-agent-chat-export-c2a78989.md) | Organize `.env` / `.env.example`, credential-rotation follow-up |
+| 99 | [`99-cursor-agent-transcript-66bad203.jsonl`](./99-cursor-agent-transcript-66bad203.jsonl), [`99-cursor-agent-chat-export-66bad203.md`](./99-cursor-agent-chat-export-66bad203.md) | Sync new/updated agent transcripts into `ai-history` |
 
-_Numbers like `23`–`26`, **`55`–`57`**, and **`75`–`78`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
+_Numbers like `23`–`26`, **`55`–`57`**, **`75`–`78`**, and **`90`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**, **`91`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
 
 ## Raw vs Markdown
 
