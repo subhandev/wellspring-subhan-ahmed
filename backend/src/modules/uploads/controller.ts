@@ -2,7 +2,7 @@ import type { RequestHandler } from "express";
 import type { Env } from "../../config/env.js";
 import { HttpError } from "../../lib/httpError.js";
 import { httpErrorFromZod } from "../../lib/httpErrorFromZod.js";
-import { presignBodySchema } from "./schemas.js";
+import { presignBodySchema, presignGetBodySchema } from "./schemas.js";
 import * as uploadsService from "./service.js";
 
 function requireTenantContext(req: Parameters<RequestHandler>[0]) {
@@ -34,6 +34,26 @@ export const presign: RequestHandler = async (req, res, next) => {
       parsed.data
     );
     res.status(201).json(out);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const presignGet: RequestHandler = async (req, res, next) => {
+  try {
+    const ctx = requireTenantContext(req);
+    if (!ctx) {
+      next(new HttpError(401, "Unauthorized", "unauthorized"));
+      return;
+    }
+    const parsed = presignGetBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      next(httpErrorFromZod(parsed.error));
+      return;
+    }
+    const env = req.app.get("env") as Env;
+    const out = await uploadsService.createPresignedGet(env, ctx.tenantId, parsed.data);
+    res.status(200).json(out);
   } catch (e) {
     next(e);
   }

@@ -19,6 +19,8 @@ const envSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   S3_BUCKET: z.string().min(1).optional(),
   PRESIGN_EXPIRES_SECONDS: z.coerce.number().min(60).max(3600).default(900),
+  /** Presigned GET for viewing private objects (browser open / media playback). */
+  PRESIGN_GET_EXPIRES_SECONDS: z.coerce.number().min(60).max(604800).default(3600),
   S3_ENDPOINT: z.string().url().optional(),
   /** Base URL for GET access to uploaded objects (e.g. CloudFront or `https://bucket.s3.region.amazonaws.com`). */
   S3_PUBLIC_BASE_URL: z.string().url().optional(),

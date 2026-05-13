@@ -37,8 +37,7 @@ const schema = z
     title: z.string().min(1),
     durationSeconds: z.coerce.number().int().positive(),
     instructorName: z.string().min(1),
-    tags: z.string().optional(),
-    position: z.coerce.number().int().min(0).optional()
+    tags: z.string().optional()
   })
   .merge(sessionMediaShape)
   .superRefine((data, ctx) => {
@@ -61,7 +60,6 @@ export default function NewSessionPage() {
       durationSeconds: 600,
       instructorName: "",
       tags: "",
-      position: undefined,
       mediaKind: "none",
       mediaUrl: "",
       mediaType: ""
@@ -130,9 +128,6 @@ export default function NewSessionPage() {
       instructorName: data.instructorName,
       tags
     };
-    if (data.position !== undefined && !Number.isNaN(data.position)) {
-      payload.position = data.position;
-    }
     const mu = data.mediaUrl?.trim();
     if (mu) {
       payload.mediaUrl = mu;
@@ -146,15 +141,22 @@ export default function NewSessionPage() {
     if (!res.ok) {
       form.clearErrors();
       const { message, details } = readApiErrorDetails(body);
-      setError(message);
       if (mediaUploadedInSubmit) {
         form.setValue("mediaUrl", mediaUploadedInSubmit.url);
         form.setValue("mediaType", mediaUploadedInSubmit.type);
         form.setValue("mediaKind", mediaUploadedInSubmit.kind);
       }
+      const values = form.getValues();
       if (details?.fieldErrors) {
-        applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
+        applyServerFieldErrors(form.setError, values, details.fieldErrors);
       }
+      const hasMappedFieldError = Boolean(
+        details?.fieldErrors &&
+          Object.entries(details.fieldErrors).some(
+            ([field, msgs]) => Boolean(msgs?.[0]) && field in values
+          )
+      );
+      setError(hasMappedFieldError ? null : message);
       return;
     }
     router.push(`/programs/${programId}/sessions`);
@@ -167,7 +169,10 @@ export default function NewSessionPage() {
           ← Back to sessions
         </Link>
         <h1 className={cn(dashPageTitle, "mt-6")}>New session</h1>
-        <p className={dashPageDescription}>Add a session with optional media attachment.</p>
+        <p className={dashPageDescription}>
+          Add a session with optional media attachment. It is placed at the end of the program; use drag-reorder on the
+          sessions list to change order.
+        </p>
       </div>
 
       <div className={dashSectionCard}>
@@ -184,24 +189,16 @@ export default function NewSessionPage() {
             </label>
             <input id="sess-instructor" className={dashInputCn()} {...form.register("instructorName")} />
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className={dashLabel} htmlFor="sess-duration">
-                Duration (seconds) <span className="text-destructive">*</span>
-              </label>
-              <input
-                id="sess-duration"
-                type="number"
-                className={dashInputCn()}
-                {...form.register("durationSeconds", { valueAsNumber: true })}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className={dashLabel} htmlFor="sess-position">
-                Position <span className="text-muted-foreground">(optional)</span>
-              </label>
-              <input id="sess-position" type="number" className={dashInputCn()} {...form.register("position")} />
-            </div>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="sess-duration">
+              Duration (seconds) <span className="text-destructive">*</span>
+            </label>
+            <input
+              id="sess-duration"
+              type="number"
+              className={dashInputCn()}
+              {...form.register("durationSeconds", { valueAsNumber: true })}
+            />
           </div>
           <div className="space-y-2">
             <label className={dashLabel} htmlFor="sess-tags">

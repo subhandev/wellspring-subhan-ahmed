@@ -6,3 +6,9 @@ export const presignBodySchema = z.object({
 });
 
 export type PresignBody = z.infer<typeof presignBodySchema>;
+
+export const presignGetBodySchema = z.object({
+  mediaUrl: z.string().url().max(2000)
+});
+
+export type PresignGetBody = z.infer<typeof presignGetBodySchema>;

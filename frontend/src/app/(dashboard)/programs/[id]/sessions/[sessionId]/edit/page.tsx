@@ -62,6 +62,8 @@ export default function EditSessionPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [originalMediaKind, setOriginalMediaKind] = useState<MediaKind>("none");
+  const [originalMediaUrl, setOriginalMediaUrl] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
   const form = useForm<Form>({
     resolver: zodResolver(schema),
@@ -104,15 +106,19 @@ export default function EditSessionPage() {
         mediaUrl?: string | null;
         mediaType?: "AUDIO" | "VIDEO" | null;
       };
+      const loadedKind = sessionMediaKindFromApi(data.mediaType ?? undefined);
+      const loadedUrl = data.mediaUrl ?? "";
       form.reset({
         title: data.title ?? "",
         durationSeconds: data.durationSeconds ?? 0,
         instructorName: data.instructorName ?? "",
         tags: (data.tags ?? []).join(", "),
-        mediaUrl: data.mediaUrl ?? "",
+        mediaUrl: loadedUrl,
         mediaType: "",
-        mediaKind: sessionMediaKindFromApi(data.mediaType ?? undefined)
+        mediaKind: loadedKind
       });
+      setOriginalMediaKind(loadedKind);
+      setOriginalMediaUrl(loadedUrl);
       setLoadState("ready");
     })();
     return () => {
@@ -162,6 +168,13 @@ export default function EditSessionPage() {
         setUploading(false);
       }
     }
+    const submittedUrl = data.mediaUrl?.trim() || null;
+    const urlUnchanged = submittedUrl !== null && submittedUrl === originalMediaUrl.trim();
+    const submittedMediaType = !submittedUrl
+      ? null
+      : urlUnchanged
+        ? sessionMediaTypeForApi(originalMediaKind, true)
+        : sessionMediaTypeForApi(data.mediaKind, true);
     const res = await apiFetch(`/sessions/${sessionId}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -169,26 +182,32 @@ export default function EditSessionPage() {
         durationSeconds: data.durationSeconds,
         instructorName: data.instructorName,
         tags: tagsFromString(data.tags),
-        mediaUrl: data.mediaUrl?.trim() || null,
-        mediaType: sessionMediaTypeForApi(data.mediaKind, Boolean(data.mediaUrl?.trim()))
+        mediaUrl: submittedUrl,
+        mediaType: submittedMediaType
       })
     });
     const resBody = await res.json().catch(() => ({}));
     if (!res.ok) {
       const { message, details } = readApiErrorDetails(resBody);
-      setError(message);
+      const values = form.getValues();
       if (details?.fieldErrors) {
-        applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
+        applyServerFieldErrors(form.setError, values, details.fieldErrors);
       }
+      const hasMappedFieldError = Boolean(
+        details?.fieldErrors &&
+          Object.entries(details.fieldErrors).some(
+            ([field, msgs]) => Boolean(msgs?.[0]) && field in values
+          )
+      );
+      setError(hasMappedFieldError ? null : message);
       return;
     }
     router.push(`/programs/${programId}/sessions`);
   }
 
   const trimmedMediaUrl = form.watch("mediaUrl")?.trim() ?? "";
-  const watchedKind = form.watch("mediaKind") as MediaKind;
-  const storedEnum = sessionMediaTypeForApi(watchedKind, Boolean(trimmedMediaUrl));
-  const apiKindLabel = storedEnum === "AUDIO" ? "Audio" : storedEnum === "VIDEO" ? "Video" : null;
+  const originalKindLabel =
+    originalMediaKind === "audio" ? "Audio" : originalMediaKind === "video" ? "Video" : null;
 
   if (loadState === "loading") {
     return <PageLoader message="Loading session…" />;
@@ -241,12 +260,37 @@ export default function EditSessionPage() {
           </div>
           <div className={dashInsetCard}>
             <p className="text-sm font-medium text-foreground">Session media</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Media URLs come from tenant-scoped uploads. Choose a new file and click Save changes to upload and attach
-              it, or set media type to None and save to remove media.
-            </p>
 
-            <div className="mt-5 space-y-2">
+            {trimmedMediaUrl ? (
+              <div className="mt-4 space-y-2">
+                <label className={dashLabel} htmlFor="es-media-url-readonly">
+                  Media URL <span className="text-muted-foreground">(read-only)</span>
+                </label>
+                <input
+                  id="es-media-url-readonly"
+                  readOnly
+                  className={cn(dashInputCn(), "cursor-default bg-muted/40")}
+                  {...form.register("mediaUrl")}
+                />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {originalKindLabel ? (
+                    <p className="text-xs text-muted-foreground">
+                      Currently stored as <span className="font-medium text-foreground">{originalKindLabel}</span>
+                    </p>
+                  ) : null}
+                  <a
+                    href={trimmedMediaUrl}
+                    className={cn(dashPrimaryLink, "text-xs")}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open media
+                  </a>
+                </div>
+              </div>
+            ) : null}
+
+            <div className={cn(trimmedMediaUrl ? "mt-5" : "mt-4", "space-y-2")}>
               <label className={dashLabel} htmlFor="es-media-kind">
                 Media type
               </label>
@@ -265,41 +309,9 @@ export default function EditSessionPage() {
               </select>
             </div>
 
-            {trimmedMediaUrl ? (
-              <div className="mt-5 space-y-2">
-                <label className={dashLabel} htmlFor="es-media-url-readonly">
-                  Media URL <span className="text-muted-foreground">(read-only)</span>
-                </label>
-                <input
-                  id="es-media-url-readonly"
-                  readOnly
-                  className={cn(dashInputCn(), "cursor-default bg-muted/40")}
-                  {...form.register("mediaUrl")}
-                />
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  {apiKindLabel ? (
-                    <p className="text-xs text-muted-foreground">
-                      Stored as <span className="font-medium text-foreground">{apiKindLabel}</span> (follows media type
-                      above)
-                    </p>
-                  ) : null}
-                  <a
-                    href={trimmedMediaUrl}
-                    className={cn(dashPrimaryLink, "text-xs")}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open media
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <p className="mt-5 text-sm text-muted-foreground">No media attached.</p>
-            )}
-
             <div className="mt-5 space-y-2">
               <label className={dashLabel} htmlFor="es-media-file">
-                Replace with file
+                {trimmedMediaUrl ? "Replace with file" : "Attach file"}
               </label>
               <input
                 id="es-media-file"
@@ -309,11 +321,11 @@ export default function EditSessionPage() {
                 className="w-full max-w-full text-sm text-muted-foreground"
                 disabled={uploading || mediaKind === "none"}
               />
-              <p className="text-xs text-muted-foreground">
-                {mediaKind === "none"
-                  ? "Set media type to Audio or Video to enable file replacement."
-                  : "Upload runs when you save; you can clear the file input afterward if you change your mind."}
-              </p>
+              {mediaKind === "none" ? (
+                <p className="text-xs text-muted-foreground">
+                  Set media type to Audio or Video to {trimmedMediaUrl ? "replace" : "attach"} a file.
+                </p>
+              ) : null}
             </div>
 
             {trimmedMediaUrl ? (

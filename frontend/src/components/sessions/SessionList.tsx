@@ -285,11 +285,9 @@ export function SessionList({
       throw new Error("delete failed");
     }
     const id = deleteTarget.id;
-    setItems((prev) => {
-      const next = prev.filter((s) => s.id !== id);
-      onSessionsChanged?.(next);
-      return next;
-    });
+    const next = itemsRef.current.filter((s) => s.id !== id);
+    setItems(next);
+    onSessionsChanged?.(next);
   }
 
   return (

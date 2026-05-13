@@ -54,3 +54,16 @@ export function assertSessionMediaUrlForTenant(
     );
   }
 }
+
+/** S3 object key (no leading slash) after {@link assertSessionMediaUrlForTenant} rules. */
+export function parseTenantMediaObjectKey(tenantId: TenantId, mediaUrl: string): string {
+  assertSessionMediaUrlForTenant(tenantId, mediaUrl);
+  const pathname = new URL(mediaUrl.trim()).pathname;
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    // keep pathname as-is
+  }
+  return decoded.replace(/^\//, "");
+}

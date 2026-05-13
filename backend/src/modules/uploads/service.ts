@@ -1,13 +1,14 @@
 import { randomUUID } from "crypto";
 import type { Readable } from "node:stream";
 import { AuditLogAction } from "@prisma/client";
-import { PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../../config/env.js";
 import { HttpError } from "../../lib/httpError.js";
 import { appendAuditLog } from "../../lib/auditWriter.js";
 import type { TenantId } from "../../types/tenant.js";
-import type { PresignBody } from "./schemas.js";
+import { parseTenantMediaObjectKey } from "../../lib/sessionMediaUrl.js";
+import type { PresignBody, PresignGetBody } from "./schemas.js";
 
 const ALLOWED_CONTENT_PREFIXES = ["audio/", "video/", "image/"];
 
@@ -112,6 +113,30 @@ export async function createPresignedPut(
     contentType: body.contentType,
     publicUrl
   };
+}
+
+export async function createPresignedGet(
+  env: Env,
+  tenantId: TenantId,
+  body: PresignGetBody
+): Promise<{ viewUrl: string; expiresIn: number }> {
+  if (!s3Configured(env)) {
+    throw new HttpError(
+      503,
+      "S3 uploads are not configured (set AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET)",
+      "uploads_unconfigured"
+    );
+  }
+
+  const key = parseTenantMediaObjectKey(tenantId, body.mediaUrl);
+  const client = getS3Client(env);
+  const command = new GetObjectCommand({
+    Bucket: env.S3_BUCKET!,
+    Key: key
+  });
+  const expiresIn = env.PRESIGN_GET_EXPIRES_SECONDS;
+  const viewUrl = await getSignedUrl(client, command, { expiresIn });
+  return { viewUrl, expiresIn };
 }
 
 /** `PutObject` from a stream requires `ContentLength` in Node. */

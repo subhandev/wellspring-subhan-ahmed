@@ -41,6 +41,20 @@ describe("uploads presign — auth and content-type", () => {
       error: { code: "unauthorized" }
     });
   });
+
+  it("returns 401 without bearer token for presign-get", async () => {
+    const app = createApp();
+    const res = await request(app)
+      .post("/v1/uploads/presign-get")
+      .send({
+        mediaUrl: "https://wellspring-media.s3.us-east-1.amazonaws.com/tenants/x/media/y.mp4"
+      })
+      .expect(401);
+    expect(res.body).toMatchObject({
+      success: false,
+      error: { code: "unauthorized" }
+    });
+  });
 });
 
 describeDb("uploads presign API (requires DATABASE_URL)", () => {
@@ -149,6 +163,93 @@ describeDb("uploads presign API (requires DATABASE_URL)", () => {
 
     const signedHeaders = new URL(res.body.uploadUrl).searchParams.get("X-Amz-SignedHeaders") ?? "";
     expect(signedHeaders).toContain("content-type");
+
+    await prisma.creator.delete({ where: { id: creatorId } });
+  });
+
+  it("rejects cross-tenant presign-get for another tenant path in mediaUrl", async () => {
+    const app = createApp(withDummyS3(loadEnv()));
+    const email = `up-${randomUUID()}@example.com`;
+    const password = "SecurePass1!";
+
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({ email, password })
+      .expect(201);
+    const token = signup.body.data.accessToken as string;
+    const otherTenant = randomUUID();
+
+    const res = await request(app)
+      .post("/v1/uploads/presign-get")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        mediaUrl: `https://wellspring-test-uploads.s3.us-east-1.amazonaws.com/tenants/${otherTenant}/media/x.mp4`
+      })
+      .expect(400);
+    expect(res.body).toMatchObject({
+      success: false,
+      error: { code: "validation_error" }
+    });
+
+    await prisma.creator.delete({ where: { id: signup.body.data.creator.id } });
+  });
+
+  it("returns 200 and presigned viewUrl for own-tenant mediaUrl when S3 is configured", async () => {
+    const app = createApp(withDummyS3(loadEnv()));
+    const email = `up-${randomUUID()}@example.com`;
+    const password = "SecurePass1!";
+
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({ email, password })
+      .expect(201);
+    const creatorId = signup.body.data.creator.id as string;
+    const token = signup.body.data.accessToken as string;
+
+    const presignRes = await request(app)
+      .post("/v1/uploads/presign")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ fileName: "clip.mp3", contentType: "audio/mpeg" })
+      .expect(201);
+    const mediaUrl = presignRes.body.publicUrl as string;
+
+    const res = await request(app)
+      .post("/v1/uploads/presign-get")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ mediaUrl })
+      .expect(200);
+
+    expect(typeof res.body.viewUrl).toBe("string");
+    expect(String(res.body.viewUrl)).toMatch(/X-Amz-Algorithm/i);
+    expect(typeof res.body.expiresIn).toBe("number");
+    expect(res.body.expiresIn).toBeGreaterThan(0);
+
+    await prisma.creator.delete({ where: { id: creatorId } });
+  });
+
+  it("returns 503 for presign-get when S3 is not configured", async () => {
+    const app = createApp(withoutS3(loadEnv()));
+    const email = `up-${randomUUID()}@example.com`;
+    const password = "SecurePass1!";
+
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({ email, password })
+      .expect(201);
+    const token = signup.body.data.accessToken as string;
+    const creatorId = signup.body.data.creator.id as string;
+
+    const res = await request(app)
+      .post("/v1/uploads/presign-get")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        mediaUrl: `https://example.s3.us-east-1.amazonaws.com/tenants/${creatorId}/media/x.mp4`
+      })
+      .expect(503);
+    expect(res.body).toMatchObject({
+      success: false,
+      error: { code: "uploads_unconfigured" }
+    });
 
     await prisma.creator.delete({ where: { id: creatorId } });
   });

@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { fetchSignedMediaViewUrl } from "@/lib/signedMediaViewUrl";
 import {
   DASH_PAGE_MAX,
   dashBackLink,
@@ -44,6 +45,12 @@ export default function SessionDetailPage() {
   const [programName, setProgramName] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [openMedia, setOpenMedia] = useState<
+    | { status: "idle" }
+    | { status: "loading" }
+    | { status: "signed"; href: string }
+    | { status: "raw"; href: string; hint: string | null }
+  >({ status: "idle" });
 
   useEffect(() => {
     if (!sessionId) {
@@ -55,6 +62,8 @@ export default function SessionDetailPage() {
     setState("loading");
     setError(null);
     setProgramName(null);
+    setSession(null);
+    setOpenMedia({ status: "idle" });
     void (async () => {
       const res = await apiFetch(`/sessions/${sessionId}`);
       const body = await res.json().catch(() => ({}));
@@ -89,6 +98,31 @@ export default function SessionDetailPage() {
     };
   }, [sessionId, programId]);
 
+  const rawMediaUrl = session?.mediaUrl?.trim() ?? "";
+
+  useEffect(() => {
+    if (!rawMediaUrl) {
+      setOpenMedia({ status: "idle" });
+      return;
+    }
+    let cancelled = false;
+    setOpenMedia({ status: "loading" });
+    void (async () => {
+      const r = await fetchSignedMediaViewUrl(rawMediaUrl);
+      if (cancelled) {
+        return;
+      }
+      if (r.ok) {
+        setOpenMedia({ status: "signed", href: r.viewUrl });
+        return;
+      }
+      setOpenMedia({ status: "raw", href: rawMediaUrl, hint: r.message });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawMediaUrl]);
+
   async function onConfirmDelete() {
     setDeleteError(null);
     const res = await apiFetch(`/sessions/${sessionId}`, { method: "DELETE" });
@@ -109,7 +143,14 @@ export default function SessionDetailPage() {
   }
 
   const tags = session.tags?.length ? session.tags.join(", ") : "—";
-  const mediaUrl = session.mediaUrl?.trim();
+  const mediaUrl = rawMediaUrl;
+  const mediaOpenPhase: "none" | "loading" | "signed" | "raw" =
+    !mediaUrl ? "none"
+    : openMedia.status === "signed" && openMedia.href
+      ? "signed"
+      : openMedia.status === "raw"
+        ? "raw"
+        : "loading";
   const mediaTypeLabel =
     session.mediaType === "AUDIO" ? "Audio" : session.mediaType === "VIDEO" ? "Video" : null;
   const durationLabel =
@@ -170,20 +211,42 @@ export default function SessionDetailPage() {
               {mediaUrl ? (
                 <>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <a
-                      href={mediaUrl}
-                      className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open media
-                      <ArrowRight className="size-3.5 shrink-0" aria-hidden />
-                    </a>
+                    {mediaOpenPhase === "loading" ? (
+                      <span className={cn(dashPrimaryLink, "inline-flex items-center gap-1 opacity-70")}>
+                        Preparing link…
+                        <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                      </span>
+                    ) : mediaOpenPhase === "signed" && openMedia.status === "signed" ? (
+                      <a
+                        href={openMedia.href}
+                        className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open media
+                        <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                      </a>
+                    ) : mediaOpenPhase === "raw" && openMedia.status === "raw" ? (
+                      <a
+                        href={openMedia.href}
+                        className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open media (direct URL)
+                        <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                      </a>
+                    ) : null}
                     {mediaTypeLabel ? (
                       <span className="text-xs font-normal text-muted-foreground">({mediaTypeLabel})</span>
                     ) : null}
                   </div>
                   <p className="break-all text-xs font-normal text-muted-foreground">{mediaUrl}</p>
+                  {mediaOpenPhase === "raw" && openMedia.status === "raw" && openMedia.hint ? (
+                    <p className="text-xs font-normal text-amber-700 dark:text-amber-500/90">
+                      {openMedia.hint} The direct link may show Access denied if the bucket is not public.
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 "—"
