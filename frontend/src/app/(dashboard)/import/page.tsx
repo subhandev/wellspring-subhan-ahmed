@@ -280,10 +280,13 @@ export default function ImportPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {results.map((r) => {
+                  {results.map((r, rowIndex) => {
                     const v = rowVisuals(r);
                     return (
-                      <tr key={r.clientRowId} className={cn("transition-colors", v.row)}>
+                      <tr
+                        key={`${rowIndex}-${r.clientRowId}`}
+                        className={cn("transition-colors", v.row)}
+                      >
                         <td className="px-4 py-3 align-top font-mono text-xs text-foreground">{r.clientRowId}</td>
                         <td className="px-4 py-3 align-top">
                           <span
