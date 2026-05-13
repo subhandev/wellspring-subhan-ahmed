@@ -84,8 +84,14 @@ export function summarizeAuditRow(row: AuditLogRow): string | null {
       return str(m.title);
     case "session.created":
     case "session.updated":
-    case "session.deleted":
-      return str(m.title) ?? str(m.programId);
+    case "session.deleted": {
+      const title = str(m.title);
+      const programId = str(m.programId);
+      if (title && programId) {
+        return `${title}\nProgram: ${programId}`;
+      }
+      return title ?? programId;
+    }
     default:
       return null;
   }
