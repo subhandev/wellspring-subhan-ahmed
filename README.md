@@ -31,7 +31,7 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 ## Prerequisites
 
 - Node.js **20+** and **pnpm 9+** (see `packageManager` in each `package.json`; e.g. `corepack prepare pnpm@9.15.0 --activate` after `corepack enable`)
-- PostgreSQL **14+** for local API development
+- PostgreSQL **15+** for local API development (migrations use enum `DROP VALUE`)
 
 ## Local setup
 
