@@ -38,5 +38,22 @@ export const dashSelectCn = cn(
 
 export const dashInsetCard = "rounded-lg border border-border bg-muted/20 p-4 md:p-5";
 
+/** Primary form footer: aligns with `dashSectionCard` + `dashFormSection` rhythm. */
+export const dashFormActions =
+  "flex flex-wrap items-center justify-end gap-2 border-t border-border pt-6 sm:gap-3";
+
+/** Tight horizontal groups inside inset cards (upload, media). */
+export const dashInsetButtonRow = "flex flex-wrap items-center gap-2";
+
+/** Clickable list rows (programs home, session list): subtle hover vs. body. */
+export const dashListRowSurface =
+  "relative transition-colors hover:bg-muted/10 active:bg-muted/[0.12]";
+
+/** Full-cell hit target for list rows (inside `dashListRowSurface`). */
+export const dashListRowLinkLayer = "absolute inset-0 z-0 cursor-pointer rounded-none";
+
+/** Row actions in program/session lists (Edit / Delete). */
+export const dashListActions = "flex shrink-0 flex-wrap items-center justify-end gap-2";
+
 export const dashPrimaryLink =
   "text-sm font-medium text-primary transition-opacity hover:opacity-80";

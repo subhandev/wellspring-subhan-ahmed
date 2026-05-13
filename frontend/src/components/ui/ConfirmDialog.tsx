@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
@@ -70,21 +71,30 @@ export function ConfirmDialog({
   return (
     <dialog
       ref={ref}
-      className="fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-6 shadow-lg backdrop:bg-black/50"
+      className="fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)] backdrop:bg-black/45"
     >
       <h2 className="text-lg font-semibold">{title}</h2>
       {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
-      <div className="mt-6 flex justify-end gap-2">
-        <Button type="button" variant="outline" disabled={busy} onClick={() => ref.current?.close()}>
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <Button type="button" variant="outline" size="md" disabled={busy} onClick={() => ref.current?.close()}>
           {cancelLabel}
         </Button>
         <Button
           type="button"
           variant={confirmVariant}
+          size="md"
           disabled={busy}
+          aria-busy={busy}
           onClick={() => void handleConfirm()}
         >
-          {busy ? "…" : confirmLabel}
+          {busy ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="size-4 shrink-0 animate-spin text-current" aria-hidden />
+              {confirmLabel}
+            </span>
+          ) : (
+            confirmLabel
+          )}
         </Button>
       </div>
     </dialog>

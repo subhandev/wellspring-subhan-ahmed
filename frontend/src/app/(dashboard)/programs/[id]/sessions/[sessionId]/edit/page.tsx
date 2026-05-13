@@ -12,7 +12,9 @@ import { apiFetch, readApiErrorMessage, applyServerFieldErrors, readApiErrorDeta
 import {
   DASH_PAGE_MAX,
   dashBackLink,
+  dashFormActions,
   dashFormSection,
+  dashInsetButtonRow,
   dashInsetCard,
   dashInputCn,
   dashLabel,
@@ -23,18 +25,21 @@ import {
   dashSelectCn
 } from "@/lib/dashboardUi";
 import { fileAcceptForMediaKind, mimeToMediaKind, type MediaKind } from "@/lib/mediaKind";
+import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
 
-const schema = z.object({
-  title: z.string().min(1),
-  durationSeconds: z.coerce.number().int().positive(),
-  instructorName: z.string().min(1),
-  tags: z.string().optional(),
-  mediaKind: z.enum(["none", "audio", "video"]),
-  mediaUrl: z.string().optional().nullable(),
-  mediaType: z.string().optional().nullable()
-});
+const schema = z
+  .object({
+    title: z.string().min(1),
+    durationSeconds: z.coerce.number().int().positive(),
+    instructorName: z.string().min(1),
+    tags: z.string().optional()
+  })
+  .merge(sessionMediaShape)
+  .superRefine((data, ctx) => {
+    refineSessionMedia(data, ctx);
+  });
 
 type Form = z.infer<typeof schema>;
 
@@ -64,6 +69,9 @@ export default function EditSessionPage() {
     }
   });
   const mediaKind = form.watch("mediaKind") as MediaKind;
+  const {
+    formState: { errors }
+  } = form;
 
   useEffect(() => {
     if (!sessionId) {
@@ -114,6 +122,11 @@ export default function EditSessionPage() {
     setError(null);
     form.clearErrors();
     const pendingFile = fileRef.current?.files?.[0];
+    const missingMedia = missingMediaSourceMessage(data.mediaKind, data.mediaUrl, Boolean(pendingFile));
+    if (missingMedia) {
+      form.setError("mediaUrl", { type: "manual", message: missingMedia });
+      return;
+    }
     if (pendingFile) {
       setUploading(true);
       setUploadMsg(null);
@@ -293,7 +306,15 @@ export default function EditSessionPage() {
             <label className={dashLabel} htmlFor="es-media-kind">
               Media type
             </label>
-            <select id="es-media-kind" className={dashSelectCn} {...form.register("mediaKind")}>
+            <select
+              id="es-media-kind"
+              className={cn(
+                dashSelectCn,
+                (errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType) && "border-destructive"
+              )}
+              aria-invalid={Boolean(errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType)}
+              {...form.register("mediaKind")}
+            >
               <option value="none">None</option>
               <option value="audio">Audio</option>
               <option value="video">Video</option>
@@ -342,8 +363,8 @@ export default function EditSessionPage() {
               className="mt-3 w-full max-w-full text-sm text-muted-foreground"
               disabled={uploading}
             />
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" onClick={() => void onPickFile()} disabled={uploading}>
+            <div className={cn(dashInsetButtonRow, "mt-4")}>
+              <Button type="button" variant="secondary" size="sm" onClick={() => void onPickFile()} disabled={uploading}>
                 {uploading ? "Uploading…" : "Upload"}
               </Button>
             </div>
@@ -354,31 +375,50 @@ export default function EditSessionPage() {
             <label className={dashLabel} htmlFor="es-media-url">
               Media URL <span className="text-muted-foreground">(optional)</span>
             </label>
-            <input id="es-media-url" className={dashInputCn()} {...form.register("mediaUrl")} />
+            <input
+              id="es-media-url"
+              className={dashInputCn(Boolean(errors.mediaUrl))}
+              aria-invalid={Boolean(errors.mediaUrl)}
+              {...form.register("mediaUrl")}
+            />
+            {errors.mediaUrl?.message ? (
+              <p className="text-sm text-destructive">{errors.mediaUrl.message}</p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <label className={dashLabel} htmlFor="es-media-type">
               MIME type <span className="text-muted-foreground">(optional)</span>
             </label>
-            <input id="es-media-type" className={dashInputCn()} {...form.register("mediaType")} />
+            <input
+              id="es-media-type"
+              className={dashInputCn(Boolean(errors.mediaType))}
+              aria-invalid={Boolean(errors.mediaType)}
+              {...form.register("mediaType")}
+            />
+            {errors.mediaType?.message ? (
+              <p className="text-sm text-destructive">{errors.mediaType.message}</p>
+            ) : null}
           </div>
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {Object.entries(form.formState.errors).map(([key, err]) =>
-            err?.message ? (
+            key === "mediaUrl" || key === "mediaType" || !err?.message ? null : (
               <p key={key} className="text-sm text-destructive">
                 {err.message}
               </p>
-            ) : null
+            )
           )}
-          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
-            <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
+          <div className={dashFormActions}>
+            <Link
+              href={`/programs/${programId}/sessions`}
+              className={cn(buttonVariants({ variant: "outline", size: "md" }))}
+            >
               Cancel
             </Link>
-            <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
+            <Button type="submit" size="md" disabled={form.formState.isSubmitting || uploading}>
               {form.formState.isSubmitting ? "Saving…" : "Save changes"}
             </Button>
-            <Button type="button" variant="destructive" onClick={() => setDeleteOpen(true)}>
+            <Button type="button" variant="destructive" size="md" onClick={() => setDeleteOpen(true)}>
               Delete session
             </Button>
           </div>

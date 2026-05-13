@@ -11,7 +11,9 @@ import { apiFetch, applyServerFieldErrors, readApiErrorDetails } from "@/lib/api
 import {
   DASH_PAGE_MAX,
   dashBackLink,
+  dashFormActions,
   dashFormSection,
+  dashInsetButtonRow,
   dashInsetCard,
   dashInputCn,
   dashLabel,
@@ -21,19 +23,22 @@ import {
   dashSelectCn
 } from "@/lib/dashboardUi";
 import { fileAcceptForMediaKind, type MediaKind } from "@/lib/mediaKind";
+import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
 
-const schema = z.object({
-  title: z.string().min(1),
-  durationSeconds: z.coerce.number().int().positive(),
-  instructorName: z.string().min(1),
-  tags: z.string().optional(),
-  position: z.coerce.number().int().min(0).optional(),
-  mediaKind: z.enum(["none", "audio", "video"]),
-  mediaUrl: z.string().optional().nullable(),
-  mediaType: z.string().optional().nullable()
-});
+const schema = z
+  .object({
+    title: z.string().min(1),
+    durationSeconds: z.coerce.number().int().positive(),
+    instructorName: z.string().min(1),
+    tags: z.string().optional(),
+    position: z.coerce.number().int().min(0).optional()
+  })
+  .merge(sessionMediaShape)
+  .superRefine((data, ctx) => {
+    refineSessionMedia(data, ctx);
+  });
 
 type Form = z.infer<typeof schema>;
 
@@ -52,12 +57,16 @@ export default function NewSessionPage() {
       durationSeconds: 600,
       instructorName: "",
       tags: "",
+      position: undefined,
       mediaKind: "none",
       mediaUrl: "",
       mediaType: ""
     }
   });
   const mediaKind = form.watch("mediaKind") as MediaKind;
+  const {
+    formState: { errors }
+  } = form;
 
   async function onPickFile() {
     setUploadMsg(null);
@@ -89,6 +98,12 @@ export default function NewSessionPage() {
     setError(null);
     form.clearErrors();
     const pendingFile = fileRef.current?.files?.[0];
+    const missingMedia = missingMediaSourceMessage(data.mediaKind, data.mediaUrl, Boolean(pendingFile));
+    if (missingMedia) {
+      form.setError("mediaUrl", { type: "manual", message: missingMedia });
+      return;
+    }
+    let mediaUploadedInSubmit: { url: string; type: string; kind: Form["mediaKind"] } | null = null;
     if (pendingFile && !data.mediaUrl?.trim()) {
       setUploading(true);
       setUploadMsg(null);
@@ -99,24 +114,23 @@ export default function NewSessionPage() {
           setUploadMsg(uploadResult.message);
           return;
         }
-        form.setValue("mediaUrl", uploadResult.publicUrl);
-        form.setValue("mediaType", uploadResult.contentType);
-        if (uploadResult.contentType.startsWith("audio/")) {
-          form.setValue("mediaKind", "audio");
-        } else if (uploadResult.contentType.startsWith("video/")) {
-          form.setValue("mediaKind", "video");
-        }
+        const nextKind =
+          uploadResult.contentType.startsWith("video/")
+            ? "video"
+            : uploadResult.contentType.startsWith("audio/")
+              ? "audio"
+              : data.mediaKind;
         data = {
           ...data,
           mediaUrl: uploadResult.publicUrl,
           mediaType: uploadResult.contentType,
-          mediaKind: uploadResult.contentType.startsWith("video/")
-            ? "video"
-            : uploadResult.contentType.startsWith("audio/")
-              ? "audio"
-              : data.mediaKind
+          mediaKind: nextKind
         };
-        setUploadMsg("Uploaded — saving session.");
+        mediaUploadedInSubmit = {
+          url: uploadResult.publicUrl,
+          type: uploadResult.contentType,
+          kind: nextKind
+        };
       } finally {
         setUploading(false);
       }
@@ -150,15 +164,17 @@ export default function NewSessionPage() {
       form.clearErrors();
       const { message, details } = readApiErrorDetails(body);
       setError(message);
+      if (mediaUploadedInSubmit) {
+        form.setValue("mediaUrl", mediaUploadedInSubmit.url);
+        form.setValue("mediaType", mediaUploadedInSubmit.type);
+        form.setValue("mediaKind", mediaUploadedInSubmit.kind);
+      }
       if (details?.fieldErrors) {
         applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
       }
       return;
     }
-    const created = body as { id?: string };
-    if (created.id) {
-      router.push(`/programs/${programId}/sessions/${created.id}/edit`);
-    }
+    router.push(`/programs/${programId}/sessions`);
   }
 
   return (
@@ -214,7 +230,15 @@ export default function NewSessionPage() {
             <label className={dashLabel} htmlFor="sess-media-kind">
               Media type
             </label>
-            <select id="sess-media-kind" className={dashSelectCn} {...form.register("mediaKind")}>
+            <select
+              id="sess-media-kind"
+              className={cn(
+                dashSelectCn,
+                (errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType) && "border-destructive"
+              )}
+              aria-invalid={Boolean(errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType)}
+              {...form.register("mediaKind")}
+            >
               <option value="none">None</option>
               <option value="audio">Audio</option>
               <option value="video">Video</option>
@@ -233,8 +257,8 @@ export default function NewSessionPage() {
               className="mt-3 w-full max-w-full text-sm text-muted-foreground"
               disabled={uploading}
             />
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" onClick={() => void onPickFile()} disabled={uploading}>
+            <div className={cn(dashInsetButtonRow, "mt-4")}>
+              <Button type="button" variant="secondary" size="sm" onClick={() => void onPickFile()} disabled={uploading}>
                 {uploading ? "Uploading…" : "Upload"}
               </Button>
               {form.watch("mediaUrl") ? (
@@ -259,21 +283,30 @@ export default function NewSessionPage() {
               <p className="mt-3 break-all text-xs text-muted-foreground">{form.watch("mediaUrl")}</p>
             ) : null}
             {uploadMsg ? <p className="mt-2 text-xs text-muted-foreground">{uploadMsg}</p> : null}
+            {errors.mediaUrl?.message ? (
+              <p className="mt-2 text-sm text-destructive">{errors.mediaUrl.message}</p>
+            ) : null}
+            {errors.mediaType?.message ? (
+              <p className="mt-2 text-sm text-destructive">{errors.mediaType.message}</p>
+            ) : null}
           </div>
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {Object.entries(form.formState.errors).map(([key, err]) =>
-            err?.message ? (
+            key === "mediaUrl" || key === "mediaType" || !err?.message ? null : (
               <p key={key} className="text-sm text-destructive">
                 {err.message}
               </p>
-            ) : null
+            )
           )}
-          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
-            <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
+          <div className={dashFormActions}>
+            <Link
+              href={`/programs/${programId}/sessions`}
+              className={cn(buttonVariants({ variant: "outline", size: "md" }))}
+            >
               Cancel
             </Link>
-            <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
+            <Button type="submit" size="md" disabled={form.formState.isSubmitting || uploading}>
               {form.formState.isSubmitting ? "Creating…" : "Create session"}
             </Button>
           </div>

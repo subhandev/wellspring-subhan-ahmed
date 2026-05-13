@@ -9,7 +9,6 @@ import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import {
   DASH_PAGE_MAX,
   dashBackLink,
-  dashInsetCard,
   dashPageDescription,
   dashPageTitle,
   dashPrimaryLink,
@@ -97,7 +96,7 @@ export default function SessionDetailPage() {
           </div>
           <Link
             href={`/programs/${programId}/sessions/${sessionId}/edit`}
-            className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "shrink-0")}
+            className={cn(buttonVariants({ variant: "outline", size: "md" }), "shrink-0")}
           >
             Edit session
           </Link>
@@ -142,12 +141,6 @@ export default function SessionDetailPage() {
             </dd>
           </div>
         </dl>
-      </div>
-
-      <div className={dashInsetCard}>
-        <Link href={`/programs/${programId}/sessions`} className={cn(buttonVariants({ variant: "outline" }))}>
-          Back to sessions list
-        </Link>
       </div>
     </div>
   );

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { dashInputCn, dashLabel } from "@/lib/dashboardUi";
+import { cn } from "@/lib/utils";
 import type { AuditLogRow } from "@/types";
 
 export default function AuditPage() {
@@ -49,28 +51,37 @@ export default function AuditPage() {
         </p>
       </header>
       <div className="flex max-w-3xl flex-wrap items-end gap-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">From (ISO date)</label>
+        <div className="space-y-2">
+          <label className={dashLabel} htmlFor="audit-from">
+            From (ISO date)
+          </label>
           <input
-            className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+            id="audit-from"
+            className={cn(dashInputCn(), "w-48")}
             value={from}
             onChange={(e) => setFrom(e.target.value)}
             placeholder="2026-01-01"
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">To (ISO date)</label>
+        <div className="space-y-2">
+          <label className={dashLabel} htmlFor="audit-to">
+            To (ISO date)
+          </label>
           <input
-            className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+            id="audit-to"
+            className={cn(dashInputCn(), "w-48")}
             value={to}
             onChange={(e) => setTo(e.target.value)}
             placeholder="2026-12-31"
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Action</label>
+        <div className="space-y-2">
+          <label className={dashLabel} htmlFor="audit-action">
+            Action
+          </label>
           <input
-            className="flex h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm font-mono"
+            id="audit-action"
+            className={cn(dashInputCn(), "w-48 font-mono text-xs")}
             value={action}
             onChange={(e) => setAction(e.target.value)}
             placeholder="program.created"
@@ -89,7 +100,7 @@ export default function AuditPage() {
             <option value="media.relay_uploaded" />
           </datalist>
         </div>
-        <Button type="button" onClick={load}>
+        <Button type="button" size="md" onClick={load}>
           Apply filters
         </Button>
       </div>

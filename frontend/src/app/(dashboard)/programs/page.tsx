@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import { formatRelativeShort } from "@/lib/formatDisplay";
+import { dashListActions, dashListRowLinkLayer, dashListRowSurface } from "@/lib/dashboardUi";
 import { cn } from "@/lib/utils";
 import type { Program } from "@/types";
 
@@ -185,7 +186,7 @@ function ProgramsInner() {
       {programs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
           <p className="text-muted-foreground">No programs yet. Create your first program.</p>
-          <Link href="/programs/new" className={cn(buttonVariants(), "mt-4 inline-flex")}>
+          <Link href="/programs/new" className={cn(buttonVariants({ size: "md" }), "mt-4 inline-flex")}>
             Create your first program
           </Link>
         </div>
@@ -198,17 +199,9 @@ function ProgramsInner() {
             <h2 id="your-programs-heading" className="text-[15px] font-semibold tracking-tight text-foreground">
               Your Programs
             </h2>
-            <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href="/programs"
-                className="text-xs font-medium text-primary transition-opacity hover:opacity-80"
-              >
-                View all →
-              </Link>
-              <Link href="/programs/new" className={cn(buttonVariants({ size: "sm" }))}>
-                New program
-              </Link>
-            </div>
+            <Link href="/programs/new" className={cn(buttonVariants({ size: "default" }))}>
+              New program
+            </Link>
           </div>
           <ul>
             {programs.map((p, index) => {
@@ -219,25 +212,24 @@ function ProgramsInner() {
                 <li
                   key={p.id}
                   className={cn(
+                    dashListRowSurface,
                     "flex flex-wrap items-center justify-between gap-3 px-6 py-4",
                     index > 0 && "border-t border-border"
                   )}
                 >
-                  <div className="min-w-0 flex-1">
+                  <Link
+                    href={sessionsHref}
+                    className={dashListRowLinkLayer}
+                    aria-label={`Open sessions for ${p.title}`}
+                  />
+                  <div className="pointer-events-none relative z-[1] min-w-0 flex-1">
                     <div className="text-sm font-medium text-foreground">{p.title}</div>
                     <div className="mt-0.5 text-xs text-muted-foreground">{countLabel}</div>
                     {p.description ? (
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
                     ) : null}
                   </div>
-                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                    <Link
-                      href={sessionsHref}
-                      className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-80"
-                    >
-                      View
-                      <ArrowRight className="size-3.5 shrink-0" aria-hidden />
-                    </Link>
+                  <div className={cn(dashListActions, "relative z-[1] pointer-events-auto")}>
                     <Link
                       href={`/programs/${p.id}/edit`}
                       className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}

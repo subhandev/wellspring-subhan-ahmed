@@ -91,13 +91,13 @@ export default function SessionsPage() {
               </p>
             ) : null}
           </div>
-          <div className="flex shrink-0 flex-wrap gap-2">
-            <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "sm" }))}>
+          <div className="flex shrink-0 flex-wrap gap-2 sm:gap-2.5">
+            <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "default" }))}>
               New session
             </Link>
             <Link
               href={`/programs/${programId}/edit`}
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+              className={cn(buttonVariants({ variant: "outline", size: "default" }))}
             >
               Edit program
             </Link>
@@ -117,12 +117,16 @@ export default function SessionsPage() {
           )}
         >
           <p>No sessions yet. Add your first session.</p>
-          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants(), "mt-5 inline-flex")}>
+          <Link href={`/programs/${programId}/sessions/new`} className={cn(buttonVariants({ size: "md" }), "mt-5 inline-flex")}>
             New session
           </Link>
         </div>
       ) : (
-        <SessionList programId={programId} initialSessions={sessions} />
+        <SessionList
+          programId={programId}
+          initialSessions={sessions}
+          onSessionsChanged={setSessions}
+        />
       )}
     </div>
   );

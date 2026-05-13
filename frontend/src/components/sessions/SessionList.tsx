@@ -17,13 +17,13 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowRight, GripVertical } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonVariants } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
-import { dashPrimaryLink, dashSectionCard } from "@/lib/dashboardUi";
+import { dashListActions, dashListRowLinkLayer, dashListRowSurface, dashSectionCard } from "@/lib/dashboardUi";
 import { formatSessionDuration } from "@/lib/formatDisplay";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "@/types";
@@ -50,7 +50,7 @@ function SortableRow({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.92 : 1,
-    zIndex: isDragging ? 1 : 0
+    zIndex: isDragging ? 2 : 0
   };
 
   const firstTag = session.tags?.[0];
@@ -65,33 +65,37 @@ function SortableRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 px-6 py-4 transition-shadow",
+        dashListRowSurface,
+        "flex flex-wrap items-center justify-between gap-3 px-6 py-4",
         !isFirst && "border-t border-border"
       )}
     >
-      <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
+      <Link
+        href={viewHref}
+        className={dashListRowLinkLayer}
+        aria-label={`Open session ${session.title}`}
+      />
+      <div className="relative z-[1] flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
         <button
           type="button"
-          className="mt-0.5 shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon-sm" }),
+            "mt-0.5 touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
+          )}
           aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
           <GripVertical className="size-4" aria-hidden />
         </button>
-        <div className="min-w-0 flex-1">
+        <div className="pointer-events-none min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground">
-            <span className="tabular-nums text-muted-foreground">{indexDisplay}.</span>{" "}
-            {session.title}
+            <span className="tabular-nums text-muted-foreground">{indexDisplay}.</span> {session.title}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">{meta}</p>
         </div>
       </div>
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pl-9 sm:pl-0">
-        <Link href={viewHref} className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}>
-          View
-          <ArrowRight className="size-3.5" aria-hidden />
-        </Link>
+      <div className={cn(dashListActions, "relative z-[1] pointer-events-auto pl-9 sm:pl-0")}>
         <Link
           href={`/programs/${programId}/sessions/${session.id}/edit`}
           className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
@@ -113,20 +117,38 @@ function SortableRow({
 /** Session list with drag-and-drop reorder and persistence. */
 export function SessionList({
   programId,
-  initialSessions
+  initialSessions,
+  onSessionsChanged
 }: {
   programId: string;
   initialSessions: SessionRow[];
+  /** Keeps parent list in sync so local order is not overwritten after reorder/delete. */
+  onSessionsChanged?: (sessions: SessionRow[]) => void;
 }) {
   const [items, setItems] = useState<SessionRow[]>(initialSessions);
+
+  const multisetKey = useMemo(
+    () => [...initialSessions.map((s) => s.id)].sort().join("|"),
+    [initialSessions]
+  );
+
+  useEffect(() => {
+    setItems((prev) => {
+      if (prev.length !== initialSessions.length) {
+        return initialSessions;
+      }
+      const prevIds = new Set(prev.map((p) => p.id));
+      if (!initialSessions.every((s) => prevIds.has(s.id))) {
+        return initialSessions;
+      }
+      return prev;
+    });
+  }, [multisetKey, initialSessions]);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<SessionRow | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setItems(initialSessions);
-  }, [initialSessions]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -150,8 +172,9 @@ export function SessionList({
       return false;
     }
     const data = body as { sessions?: SessionRow[] };
-    if (data.sessions) {
+    if (Array.isArray(data.sessions)) {
       setItems(data.sessions);
+      onSessionsChanged?.(data.sessions);
     }
     return true;
   }
@@ -188,7 +211,12 @@ export function SessionList({
       setDeleteError(readApiErrorMessage(body, "Delete failed"));
       throw new Error("delete failed");
     }
-    setItems((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+    const id = deleteTarget.id;
+    setItems((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      onSessionsChanged?.(next);
+      return next;
+    });
   }
 
   return (

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { AppBrandLink } from "@/components/auth/AppBrandLink";
 import { apiFetch } from "@/lib/api";
 import { setAccessToken } from "@/lib/auth";
+import { buttonVariants } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 function displayNameFromEmail(email: string | null): string {
@@ -69,7 +70,8 @@ function SidebarLogout() {
       disabled={pending}
       onClick={() => void logout()}
       className={cn(
-        "flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-sm text-foreground/75 transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-60"
+        buttonVariants({ variant: "ghost", size: "default" }),
+        "h-auto min-h-9 w-full justify-start gap-3 rounded-md px-3 py-2 text-left text-foreground/75 hover:text-foreground disabled:opacity-60"
       )}
     >
       <LogOut className="size-4 shrink-0" aria-hidden />

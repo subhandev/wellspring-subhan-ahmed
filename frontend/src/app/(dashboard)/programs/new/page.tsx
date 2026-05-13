@@ -10,6 +10,7 @@ import { apiFetch, readApiErrorMessage } from "@/lib/api";
 import {
   DASH_PAGE_MAX,
   dashBackLink,
+  dashFormActions,
   dashFormSection,
   dashInputCn,
   dashLabel,
@@ -89,11 +90,11 @@ export default function NewProgramPage() {
             ) : null}
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
-            <Link href="/programs" className={cn(buttonVariants({ variant: "outline" }))}>
+          <div className={dashFormActions}>
+            <Link href="/programs" className={cn(buttonVariants({ variant: "outline", size: "md" }))}>
               Cancel
             </Link>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" size="md" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="inline-flex items-center gap-2">
                   <span

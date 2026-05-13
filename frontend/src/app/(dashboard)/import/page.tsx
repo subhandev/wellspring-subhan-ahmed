@@ -6,7 +6,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
+import { dashFormSection, dashInputCn, dashLabel, dashSectionCard, dashTextareaCn } from "@/lib/dashboardUi";
+import { cn } from "@/lib/utils";
 import type { CsvImportRowResult } from "@/types";
+
+/** Header row for session CSV import; must stay aligned with backend import validation. */
+const SESSIONS_IMPORT_CSV_TEMPLATE =
+  "client_row_id,program_id,title,duration_seconds,instructor_name,tags,position\n";
 
 const schema = z.object({
   clientImportId: z.string().min(1),
@@ -22,7 +28,7 @@ export default function ImportPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       clientImportId: "",
-      csv: "client_row_id,program_id,title,duration_seconds,instructor_name,tags,position\n"
+      csv: SESSIONS_IMPORT_CSV_TEMPLATE
     }
   });
 
@@ -59,27 +65,46 @@ export default function ImportPage() {
           <code className="text-xs">position</code>.
         </p>
       </header>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Client import ID</label>
-          <input
-            className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            placeholder="e.g. weekly-sync-2026-05-12"
-            {...form.register("clientImportId")}
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className={dashSectionCard}>
+        <div className={dashFormSection}>
+          <div className="space-y-2">
+            <label className={dashLabel} htmlFor="import-client-id">
+              Client import ID
+            </label>
+            <input
+              id="import-client-id"
+              className={cn(dashInputCn(), "max-w-md")}
+              placeholder="e.g. weekly-sync-2026-05-12"
+              {...form.register("clientImportId")}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className={dashLabel} htmlFor="import-csv">
+                CSV
+              </label>
+              <a
+                href={`data:text/csv;charset=utf-8,${encodeURIComponent(SESSIONS_IMPORT_CSV_TEMPLATE)}`}
+                download="wellspring-sessions-import-template.csv"
+                className="text-sm font-medium text-primary underline underline-offset-4 hover:no-underline"
+              >
+                Download template
+              </a>
+            </div>
+            <textarea
+              id="import-csv"
+              rows={12}
+              className={cn(dashTextareaCn(), "font-mono text-xs")}
+              {...form.register("csv")}
+            />
+          </div>
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          <div className="border-t border-border pt-6">
+            <Button type="submit" size="md" disabled={form.formState.isSubmitting}>
+              Run import
+            </Button>
+          </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium">CSV</label>
-          <textarea
-            rows={12}
-            className="font-mono text-xs w-full rounded-md border border-input bg-transparent px-3 py-2 shadow-sm"
-            {...form.register("csv")}
-          />
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          Run import
-        </Button>
       </form>
       {results ? (
         <div className="space-y-2">
