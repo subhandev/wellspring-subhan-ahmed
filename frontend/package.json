@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
+    "deploy:vercel": "vercel deploy --prod -y",
+    "vercel:set-production-api": "node -e \"if (!process.env.NEXT_PUBLIC_API_URL) { console.error('Set NEXT_PUBLIC_API_URL to your public API origin (https, no trailing slash), then rerun.'); process.exit(1);}\" && vercel env add NEXT_PUBLIC_API_URL production --value \"$NEXT_PUBLIC_API_URL\" --yes --no-sensitive --force && pnpm run deploy:vercel",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
