@@ -1,4 +1,4 @@
 client_row_id,program_id,title,duration_seconds,instructor_name,tags,position
-uni-001,REPLACE_WITH_PROGRAM_ID,"Session: ""quotes"" & ampersands <test>",180,教练 Wang 太郎,"中文|日本語|한국어",
-uni-002,REPLACE_WITH_PROGRAM_ID,Emoji warm-up 🧘‍♀️🔥,240,Núñez O'Connor,"café|naïve",
-uni-003,REPLACE_WITH_PROGRAM_ID,RTL snippet اختبار,300,מורה Cohen,hebrew|arabic|mixed,
+uni-001,cmp3viht60006ycdv8rmlfhnq,"Session: ""quotes"" & ampersands <test>",180,教练 Wang 太郎,"中文|日本語|한국어",
+uni-002,cmp3viht60006ycdv8rmlfhnq,Emoji warm-up 🧘‍♀️🔥,240,Núñez O'Connor,"café|naïve",
+uni-003,cmp3viht60006ycdv8rmlfhnq,RTL snippet اختبار,300,מורה Cohen,hebrew|arabic|mixed,

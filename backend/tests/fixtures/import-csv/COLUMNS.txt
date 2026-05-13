@@ -11,12 +11,12 @@ OPTIONAL COLUMNS (omit entire column if unused):
   tags               — split on | or , ; trim each token; empty cell => no tags
   position           — non-negative integer; omit or leave empty => append after max position
 
-PLACEHOLDER: Replace REPLACE_WITH_PROGRAM_ID with a real program id from your tenant (e.g. create a program in the admin UI or via POST /v1/programs).
+PROGRAM ID IN FIXTURES: CSVs use program id cmp3viht60006ycdv8rmlfhnq wherever a tenant-owned program is required (swap for a program id from your DB if yours differs). Exception: 10-program-not-found.csv keeps a fake id to exercise "program not found"; 03-mixed-validation-outcomes.csv includes blank program and a separate fake id row for the same checks.
 
 SCENARIO FILES:
   01-baseline-happy-path.csv           — valid rows; auto positions; empty tags
   02-tags-and-positions.csv            — pipe/comma tags, explicit positions including 0
-  03-mixed-validation-outcomes.csv     — one valid row (after replace) + many expected failures
+  03-mixed-validation-outcomes.csv     — one valid row + many expected failures
   04-unicode-special-characters.csv    — unicode + punctuation in text fields
   05-duplicate-client-row-id.csv       — same client_row_id twice in one file (second row idempotent)
   06-explicit-position-collision.csv   — two rows same explicit position (second should fail DB unique)
