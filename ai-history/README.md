@@ -4,7 +4,9 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 
 ## Tools used
 
-**Cursor only** (Agent / Composer sessions for this repo). No Claude.ai, ChatGPT, or other vendors were used for this submission.
+**Cursor** — Agent / Composer sessions for this repo (raw `.jsonl` under `~/.cursor/.../agent-transcripts`, synced here).
+
+**Claude.ai** — A small set of planning, debugging, and review threads **outside** the IDE, exported to markdown and added here as **`100`–`104`** (see table). No ChatGPT or other vendors.
 
 ## Files (chronological prefix `NN-`)
 
@@ -85,8 +87,13 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 97 | [`97-cursor-agent-transcript-1f32fc2d.jsonl`](./97-cursor-agent-transcript-1f32fc2d.jsonl), [`97-cursor-agent-chat-export-1f32fc2d.md`](./97-cursor-agent-chat-export-1f32fc2d.md) | Post-deploy README pass; demo credentials question |
 | 98 | [`98-cursor-agent-transcript-c2a78989.jsonl`](./98-cursor-agent-transcript-c2a78989.jsonl), [`98-cursor-agent-chat-export-c2a78989.md`](./98-cursor-agent-chat-export-c2a78989.md) | Organize `.env` / `.env.example`, credential-rotation follow-up |
 | 99 | [`99-cursor-agent-transcript-66bad203.jsonl`](./99-cursor-agent-transcript-66bad203.jsonl), [`99-cursor-agent-chat-export-66bad203.md`](./99-cursor-agent-chat-export-66bad203.md) | Sync new/updated agent transcripts into `ai-history` |
+| 100 | [`100-claude-architecture-decisions-and-tradeoffs.md`](./100-claude-architecture-decisions-and-tradeoffs.md) | Claude.ai — architecture tradeoffs (Turborepo, shared packages, test scope) |
+| 101 | [`101-claude-s3-region-bug-debugging.md`](./101-claude-s3-region-bug-debugging.md) | Claude.ai — S3 region / presign upload debugging |
+| 102 | [`102-claude-schema-review-accepted-and-questioned.md`](./102-claude-schema-review-accepted-and-questioned.md) | Claude.ai — Prisma schema review (accepted vs pushed back) |
+| 103 | [`103-claude-import-flow-and-requirements-crosscheck.md`](./103-claude-import-flow-and-requirements-crosscheck.md) | Claude.ai — CSV import flow vs requirements cross-check |
+| 104 | [`104-claude-ui-reviews-and-product-judgment.md`](./104-claude-ui-reviews-and-product-judgment.md) | Claude.ai — UI review, product judgment, presigned GET follow-up |
 
-_Numbers like `23`–`26`, **`55`–`57`**, **`75`–`78`**, and **`90`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**, **`91`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
+_Numbers like `23`–`26`, **`55`–`57`**, **`75`–`78`**, and **`90`** may be used by **ad-hoc** markdown exports in this folder; **`100`+** is reserved for **non-Cursor** exports (e.g. Claude.ai markdown). New Cursor agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**, **`79`+**, **`91`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
 
 ## Raw vs Markdown
 
