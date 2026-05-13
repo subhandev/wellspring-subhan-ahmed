@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { apiFetch, readApiErrorMessage } from "@/lib/api";
-import { dashFormSection, dashInputCn, dashLabel, dashSectionCard, dashTextareaCn } from "@/lib/dashboardUi";
+import { dashFormSection, dashInputCn, dashLabel, dashSectionCard } from "@/lib/dashboardUi";
 import { cn } from "@/lib/utils";
 import type { CsvImportRowResult } from "@/types";
 
@@ -14,30 +14,69 @@ import type { CsvImportRowResult } from "@/types";
 const SESSIONS_IMPORT_CSV_TEMPLATE =
   "client_row_id,program_id,title,duration_seconds,instructor_name,tags,position\n";
 
-const schema = z.object({
-  clientImportId: z.string().min(1),
-  csv: z.string().min(1)
-});
+const importFormSchema = z
+  .object({
+    clientImportId: z.string().min(1, "Client import ID is required"),
+    csvFile: z.any().optional()
+  })
+  .superRefine((data, ctx) => {
+    const f = data.csvFile;
+    if (!(f instanceof File)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CSV file is required",
+        path: ["csvFile"]
+      });
+      return;
+    }
+    if (f.size === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CSV file must not be empty",
+        path: ["csvFile"]
+      });
+      return;
+    }
+    const okType =
+      !f.type ||
+      f.type === "text/csv" ||
+      f.type === "application/vnd.ms-excel" ||
+      f.type === "text/plain";
+    if (!okType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "File must be a CSV (.csv)",
+        path: ["csvFile"]
+      });
+    }
+  });
 
-type Form = z.infer<typeof schema>;
+type Form = z.infer<typeof importFormSchema>;
 
 export default function ImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<CsvImportRowResult[] | null>(null);
   const form = useForm<Form>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(importFormSchema),
     defaultValues: {
       clientImportId: "",
-      csv: SESSIONS_IMPORT_CSV_TEMPLATE
+      csvFile: undefined
     }
   });
 
   async function onSubmit(data: Form) {
     setError(null);
     setResults(null);
+    const file = data.csvFile instanceof File ? data.csvFile : null;
+    if (!file) {
+      return;
+    }
+    const fd = new FormData();
+    fd.append("clientImportId", data.clientImportId);
+    fd.append("file", file);
     const res = await apiFetch("/import/sessions", {
       method: "POST",
-      body: JSON.stringify(data)
+      body: fd
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -53,7 +92,7 @@ export default function ImportPage() {
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Bulk import</h1>
           <p className="text-sm text-muted-foreground">
-            Upload session rows from CSV. Use a client-provided import ID so retries stay idempotent.
+            Upload a CSV file. Use a client-provided import ID so retries stay idempotent.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -77,11 +116,14 @@ export default function ImportPage() {
               placeholder="e.g. weekly-sync-2026-05-12"
               {...form.register("clientImportId")}
             />
+            {form.formState.errors.clientImportId ? (
+              <p className="text-sm text-destructive">{form.formState.errors.clientImportId.message}</p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className={dashLabel} htmlFor="import-csv">
-                CSV
+              <label className={dashLabel} htmlFor="import-csv-file">
+                CSV file
               </label>
               <a
                 href={`data:text/csv;charset=utf-8,${encodeURIComponent(SESSIONS_IMPORT_CSV_TEMPLATE)}`}
@@ -91,12 +133,32 @@ export default function ImportPage() {
                 Download template
               </a>
             </div>
-            <textarea
-              id="import-csv"
-              rows={12}
-              className={cn(dashTextareaCn(), "font-mono text-xs")}
-              {...form.register("csv")}
+            <Controller
+              name="csvFile"
+              control={form.control}
+              render={({ field: { onChange, onBlur, name, ref } }) => (
+                <input
+                  id="import-csv-file"
+                  name={name}
+                  ref={ref}
+                  type="file"
+                  accept=".csv,text/csv,text/plain"
+                  onBlur={onBlur}
+                  className={cn(dashInputCn(), "cursor-pointer py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium")}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    onChange(f);
+                  }}
+                />
+              )}
             />
+            {form.formState.errors.csvFile ? (
+              <p className="text-sm text-destructive">
+                {typeof form.formState.errors.csvFile.message === "string"
+                  ? form.formState.errors.csvFile.message
+                  : "Invalid file"}
+              </p>
+            ) : null}
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           <div className="border-t border-border pt-6">

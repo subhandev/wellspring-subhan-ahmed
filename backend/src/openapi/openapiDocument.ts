@@ -543,10 +543,31 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV3["generateD
     path: "/v1/import/sessions",
     tags: ["Import"],
     summary: "CSV bulk import (idempotent per client_import_id / client_row_id)",
+    description:
+      "Send either `application/json` with raw CSV text, or `multipart/form-data` with field `clientImportId` and a CSV `file`.",
     request: {
       body: {
         content: {
-          "application/json": { schema: importSessionsBodySchema }
+          "application/json": { schema: importSessionsBodySchema },
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              required: ["clientImportId", "file"],
+              properties: {
+                clientImportId: {
+                  type: "string",
+                  minLength: 1,
+                  maxLength: 200,
+                  description: "Idempotency key for this import batch"
+                },
+                file: {
+                  type: "string",
+                  format: "binary",
+                  description: "UTF-8 CSV including header row (same columns as JSON body `csv`)"
+                }
+              }
+            }
+          }
         }
       }
     },

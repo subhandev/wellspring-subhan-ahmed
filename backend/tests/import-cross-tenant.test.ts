@@ -49,10 +49,8 @@ describeDb("tenant isolation — CSV import", () => {
     const res = await request(app)
       .post("/v1/import/sessions")
       .set("Authorization", `Bearer ${tokenB}`)
-      .send({
-        clientImportId: `import-${randomUUID()}`,
-        csv
-      })
+      .field("clientImportId", `import-${randomUUID()}`)
+      .attach("file", Buffer.from(csv), "import.csv")
       .expect(200);
 
     expect(res.body.results).toHaveLength(1);

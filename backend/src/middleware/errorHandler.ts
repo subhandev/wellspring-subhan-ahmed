@@ -1,11 +1,35 @@
 import type { ErrorRequestHandler } from "express";
 import type { Logger } from "pino";
+import multer from "multer";
 import { HttpError } from "../lib/httpError.js";
 
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (err, req, res, next) => {
     if (res.headersSent) {
       next(err);
+      return;
+    }
+
+    if (err instanceof multer.MulterError) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "validation_error",
+            message: "CSV file exceeds maximum allowed size"
+          },
+          requestId: req.requestId
+        });
+        return;
+      }
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "validation_error",
+          message: err.message || "File upload error"
+        },
+        requestId: req.requestId
+      });
       return;
     }
 
