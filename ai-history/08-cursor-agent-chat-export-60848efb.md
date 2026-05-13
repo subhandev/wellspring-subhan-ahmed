@@ -1652,3 +1652,769 @@ Stage the changes you worked on and create a commit for this branch.
 Execute the selected diff-tab commit action.
 </user_query>
 
+---
+
+## Exchange 6
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status",
+  "description": "Check git status for changed files"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Glob`
+
+```json
+{
+  "target_directory": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/lib",
+  "glob_pattern": "**/*"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git ls-files backend/src/modules/auth/schemas.ts backend/src/modules/programs/schemas.ts 2>/dev/null; wc -l backend/src/modules/auth/schemas.ts 2>/dev/null || true",
+  "description": "Check if schema files are tracked"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff README.md | head -80",
+  "description": "Preview README.md diff scope"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git show HEAD:backend/src/openapi/openapiDocument.ts 2>&1 | head -3",
+  "description": "Check if openapi exists on HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git show HEAD:backend/src/modules/auth/schemas.ts 2>&1 | head -5",
+  "description": "Check if auth schemas tracked at HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git ls-tree --name-only HEAD backend/src/modules/auth/ 2>/dev/null | head -20",
+  "description": "List auth module files at HEAD commit"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git show HEAD:backend/src/modules/auth/controller.ts 2>/dev/null | head -25",
+  "description": "Inspect auth controller at HEAD for schema imports"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff HEAD -- backend/src/app.ts | head -120",
+  "description": "Inspect full backend src/app.ts diff vs HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff HEAD -- backend/src/config/env.ts",
+  "description": "Inspect env.ts diff vs HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff HEAD -- backend/tests/smoke.test.ts",
+  "description": "Inspect smoke.test.ts diff vs HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff HEAD --stat",
+  "description": "Full diff stats vs HEAD"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git add README.md backend/.env.example backend/package.json backend/pnpm-lock.yaml backend/bruno backend/src/lib/zodOpenapi.ts backend/src/openapi backend/tests/smoke.test.ts backend/src/app.ts backend/src/config/env.ts backend/src/modules/auth/schemas.ts backend/src/modules/programs/schemas.ts backend/src/modules/sessions/schemas.ts backend/src/modules/uploads/schemas.ts backend/src/modules/import/schemas.ts backend/src/modules/audit/schemas.ts && git diff --cached --stat",
+  "description": "Stage Swagger/Bruno-related paths and show cached diff stats",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git commit -m \"feat(backend): OpenAPI spec, Swagger UI, and Bruno collection\n\nServe /openapi.json and /api-docs (gated by ENABLE_API_DOCS), generate spec\nfrom shared Zod payload schemas, document workflow in README, add Bruno\nrequests and smoke coverage for docs routes.\"",
+  "description": "Create commit with staged Swagger/Bruno-related files only",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status --short",
+  "description": "Show remaining working tree after commit"
+}
+```
+
+### Assistant
+
+Created commit **`501fc10`** on **`develop`** with message:
+
+**`feat(backend): OpenAPI spec, Swagger UI, and Bruno collection`**
+
+**Included (37 files):** `README.md`, `backend/.env.example`, `backend/package.json` & `pnpm-lock.yaml`, `backend/src/app.ts`, `backend/src/config/env.ts`, `backend/src/lib/zodOpenapi.ts`, `backend/src/openapi/openapiDocument.ts`, module `schemas.ts` files, `backend/bruno/wellspring-api/**`, `backend/tests/smoke.test.ts`.
+
+**Left unstaged:** backend middleware/modules/services (besides schemas), Prisma, frontend, docs, ai-history, extra tests, and other untracked files so this commit stays scoped to API docs + Bruno.
+
+Not pushed, per your instructions.
+
+[REDACTED]
+
+---
+
+## Exchange 7
+
+### User
+
+Stage the changes you worked on and create a commit for this branch.
+- Current branch: develop.
+- Base branch: develop.
+- Stage the changes you worked on.
+- If there are unrelated files or changes, exclude them.
+- Write a concise commit message.
+- Do not push.
+- Do not include unrelated files in the commit.
+<user_query>
+Execute the selected diff-tab commit action.
+</user_query>
+
+---
+
+## Exchange 8
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status --short",
+  "description": "Check current git status on develop"
+}
+```
+
+### Assistant
+
+Staging the Wellspring implementation (backend, frontend, docs) and excluding `ai-history/` as a separate concern.
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git add \\\n  backend/jest.config.cjs \\\n  backend/src/lib/auditWriter.ts \\\n  backend/src/lib/httpError.ts \\\n  backend/src/middleware/auth.ts \\\n  backend/src/middleware/errorHandler.ts \\\n  backend/src/modules/ \\\n  backend/src/prisma/schema.prisma \\\n  backend/src/prisma/migrations/20260513130000_creator_password_reset/ \\\n  backend/src/types/express.d.ts \\\n  backend/tests/ \\\n  frontend/package.json \\\n  frontend/pnpm-lock.yaml \\\n  frontend/src/ \\\n  docs/BACKLOG.md \\\n  docs/CODE_SUMMARY.md && git diff --cached --stat",
+  "description": "Stage backend, frontend, docs; exclude ai-history",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && pnpm test 2>&1 | tail -25",
+  "description": "Run backend tests before committing",
+  "required_permissions": [
+    "all"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git commit -m \"feat: JWT API, tenant-scoped modules, admin UI, and tests\n\nImplement auth (signup/login/reset), repositories with tenant isolation,\nprograms/sessions CRUD, CSV import, audit, S3 presign, and HttpError\nlogging. Add creator password-reset migration, Jest setup, cross-tenant\nAPI tests, and Next.js dashboard/auth flows with client API helpers.\"",
+  "description": "Commit staged backend, frontend, docs (exclude ai-history)",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status --short",
+  "description": "Show remaining unstaged/untracked files"
+}
+```
+
+### Assistant
+
+Created commit **`e53e4bf`** on **`develop`**:
+
+**Message:** `feat: JWT API, tenant-scoped modules, admin UI, and tests`
+
+**Staged (58 files):** Backend (middleware, modules, `httpError`/`auditWriter`, repos, Prisma schema + password-reset migration, Jest + cross-tenant/API tests), frontend (auth + dashboard + `DashboardGate`, `LogoutButton`, `SortableSessionList`, `lib/auth`), and `docs/BACKLOG.md` + `docs/CODE_SUMMARY.md`.
+
+**Excluded:** Everything under `ai-history/` (still modified/untracked).
+
+Not pushed. Backend tests were run and passed before the commit.
+
+[REDACTED]
+
+---
+
+## Exchange 9
+
+### User
+
+<user_query>
+can you give swagger url ? 
+
+Also help with setting up and testing of bruno
+</user_query>
+
+---
+
+## Exchange 10
+
+### Assistant
+
+## Swagger URL
+
+With the API running locally (default **`PORT=4000`**):
+
+| What | URL |
+|------|-----|
+| **Swagger UI** | [http://localhost:4000/api-docs](http://localhost:4000/api-docs) |
+| **OpenAPI JSON** | [http://localhost:4000/openapi.json](http://localhost:4000/openapi.json) |
+
+Docs are served **without** a JWT. They are **off in production** unless you set `ENABLE_API_DOCS=1` in `backend/.env`; in development they’re usually on by default.
+
+---
+
+## Bruno: setup and testing
+
+### 1. Install Bruno
+
+Download from [usebruno.com](https://www.usebruno.com/) (desktop app).
+
+### 2. Open the collection
+
+1. In Bruno: **Open Collection** (or File → Open).
+2. Choose the folder: **`backend/bruno/wellspring-api`**.
+
+### 3. Environment
+
+1. Select environment **Local** (from `environments/Local.bru`).
+2. Defaults assume seed data:
+   - **`baseUrl`:** `http://localhost:4000`
+   - **`email`:** `creator1@wellspring-seed.example`
+   - **`password`:** `Password123!`
+
+Run **`pnpm db:seed`** from `backend/` once so that user exists.
+
+### 4. Run the API
+
+```bash
+cd backend && pnpm dev
+```
+
+Ensure `backend/.env` has **`JWT_SECRET`** (16+ chars) and **`DATABASE_URL`** if you hit DB-backed routes.
+
+### 5. Typical request order
+
+1. **System → Health** — confirms the server is up.
+2. **Auth → Login** — the request has a **post-response script** that saves **`accessToken`** into env var **`token`**.
+3. Use any protected folder (**Programs**, **Sessions**, etc.); they send **`Authorization: Bearer {{token}}`**.
+4. **Programs → List programs** — script can set **`programId`** from the first program.
+5. **Sessions → List sessions** — uses `?programId={{programId}}`.
+6. **Sessions → Create session** — can set **`sessionId`** for get/patch/delete.
+
+If **`programId`** / **`sessionId`** are empty, run **List programs** (or **Create program**) / **Create session** first.
+
+### 6. Quick sanity checks
+
+- Login returns **200** with `accessToken` and `creator`.
+- **Me** with bearer returns **200** with `id` / `email`.
+- **List programs** returns **`programs`** array.
+
+### 7. Optional: import from OpenAPI
+
+In Bruno you can **import** from URL **`http://localhost:4000/openapi.json`** for an alternate collection; the repo collection is hand-maintained and matches the same API.
+
+If anything fails, say what request and status/body you see (e.g. 401, 503 `JWT_SECRET`).
+
+[REDACTED]
+
+---
+
+## Exchange 11
+
+### User
+
+<user_query>
+lets setup the env and also update env example for backend
+</user_query>
+
+---
+
+## Exchange 12
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env.example"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/src/config/env.ts"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed",
+  "pattern": "\\.env",
+  "glob": ".gitignore"
+}
+```
+
+### Assistant
+
+Appending safe defaults to `.env` (keeping your existing `DATABASE_URL` untouched) and expanding `.env.example` to match `loadEnv()` / `envSchema`.
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && tail -n 5 .env && wc -l .env",
+  "description": "Check .env line count before appending"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed/backend && printf '%s\\n' '' '# HTTP' 'PORT=4000' 'LOG_LEVEL=info' 'NODE_ENV=development' '' '# Database (required for Prisma; optional only for HTTP-only smoke tests)' '# DATABASE_URL is already set above.' '' '# JWT — required for signup/login and all protected /v1 routes' 'JWT_SECRET=\"local-dev-only-replace-with-long-secret-min-16-chars\"' 'JWT_EXPIRES_IN=7d' '' '# OpenAPI / Swagger — 1=serve /openapi.json and /api-docs; 0=hide. In production, docs default off unless ENABLE_API_DOCS=1.' 'ENABLE_API_DOCS=1' '' '# Password reset: set to 1 to log raw reset token at debug (local only)' '# PASSWORD_RESET_DEBUG_LOG=1' '' '# S3 presigned uploads (optional)' '# AWS_REGION=us-east-1' '# AWS_ACCESS_KEY_ID=' '# AWS_SECRET_ACCESS_KEY=' '# S3_BUCKET=' '# PRESIGN_EXPIRES_SECONDS=900' '# S3_ENDPOINT=http://localhost:9000' '# S3_PUBLIC_BASE_URL=https://your-cdn.example.com' >> .env",
+  "description": "Append local dev env vars to backend/.env without echoing DATABASE_URL"
+}
+```
+
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env.example",
+  "contents": "# Copy to `.env` and adjust. Never commit `.env`.\n\n# -----------------------------------------------------------------------------\n# Core\n# -----------------------------------------------------------------------------\nNODE_ENV=development\nPORT=4000\nLOG_LEVEL=info\n\n# -----------------------------------------------------------------------------\n# Database (Prisma)\n# -----------------------------------------------------------------------------\n# Required at runtime for any route that touches the DB (auth, programs, etc.).\nDATABASE_URL=\"postgresql://USER:PASSWORD@localhost:5432/wellspring\"\n\n# Prisma CLI uses `--schema src/prisma/schema.prisma` via package scripts.\n\n# -----------------------------------------------------------------------------\n# JWT (signup, login, password reset, all protected /v1 routes)\n# -----------------------------------------------------------------------------\n# Minimum 16 characters. Generate for production, e.g. `openssl rand -base64 32`\nJWT_SECRET=\"change-me-to-a-long-random-string-for-production\"\nJWT_EXPIRES_IN=\"7d\"\n\n# -----------------------------------------------------------------------------\n# OpenAPI / Swagger\n# -----------------------------------------------------------------------------\n# `1` = expose GET /openapi.json and GET /api-docs without auth.\n# `0` = always hide docs.\n# If unset: docs are on in development/test; off in production unless you set `1`.\nENABLE_API_DOCS=\"1\"\n\n# -----------------------------------------------------------------------------\n# Password reset (optional)\n# -----------------------------------------------------------------------------\n# Set to `1` to log raw reset tokens at debug level (local debugging only).\n# PASSWORD_RESET_DEBUG_LOG=\"1\"\n\n# -----------------------------------------------------------------------------\n# S3 presigned uploads (optional — omit until needed)\n# -----------------------------------------------------------------------------\n# AWS_REGION=\"us-east-1\"\n# AWS_ACCESS_KEY_ID=\"\"\n# AWS_SECRET_ACCESS_KEY=\"\"\n# S3_BUCKET=\"\"\n# PRESIGN_EXPIRES_SECONDS=900\n# For MinIO/localstack-style endpoints:\n# S3_ENDPOINT=\"http://localhost:9000\"\n# Optional public GET base for uploaded objects (CDN or virtual-hosted S3 URL):\n# S3_PUBLIC_BASE_URL=\"https://your-bucket.s3.us-east-1.amazonaws.com\"\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/.env"
+}
+```
+
+### Assistant
+
+Here’s what was done:
+
+### Your `backend/.env`
+
+Your existing **`DATABASE_URL`** (Neon) was left as-is. These entries were **appended**:
+
+- **`PORT`**, **`LOG_LEVEL`**, **`NODE_ENV`**
+- **`JWT_SECRET`** — dev-only placeholder (≥16 chars so auth works)
+- **`JWT_EXPIRES_IN`**
+- **`ENABLE_API_DOCS=1`** — Swagger at `/api-docs` in dev
+- Commented stubs for **`PASSWORD_RESET_DEBUG_LOG`** and **S3**
+
+You can change **`JWT_SECRET`** to something stronger locally (still ≥16 characters).
+
+**Security:** That workspace `.env` previously contained a live DB password in chat/logs. If this repo or logs are shared, **rotate the Neon password** and update **`DATABASE_URL`**.
+
+---
+
+### `backend/.env.example`
+
+It’s rewritten so it matches **[`backend/src/config/env.ts`](backend/src/config/env.ts)** and reads as a full template:
+
+- Sections for core, database, JWT, Swagger, password reset, S3  
+- Notes on **`ENABLE_API_DOCS`** vs production defaults  
+- **`JWT_SECRET`** guidance (incl. `openssl rand -base64 32`)
+
+---
+
+### Quick check
+
+From `backend/`:
+
+```bash
+pnpm dev
+```
+
+Then:
+
+- `GET http://localhost:4000/health`  
+- `GET http://localhost:4000/api-docs` (with **`ENABLE_API_DOCS=1`** or non-production default)
+
+If **`loadEnv()`** fails, it will list which variable failed validation (e.g. bad URL on **`S3_ENDPOINT`** if you uncomment with an invalid value).
+
+[REDACTED]
+
+---
+
+## Exchange 13
+
+### User
+
+<user_query>
+do we need to commit bruno ? or it goes to gitignore ?
+</user_query>
+
+---
+
+## Exchange 14
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Grep`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed",
+  "pattern": "bruno",
+  "glob": ".gitignore"
+}
+```
+
+### Assistant
+
+**Commit the Bruno collection** (e.g. `backend/bruno/wellspring-api/`). It’s normal to keep it in the repo as shared API tests and a stable way to hit the same endpoints as production.
+
+**Do not** add the whole `bruno/` tree to `.gitignore` unless you have a strong reason to keep tests private.
+
+**Secrets:** don’t put real tokens/passwords in committed `.bru` files. Rely on:
+
+- **Environment** variables in Bruno (`Local` env: `token`, `password` can stay local-only), or  
+- Bruno’s **secret** storage / `.env` patterns **ignored by git** if your client writes them next to the collection.
+
+Nothing in your root `.gitignore` mentions Bruno today, and your README points at the collection in-repo—so the intended setup is **tracked in git**, not ignored.
+
+**Summary:** Treat Bruno like other repo artifacts (Postman collections, Insomnia exports): **version control the collection**, avoid committing secrets inside request bodies long-term, use env vars for sensitive values.
+
+[REDACTED]
+
+---
+
+## Exchange 15
+
+### User
+
+<user_query>
+lets do clean commit, you can make multiple commits as we have changes for envs and bruno as well.
+</user_query>
+
+---
+
+## Exchange 16
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status && git log --oneline -8",
+  "description": "Check git status and recent commits"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git diff backend/.env.example && echo '---' && git diff backend/bruno/wellspring-api/Auth/Signup.bru && echo '---' && cat backend/bruno/wellspring-api/environments/Wellspring.bru 2>/dev/null || true",
+  "description": "Review diffs for env example and Bruno files"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/environments/Wellspring.bru"
+}
+```
+
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/Auth/Signup.bru"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Read`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/environments/Local.bru"
+}
+```
+
+### Assistant
+
+Fixing `Wellspring.bru`: adding the required `environment:` header so Bruno recognizes it.
+
+[REDACTED]
+
+**Tool:** `Write`
+
+```json
+{
+  "path": "/Users/subhan/Work/wellspring-subhan-ahmed/backend/bruno/wellspring-api/environments/Wellspring.bru",
+  "contents": "environment: Wellspring\nvars {\n  baseUrl: http://localhost:4000\n  email: creator1@wellspring-seed.example\n  password: Password123!\n  token:\n  programId:\n  sessionId:\n  clientImportId: bruno-sample-import\n}\n"
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git add backend/.env.example && git commit -m \"docs(backend): expand .env.example for loadEnv configuration\n\nDocument NODE_ENV, DATABASE_URL, JWT, ENABLE_API_DOCS, optional reset/S3\nvars with section headers aligned to backend/src/config/env.ts.\"",
+  "description": "Commit .env.example changes only",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git add backend/bruno/wellspring-api/Auth/Signup.bru backend/bruno/wellspring-api/environments/Wellspring.bru && git commit -m \"chore(bruno): add Wellspring environment and Signup baseUrl fallback\n\nAdd environments/Wellspring.bru matching Local session vars; set pre-request\nbaseUrl on Signup for runs without a selected environment.\"",
+  "description": "Commit Bruno Signup and Wellspring environment",
+  "required_permissions": [
+    "git_write"
+  ]
+}
+```
+
+### Assistant
+
+[REDACTED]
+
+**Tool:** `Shell`
+
+```json
+{
+  "command": "cd /Users/subhan/Work/wellspring-subhan-ahmed && git status && git log --oneline -5",
+  "description": "Verify clean tree and show new commits"
+}
+```
+
+### Assistant
+
+Here’s what was committed (two commits, working tree clean):
+
+### 1. `8483e41` — **`docs(backend): expand .env.example for loadEnv configuration`**
+- Updates **[`backend/.env.example`](backend/.env.example)** only: section headers, `NODE_ENV`, full JWT / Swagger / optional blocks aligned with `loadEnv()`.
+
+### 2. `bc0d24e` — **`chore(bruno): add Wellspring environment and Signup baseUrl fallback`**
+- **[`backend/bruno/wellspring-api/environments/Wellspring.bru`](backend/bruno/wellspring-api/environments/Wellspring.bru)** — new env file with `environment: Wellspring` and the same vars as **Local** (`baseUrl`, seed email/password, `token`, ids, `clientImportId`), so Bruno recognizes it as an environment.
+- **[`backend/bruno/wellspring-api/Auth/Signup.bru`](backend/bruno/wellspring-api/Auth/Signup.bru)** — keeps your `vars:pre-request` `baseUrl` fallback.
+
+**Note:** `backend/.env` stays untracked (`.gitignore`), so it was not part of these commits—only `.env.example`.
+
+Branch **`develop`** is **10 commits** ahead of `origin/develop`; nothing pushed.
+
+[REDACTED]
+

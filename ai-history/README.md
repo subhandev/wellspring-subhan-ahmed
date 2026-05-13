@@ -32,6 +32,24 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 20 | [`20-cursor-agent-transcript-241ddb3c.jsonl`](./20-cursor-agent-transcript-241ddb3c.jsonl), [`20-cursor-agent-chat-export-241ddb3c.md`](./20-cursor-agent-chat-export-241ddb3c.md) | Frontend layered architecture alignment |
 | 21 | [`21-cursor-agent-transcript-dc37ad1e.jsonl`](./21-cursor-agent-transcript-dc37ad1e.jsonl), [`21-cursor-agent-chat-export-dc37ad1e.md`](./21-cursor-agent-chat-export-dc37ad1e.md) | Auth frontend pages/screens |
 | 22 | [`22-cursor-agent-transcript-838e9474.jsonl`](./22-cursor-agent-transcript-838e9474.jsonl), [`22-cursor-agent-chat-export-838e9474.md`](./22-cursor-agent-chat-export-838e9474.md) | Programs UI — end-to-end plan (post-login landing) |
+| 39 | [`39-cursor-agent-transcript-b86c6515.jsonl`](./39-cursor-agent-transcript-b86c6515.jsonl), [`39-cursor-agent-chat-export-b86c6515.md`](./39-cursor-agent-chat-export-b86c6515.md) | Product walkthrough (non-technical refresher) |
+| 40 | [`40-cursor-agent-transcript-bd829b4f.jsonl`](./40-cursor-agent-transcript-bd829b4f.jsonl), [`40-cursor-agent-chat-export-bd829b4f.md`](./40-cursor-agent-chat-export-bd829b4f.md); subagent: [`40-1-cursor-agent-subagent-transcript-b6f98d30.jsonl`](./40-1-cursor-agent-subagent-transcript-b6f98d30.jsonl) (and matching `*-chat-export-*.md`) | S3 integration plan for session media (+ implementation thread) |
+| 41 | [`41-cursor-agent-transcript-650fc905.jsonl`](./41-cursor-agent-transcript-650fc905.jsonl), [`41-cursor-agent-chat-export-650fc905.md`](./41-cursor-agent-chat-export-650fc905.md) | Programs / sessions lifecycle flow — verify and fix |
+| 42 | [`42-cursor-agent-transcript-1e5e414a.jsonl`](./42-cursor-agent-transcript-1e5e414a.jsonl), [`42-cursor-agent-chat-export-1e5e414a.md`](./42-cursor-agent-chat-export-1e5e414a.md) | Design tokens / design system extraction |
+| 43 | [`43-cursor-agent-transcript-94f879b7.jsonl`](./43-cursor-agent-transcript-94f879b7.jsonl), [`43-cursor-agent-chat-export-94f879b7.md`](./43-cursor-agent-chat-export-94f879b7.md) | Debug: `Failed to fetch` / `apiFetch` runtime error |
+| 44 | [`44-cursor-agent-transcript-ab114584.jsonl`](./44-cursor-agent-transcript-ab114584.jsonl), [`44-cursor-agent-chat-export-ab114584.md`](./44-cursor-agent-chat-export-ab114584.md) | Edit session navigation flow (return to list on success) |
+| 45 | [`45-cursor-agent-transcript-afe90745.jsonl`](./45-cursor-agent-transcript-afe90745.jsonl), [`45-cursor-agent-chat-export-afe90745.md`](./45-cursor-agent-chat-export-afe90745.md) | Verify media upload flow (S3 presigned URL spec) |
+| 46 | [`46-cursor-agent-transcript-1ae0001f.jsonl`](./46-cursor-agent-transcript-1ae0001f.jsonl), [`46-cursor-agent-chat-export-1ae0001f.md`](./46-cursor-agent-chat-export-1ae0001f.md) | UI reference images / layout discussion |
+| 47 | [`47-cursor-agent-transcript-0a41a87a.jsonl`](./47-cursor-agent-transcript-0a41a87a.jsonl), [`47-cursor-agent-chat-export-0a41a87a.md`](./47-cursor-agent-chat-export-0a41a87a.md) | Bulk import: CSV template download link |
+| 48 | [`48-cursor-agent-transcript-433db138.jsonl`](./48-cursor-agent-transcript-433db138.jsonl), [`48-cursor-agent-chat-export-433db138.md`](./48-cursor-agent-chat-export-433db138.md) | Button styles aligned to theme / tokens |
+| 49 | [`49-cursor-agent-transcript-54756b4d.jsonl`](./49-cursor-agent-transcript-54756b4d.jsonl), [`49-cursor-agent-chat-export-54756b4d.md`](./49-cursor-agent-chat-export-54756b4d.md) | Session ordering / drag-reorder issue |
+| 50 | [`50-cursor-agent-transcript-86cebca4.jsonl`](./50-cursor-agent-transcript-86cebca4.jsonl), [`50-cursor-agent-chat-export-86cebca4.md`](./50-cursor-agent-chat-export-86cebca4.md) | Page / redirect loading UX |
+| 51 | [`51-cursor-agent-transcript-202cedcd.jsonl`](./51-cursor-agent-transcript-202cedcd.jsonl), [`51-cursor-agent-chat-export-202cedcd.md`](./51-cursor-agent-chat-export-202cedcd.md) | Audit log UI polish (layout, inputs, date labels) |
+| 52 | [`52-cursor-agent-transcript-db3ab4dc.jsonl`](./52-cursor-agent-transcript-db3ab4dc.jsonl), [`52-cursor-agent-chat-export-db3ab4dc.md`](./52-cursor-agent-chat-export-db3ab4dc.md) | Remove Bruno from project |
+| 53 | [`53-cursor-agent-transcript-38ac19ad.jsonl`](./53-cursor-agent-transcript-38ac19ad.jsonl), [`53-cursor-agent-chat-export-38ac19ad.md`](./53-cursor-agent-chat-export-38ac19ad.md) | Bulk CSV: real file upload vs requirements |
+| 54 | [`54-cursor-agent-transcript-7a58e36a.jsonl`](./54-cursor-agent-transcript-7a58e36a.jsonl), [`54-cursor-agent-chat-export-7a58e36a.md`](./54-cursor-agent-chat-export-7a58e36a.md) | Session list: serial numbers vs drag UX |
+
+_Numbers `23`–`26` (and similar) may be used by **ad-hoc** markdown exports in this folder (e.g. `23-session-flow-validation-…`); new agent JSONL transcripts start at **`39`** so filenames never collide. `sync_agent_transcripts.py` reserves the next free numeric prefix automatically._
 
 ## Raw vs Markdown
 
@@ -43,12 +61,18 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
   cd ai-history && python3 render_jsonl_to_md.py
   ```
 
+To **pull new or updated** JSONL from Cursor’s local store and regenerate Markdown in one step:
+
+  ```bash
+  python3 ai-history/sync_agent_transcripts.py
+  ```
+
 ## Redaction / privacy
 
 Some assistant lines contain a literal `[REDACTED]` placeholder where internal/system content was stripped by the export pipeline (not post-edited reasoning). No credentials are stored in this folder.
 
 ## Keeping this folder current
 
-When you finish new Agent work in this workspace, copy any new `*.jsonl` from the `agent-transcripts` directory above, assign the next `NN-` prefix, run `render_jsonl_to_md.py`, and extend this table.
+When you finish new Agent work in this workspace, run `python3 ai-history/sync_agent_transcripts.py` (or manually copy new `*.jsonl`, run `render_jsonl_to_md.py`, and extend this table).
 
 Do not rewrite chats to sound polished; the brief asks for **honest iteration**.
