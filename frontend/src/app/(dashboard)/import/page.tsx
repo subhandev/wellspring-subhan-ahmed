@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
@@ -53,15 +54,47 @@ const importFormSchema = z
 
 type Form = z.infer<typeof importFormSchema>;
 
+const defaultFormValues: Form = {
+  clientImportId: "",
+  csvFile: undefined
+};
+
+function rowVisuals(r: CsvImportRowResult) {
+  if (!r.ok) {
+    return {
+      row: "border-l-[3px] border-l-destructive bg-destructive/[0.06]",
+      badge: "bg-destructive/15 text-destructive ring-1 ring-destructive/25",
+      label: "Failed"
+    };
+  }
+  if (r.idempotent) {
+    return {
+      row: "border-l-[3px] border-l-amber-500 bg-amber-500/[0.08] dark:bg-amber-500/10",
+      badge:
+        "bg-amber-500/15 text-amber-950 ring-1 ring-amber-500/30 dark:text-amber-100 dark:ring-amber-400/35",
+      label: "Already imported"
+    };
+  }
+  return {
+    row: "border-l-[3px] border-l-emerald-600 bg-emerald-600/[0.07] dark:bg-emerald-500/10",
+    badge:
+      "bg-emerald-600/15 text-emerald-950 ring-1 ring-emerald-600/25 dark:text-emerald-100 dark:ring-emerald-400/30",
+    label: "Imported"
+  };
+}
+
 export default function ImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<CsvImportRowResult[] | null>(null);
+  const [csvFileInputKey, setCsvFileInputKey] = useState(0);
+
+  const bumpCsvFileInput = useCallback(() => {
+    setCsvFileInputKey((k) => k + 1);
+  }, []);
+
   const form = useForm<Form>({
     resolver: zodResolver(importFormSchema),
-    defaultValues: {
-      clientImportId: "",
-      csvFile: undefined
-    }
+    defaultValues: defaultFormValues
   });
 
   async function onSubmit(data: Form) {
@@ -74,25 +107,43 @@ export default function ImportPage() {
     const fd = new FormData();
     fd.append("clientImportId", data.clientImportId);
     fd.append("file", file);
-    const res = await apiFetch("/import/sessions", {
-      method: "POST",
-      body: fd
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setError(readApiErrorMessage(body, "Import failed"));
-      return;
+    try {
+      const res = await apiFetch("/import/sessions", {
+        method: "POST",
+        body: fd
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(readApiErrorMessage(body, "Import failed"));
+        form.reset({ clientImportId: data.clientImportId, csvFile: undefined });
+        bumpCsvFileInput();
+        return;
+      }
+      setResults((body as { results?: CsvImportRowResult[] }).results ?? []);
+      form.reset(defaultFormValues);
+      bumpCsvFileInput();
+    } catch {
+      setError("Could not reach the server. Check your connection and try again.");
+      form.setValue("csvFile", undefined);
+      bumpCsvFileInput();
     }
-    setResults((body as { results?: CsvImportRowResult[] }).results ?? []);
   }
+
+  const summary = results
+    ? {
+        imported: results.filter((r) => r.ok && !r.idempotent).length,
+        idempotent: results.filter((r) => r.ok && r.idempotent).length,
+        failed: results.filter((r) => !r.ok).length
+      }
+    : null;
 
   return (
     <div className="space-y-6">
       <header className="space-y-3">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Bulk import</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Import sessions from CSV</h1>
           <p className="text-sm text-muted-foreground">
-            Upload a CSV file. Use a client-provided import ID so retries stay idempotent.
+            Upload a CSV of sessions. Use a client import ID so safe retries do not create duplicate rows.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -138,13 +189,17 @@ export default function ImportPage() {
               control={form.control}
               render={({ field: { onChange, onBlur, name, ref } }) => (
                 <input
+                  key={csvFileInputKey}
                   id="import-csv-file"
                   name={name}
                   ref={ref}
                   type="file"
                   accept=".csv,text/csv,text/plain"
                   onBlur={onBlur}
-                  className={cn(dashInputCn(), "cursor-pointer py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium")}
+                  className={cn(
+                    dashInputCn(),
+                    "cursor-pointer py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
+                  )}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     onChange(f);
@@ -163,46 +218,88 @@ export default function ImportPage() {
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           <div className="border-t border-border pt-6">
             <Button type="submit" size="md" disabled={form.formState.isSubmitting}>
-              Run import
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  Importing…
+                </>
+              ) : (
+                "Run Import Sessions (CSV)"
+              )}
             </Button>
           </div>
         </div>
       </form>
       {results ? (
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            {(() => {
-              const ok = results.filter((r) => r.ok).length;
-              const fail = results.length - ok;
-              return `${ok} row${ok === 1 ? "" : "s"} succeeded${fail > 0 ? ` · ${fail} row${fail === 1 ? "" : "s"} failed` : ""}`;
-            })()}
-          </p>
-          <h2 className="font-medium">Results</h2>
-          <div className="overflow-x-auto rounded-md border">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b bg-muted/50">
-                <tr>
-                  <th className="px-3 py-2">client_row_id</th>
-                  <th className="px-3 py-2">status</th>
-                  <th className="px-3 py-2">detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((r) => (
-                  <tr key={r.clientRowId} className="border-b last:border-0">
-                    <td className="px-3 py-2 font-mono text-xs">{r.clientRowId}</td>
-                    <td className="px-3 py-2">
-                      {r.ok ? (r.idempotent ? "ok (idempotent)" : "ok") : "error"}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">
-                      {r.ok ? r.sessionId : (r.errors ?? []).join("; ")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <section className={cn(dashSectionCard, "space-y-4")}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold tracking-tight">Row results</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                One row per CSV line. Colors reflect outcome for quick scanning.
+              </p>
+            </div>
+            {summary ? (
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full bg-emerald-600/12 px-3 py-1 text-xs font-medium text-emerald-950 ring-1 ring-emerald-600/20 dark:text-emerald-100 dark:ring-emerald-400/25">
+                  Imported: {summary.imported}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-amber-500/12 px-3 py-1 text-xs font-medium text-amber-950 ring-1 ring-amber-500/25 dark:text-amber-100 dark:ring-amber-400/30">
+                  Already imported: {summary.idempotent}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-destructive/12 px-3 py-1 text-xs font-medium text-destructive ring-1 ring-destructive/25">
+                  Failed: {summary.failed}
+                </span>
+              </div>
+            ) : null}
           </div>
-        </div>
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-[0_1px_2px_rgb(28_28_26/0.04)] dark:shadow-[0_1px_2px_rgb(0_0_0/0.2)]">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[32rem] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/60">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      client_row_id
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Outcome
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Detail
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {results.map((r) => {
+                    const v = rowVisuals(r);
+                    return (
+                      <tr key={r.clientRowId} className={cn("transition-colors", v.row)}>
+                        <td className="px-4 py-3 align-top font-mono text-xs text-foreground">{r.clientRowId}</td>
+                        <td className="px-4 py-3 align-top">
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
+                              v.badge
+                            )}
+                          >
+                            {v.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 align-top text-xs leading-relaxed">
+                          {r.ok ? (
+                            <span className="font-mono text-foreground/90">{r.sessionId}</span>
+                          ) : (
+                            <span className="text-destructive">{(r.errors ?? []).join("; ") || "—"}</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       ) : null}
     </div>
   );

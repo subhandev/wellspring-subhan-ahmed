@@ -42,7 +42,7 @@ function initialsFromEmail(email: string | null): string {
 
 const nav = [
   { href: "/programs", label: "Programs", icon: LayoutGrid },
-  { href: "/import", label: "Import", icon: Upload },
+  { href: "/import", label: "Import sessions", icon: Upload },
   { href: "/audit", label: "Audit Log", icon: ScrollText }
 ] as const;
 
