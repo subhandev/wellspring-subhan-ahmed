@@ -4,8 +4,10 @@
     "buildCommand": "pnpm run build"
   },
   "deploy": {
-    "startCommand": "pnpm run start",
-    "preDeployCommand": ["pnpm run db:migrate"],
+    "startCommand": "node dist/index.js",
+    "preDeployCommand": [
+      "npx prisma migrate deploy --schema src/prisma/schema.prisma"
+    ],
     "healthcheckPath": "/health"
   }
 }

@@ -7,8 +7,13 @@ const logger = createRootLogger(env);
 const app = createApp(env);
 
 const port = env.PORT;
-const server = app.listen(port, () => {
-  logger.info({ port, request_id: "boot", tenant_id: "pre_auth" }, "backend listening");
+/** Bind all interfaces so container healthchecks (Railway, Docker) can reach the server. */
+const listenHost = "0.0.0.0";
+const server = app.listen(port, listenHost, () => {
+  logger.info(
+    { port, host: listenHost, request_id: "boot", tenant_id: "pre_auth" },
+    "backend listening"
+  );
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {
