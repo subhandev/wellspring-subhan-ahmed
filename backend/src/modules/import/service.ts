@@ -232,7 +232,7 @@ export async function importSessionsFromCsv(
         { precomputedAutoPosition, importKeyByRowId }
       );
       results.push(rowResult);
-      if (rowResult.ok) {
+      if (rowResult.ok && rowResult.idempotent !== true) {
         if (row.position !== undefined) {
           const prev = maxPositionByProgram.get(row.programId) ?? -1;
           maxPositionByProgram.set(row.programId, Math.max(prev, row.position));
