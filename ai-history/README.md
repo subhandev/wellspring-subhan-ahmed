@@ -48,8 +48,25 @@ This folder satisfies [`docs/REQUIREMENTS.md`](../docs/REQUIREMENTS.md) **§2 AI
 | 52 | [`52-cursor-agent-transcript-db3ab4dc.jsonl`](./52-cursor-agent-transcript-db3ab4dc.jsonl), [`52-cursor-agent-chat-export-db3ab4dc.md`](./52-cursor-agent-chat-export-db3ab4dc.md) | Remove Bruno from project |
 | 53 | [`53-cursor-agent-transcript-38ac19ad.jsonl`](./53-cursor-agent-transcript-38ac19ad.jsonl), [`53-cursor-agent-chat-export-38ac19ad.md`](./53-cursor-agent-chat-export-38ac19ad.md) | Bulk CSV: real file upload vs requirements |
 | 54 | [`54-cursor-agent-transcript-7a58e36a.jsonl`](./54-cursor-agent-transcript-7a58e36a.jsonl), [`54-cursor-agent-chat-export-7a58e36a.md`](./54-cursor-agent-chat-export-7a58e36a.md) | Session list: serial numbers vs drag UX |
+| 58 | [`58-cursor-agent-transcript-37d982de.jsonl`](./58-cursor-agent-transcript-37d982de.jsonl), [`58-cursor-agent-chat-export-37d982de.md`](./58-cursor-agent-chat-export-37d982de.md) | Bulk CSV: required columns + rich sample data |
+| 59 | [`59-cursor-agent-transcript-2048b769.jsonl`](./59-cursor-agent-transcript-2048b769.jsonl), [`59-cursor-agent-chat-export-2048b769.md`](./59-cursor-agent-chat-export-2048b769.md) | Remove Bruno from docs and Cursor rules |
+| 60 | [`60-cursor-agent-transcript-8f6130bc.jsonl`](./60-cursor-agent-transcript-8f6130bc.jsonl), [`60-cursor-agent-chat-export-8f6130bc.md`](./60-cursor-agent-chat-export-8f6130bc.md) | Import UI: clearer labels, form reset |
+| 61 | [`61-cursor-agent-transcript-b60b57ba.jsonl`](./61-cursor-agent-transcript-b60b57ba.jsonl), [`61-cursor-agent-chat-export-b60b57ba.md`](./61-cursor-agent-chat-export-b60b57ba.md) | Import results: header styling (no background) |
+| 62 | [`62-cursor-agent-transcript-30307d99.jsonl`](./62-cursor-agent-transcript-30307d99.jsonl), [`62-cursor-agent-chat-export-30307d99.md`](./62-cursor-agent-chat-export-30307d99.md) | Audit log: remove “open” column |
+| 63 | [`63-cursor-agent-transcript-c75e3f13.jsonl`](./63-cursor-agent-transcript-c75e3f13.jsonl), [`63-cursor-agent-chat-export-c75e3f13.md`](./63-cursor-agent-chat-export-c75e3f13.md) | Import results header / table styling follow-up |
+| 64 | [`64-cursor-agent-transcript-234eaf76.jsonl`](./64-cursor-agent-transcript-234eaf76.jsonl), [`64-cursor-agent-chat-export-234eaf76.md`](./64-cursor-agent-chat-export-234eaf76.md) | Explain import columns, client import id, client row id |
+| 65 | [`65-cursor-agent-transcript-f6a91f3f.jsonl`](./65-cursor-agent-transcript-f6a91f3f.jsonl), [`65-cursor-agent-chat-export-f6a91f3f.md`](./65-cursor-agent-chat-export-f6a91f3f.md) | Prisma schema / generator verification |
+| 66 | [`66-cursor-agent-transcript-64ce8323.jsonl`](./66-cursor-agent-transcript-64ce8323.jsonl), [`66-cursor-agent-chat-export-64ce8323.md`](./66-cursor-agent-chat-export-64ce8323.md) | Import CSV test fixtures — simplify layout |
+| 67 | [`67-cursor-agent-transcript-26739c32.jsonl`](./67-cursor-agent-transcript-26739c32.jsonl), [`67-cursor-agent-chat-export-26739c32.md`](./67-cursor-agent-chat-export-26739c32.md) | Clear DB data only (keep schema) |
+| 68 | [`68-cursor-agent-transcript-0037d2c4.jsonl`](./68-cursor-agent-transcript-0037d2c4.jsonl), [`68-cursor-agent-chat-export-0037d2c4.md`](./68-cursor-agent-chat-export-0037d2c4.md) | Page load / redirect loader vertical alignment |
+| 69 | [`69-cursor-agent-transcript-b192cb52.jsonl`](./69-cursor-agent-transcript-b192cb52.jsonl), [`69-cursor-agent-chat-export-b192cb52.md`](./69-cursor-agent-chat-export-b192cb52.md) | Seed script vs tightened schema verification |
+| 70 | [`70-cursor-agent-transcript-31f2bcd2.jsonl`](./70-cursor-agent-transcript-31f2bcd2.jsonl), [`70-cursor-agent-chat-export-31f2bcd2.md`](./70-cursor-agent-chat-export-31f2bcd2.md) | Import session screen form improvements |
+| 71 | [`71-cursor-agent-transcript-f5467281.jsonl`](./71-cursor-agent-transcript-f5467281.jsonl), [`71-cursor-agent-chat-export-f5467281.md`](./71-cursor-agent-chat-export-f5467281.md) | Bulk import results: error detail display |
+| 72 | [`72-cursor-agent-transcript-cce2d7dd.jsonl`](./72-cursor-agent-transcript-cce2d7dd.jsonl), [`72-cursor-agent-chat-export-cce2d7dd.md`](./72-cursor-agent-chat-export-cce2d7dd.md) | Audit log: Actor column — show or hide |
+| 73 | [`73-cursor-agent-transcript-253244d7.jsonl`](./73-cursor-agent-transcript-253244d7.jsonl), [`73-cursor-agent-chat-export-253244d7.md`](./73-cursor-agent-chat-export-253244d7.md) | Session ordering: rapid reorder / server errors |
+| 74 | [`74-cursor-agent-transcript-753c7b31.jsonl`](./74-cursor-agent-transcript-753c7b31.jsonl), [`74-cursor-agent-chat-export-753c7b31.md`](./74-cursor-agent-chat-export-753c7b31.md) | Session detail 404, media link, list drag polish |
 
-_Numbers `23`–`26` (and similar) may be used by **ad-hoc** markdown exports in this folder (e.g. `23-session-flow-validation-…`); new agent JSONL transcripts start at **`39`** so filenames never collide. `sync_agent_transcripts.py` reserves the next free numeric prefix automatically._
+_Numbers like `23`–`26` and **`55`–`57`** may be used by **ad-hoc** markdown exports in this folder; new agent JSONL transcripts use the **next free** prefix (e.g. **`39`+**, **`58`+**) so filenames never collide. Run `python3 ai-history/sync_agent_transcripts.py` to pull from Cursor._
 
 ## Raw vs Markdown
 
