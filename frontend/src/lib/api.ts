@@ -35,7 +35,19 @@ export async function apiFetch(path: string, init?: ApiFetchOpts): Promise<Respo
       headers.set("Authorization", `Bearer ${t}`);
     }
   }
-  const res = await fetch(apiUrl(path), { ...rest, headers });
+
+  let res: Response;
+  try {
+    res = await fetch(apiUrl(path), { ...rest, headers });
+  } catch {
+    const origin = getApiBase();
+    const message = `Cannot reach the API at ${origin}. Start the backend (pnpm dev in backend/) or set NEXT_PUBLIC_API_URL if it runs elsewhere.`;
+    res = new Response(
+      JSON.stringify({ success: false, error: { code: "network_unreachable", message } }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   if (auth && res.status === 401 && typeof window !== "undefined") {
     setAccessToken(null);
     window.location.replace("/login");
