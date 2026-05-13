@@ -4,6 +4,10 @@
 
 **_[Add your 5–7 minute Loom URL here before submission.]_**
 
+## Live admin (Vercel)
+
+**[https://wellspring-admin-six.vercel.app](https://wellspring-admin-six.vercel.app)** — production Next.js deploy; point Vercel **`NEXT_PUBLIC_API_URL`** at your public API (see `frontend/package.json` scripts `deploy:vercel` / `vercel:set-production-api`) and allow that origin in **`CORS_ORIGIN`** on the API.
+
 Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** API and **Next.js** admin. This README covers setup, run, test, and seed. The official brief and quality bars are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md). Module tour: [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md). Self-review: [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md). Raw AI exports: [`ai-history/`](ai-history/).
 
 The repo uses **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**. Run scripts from each package directory (equivalent to the brief’s `dev`, `test`, `db:migrate`, `db:seed` expectations).
