@@ -62,4 +62,89 @@ describeDb("session API validation error details", () => {
     await prisma.program.deleteMany({ where: { id: programId } });
     await prisma.creator.delete({ where: { id: creatorId } });
   });
+
+  it("returns 400 when create includes mediaUrl without mediaType", async () => {
+    const app = createApp();
+    const password = "SecurePass1!";
+    const email = `sv2-${randomUUID()}@example.com`;
+
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({ email, password })
+      .expect(201);
+    const token = signup.body.data.accessToken as string;
+    const creatorId = signup.body.data.creator.id as string;
+
+    const prog = await request(app)
+      .post("/v1/programs")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "Program", description: "" })
+      .expect(201);
+    const programId = prog.body.id as string;
+    const goodUrl = `https://cdn.example.com/tenants/${creatorId}/media/uuid-file.mp3`;
+
+    const res = await request(app)
+      .post("/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        programId,
+        title: "With media",
+        durationSeconds: 60,
+        instructorName: "Coach",
+        mediaUrl: goodUrl
+      })
+      .expect(400);
+
+    const fieldErrors = res.body.error.details.fieldErrors as Record<string, string[]>;
+    expect(fieldErrors.mediaType?.length).toBeGreaterThan(0);
+
+    await prisma.program.deleteMany({ where: { id: programId } });
+    await prisma.creator.delete({ where: { id: creatorId } });
+  });
+
+  it("returns 400 when patch sets mediaUrl without mediaType", async () => {
+    const app = createApp();
+    const password = "SecurePass1!";
+    const email = `sv3-${randomUUID()}@example.com`;
+
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({ email, password })
+      .expect(201);
+    const token = signup.body.data.accessToken as string;
+    const creatorId = signup.body.data.creator.id as string;
+
+    const prog = await request(app)
+      .post("/v1/programs")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "Program", description: "" })
+      .expect(201);
+    const programId = prog.body.id as string;
+
+    const sess = await request(app)
+      .post("/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        programId,
+        title: "S",
+        durationSeconds: 60,
+        instructorName: "Coach"
+      })
+      .expect(201);
+    const sessionId = sess.body.id as string;
+    const goodUrl = `https://cdn.example.com/tenants/${creatorId}/media/uuid-file.mp3`;
+
+    const res = await request(app)
+      .patch(`/v1/sessions/${sessionId}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ mediaUrl: goodUrl })
+      .expect(400);
+
+    const fieldErrors = res.body.error.details.fieldErrors as Record<string, string[]>;
+    expect(fieldErrors.mediaType?.length).toBeGreaterThan(0);
+
+    await prisma.session.deleteMany({ where: { id: sessionId } });
+    await prisma.program.deleteMany({ where: { id: programId } });
+    await prisma.creator.delete({ where: { id: creatorId } });
+  });
 });

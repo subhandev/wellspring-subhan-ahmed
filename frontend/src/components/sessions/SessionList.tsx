@@ -239,12 +239,10 @@ export function SessionList({
 
   return (
     <div className="space-y-3">
-      {(error ?? saving) ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-          {error ? <p className="text-destructive">{error}</p> : null}
-          {saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
-        </div>
-      ) : null}
+      <div className="min-h-[1.75rem] text-sm" aria-live="polite">
+        {error ? <p className="text-destructive">{error}</p> : null}
+        {saving ? <p className="text-xs text-muted-foreground">Saving order…</p> : null}
+      </div>
       <div className={cn(dashSectionCard, "overflow-hidden")}>
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd}>
           <SortableContext items={items.map((s) => s.id)} strategy={verticalListSortingStrategy}>

@@ -80,12 +80,17 @@ export async function updateSession(
   id: string,
   body: UpdateSessionBody
 ) {
-  if (body.mediaUrl !== undefined) {
-    assertSessionMediaUrlForTenant(tenantId, body.mediaUrl);
+  const patch: UpdateSessionBody = { ...body };
+  if (patch.mediaUrl === null) {
+    patch.mediaType = null;
+  }
+
+  if (patch.mediaUrl !== undefined) {
+    assertSessionMediaUrlForTenant(tenantId, patch.mediaUrl);
   }
 
   try {
-    const session = await repo.updateSession(tenantId, id, body);
+    const session = await repo.updateSession(tenantId, id, patch);
     if (!session) {
       throw new HttpError(404, "Session not found", "not_found");
     }

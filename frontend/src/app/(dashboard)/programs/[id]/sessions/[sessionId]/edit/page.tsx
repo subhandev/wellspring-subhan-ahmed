@@ -24,7 +24,13 @@ import {
   dashSectionCard,
   dashSelectCn
 } from "@/lib/dashboardUi";
-import { fileAcceptForMediaKind, sessionMediaKindFromApi, sessionMediaTypeForApi, type MediaKind } from "@/lib/mediaKind";
+import {
+  fileAcceptForMediaKind,
+  fileMediaKindMismatchMessage,
+  sessionMediaKindFromApi,
+  sessionMediaTypeForApi,
+  type MediaKind
+} from "@/lib/mediaKind";
 import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -55,7 +61,6 @@ export default function EditSessionPage() {
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const form = useForm<Form>({
@@ -119,6 +124,13 @@ export default function EditSessionPage() {
     setError(null);
     form.clearErrors();
     const pendingFile = fileRef.current?.files?.[0];
+    if (pendingFile && data.mediaKind !== "none") {
+      const mismatch = fileMediaKindMismatchMessage(data.mediaKind, pendingFile);
+      if (mismatch) {
+        form.setError("mediaUrl", { type: "manual", message: mismatch });
+        return;
+      }
+    }
     const missingMedia = missingMediaSourceMessage(data.mediaKind, data.mediaUrl, Boolean(pendingFile));
     if (missingMedia) {
       form.setError("mediaUrl", { type: "manual", message: missingMedia });
@@ -126,12 +138,10 @@ export default function EditSessionPage() {
     }
     if (pendingFile) {
       setUploading(true);
-      setUploadMsg(null);
       try {
         const uploadResult = await presignAndPutFile(pendingFile);
         if (!uploadResult.ok) {
           setError(uploadResult.message);
-          setUploadMsg(uploadResult.message);
           return;
         }
         const mediaUrl = uploadResult.publicUrl;
@@ -175,59 +185,10 @@ export default function EditSessionPage() {
     router.push(`/programs/${programId}/sessions`);
   }
 
-  async function onPickFile() {
-    setUploadMsg(null);
-    const file = fileRef.current?.files?.[0];
-    if (!file) {
-      return;
-    }
-    setUploading(true);
-    try {
-      const result = await presignAndPutFile(file);
-      if (!result.ok) {
-        setUploadMsg(result.message);
-        return;
-      }
-      const mediaUrl = result.publicUrl;
-      const mediaType = result.contentType;
-      form.setValue("mediaUrl", mediaUrl);
-      form.setValue("mediaType", mediaType);
-      if (mediaType.startsWith("audio/")) {
-        form.setValue("mediaKind", "audio");
-      } else if (mediaType.startsWith("video/")) {
-        form.setValue("mediaKind", "video");
-      }
-
-      const v = form.getValues();
-      const patchRes = await apiFetch(`/sessions/${sessionId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          title: v.title,
-          durationSeconds: v.durationSeconds,
-          instructorName: v.instructorName,
-          tags: tagsFromString(v.tags),
-          mediaUrl,
-          mediaType: sessionMediaTypeForApi(v.mediaKind, true)
-        })
-      });
-      const patchBody = await patchRes.json().catch(() => ({}));
-      if (!patchRes.ok) {
-        form.clearErrors();
-        const { message, details } = readApiErrorDetails(patchBody);
-        if (details?.fieldErrors) {
-          applyServerFieldErrors(form.setError, form.getValues(), details.fieldErrors);
-        }
-        setUploadMsg(message);
-        return;
-      }
-      setUploadMsg("Upload complete — media saved.");
-      router.refresh();
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  const mediaUrl = form.watch("mediaUrl")?.trim();
+  const trimmedMediaUrl = form.watch("mediaUrl")?.trim() ?? "";
+  const watchedKind = form.watch("mediaKind") as MediaKind;
+  const storedEnum = sessionMediaTypeForApi(watchedKind, Boolean(trimmedMediaUrl));
+  const apiKindLabel = storedEnum === "AUDIO" ? "Audio" : storedEnum === "VIDEO" ? "Video" : null;
 
   if (loadState === "loading") {
     return <PageLoader message="Loading session…" />;
@@ -244,7 +205,7 @@ export default function EditSessionPage() {
           ← Back to sessions
         </Link>
         <h1 className={cn(dashPageTitle, "mt-6")}>Edit session</h1>
-        <p className={dashPageDescription}>Update metadata, URLs, or replace media.</p>
+        <p className={dashPageDescription}>Update session details and media.</p>
       </div>
 
       <div className={dashSectionCard}>
@@ -278,104 +239,112 @@ export default function EditSessionPage() {
             </label>
             <input id="es-tags" className={dashInputCn()} {...form.register("tags")} />
           </div>
-          <div className="space-y-2">
-            <label className={dashLabel} htmlFor="es-media-kind">
-              Media type
-            </label>
-            <select
-              id="es-media-kind"
-              className={cn(
-                dashSelectCn,
-                (errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType) && "border-destructive"
-              )}
-              aria-invalid={Boolean(errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType)}
-              {...form.register("mediaKind")}
-            >
-              <option value="none">None</option>
-              <option value="audio">Audio</option>
-              <option value="video">Video</option>
-            </select>
-          </div>
-
-          {mediaUrl ? (
-            <div className={dashInsetCard}>
-              <p className="text-sm font-medium text-foreground">Current media</p>
-              <a
-                href={mediaUrl}
-                className={cn(dashPrimaryLink, "mt-2 inline-flex break-all text-sm")}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {mediaUrl}
-              </a>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={() => {
-                  if (fileRef.current) {
-                    fileRef.current.value = "";
-                  }
-                  fileRef.current?.click();
-                }}
-              >
-                Replace file
-              </Button>
-            </div>
-          ) : null}
-
           <div className={dashInsetCard}>
-            <p className="text-sm font-medium text-foreground">
-              {mediaUrl ? "Upload replacement" : "Media file"}
-            </p>
+            <p className="text-sm font-medium text-foreground">Session media</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Choose a file and upload — or save the form after selecting to upload on submit.
+              Media URLs come from tenant-scoped uploads. Choose a new file and click Save changes to upload and attach
+              it, or set media type to None and save to remove media.
             </p>
-            <input
-              ref={fileRef}
-              type="file"
-              accept={fileAcceptForMediaKind(mediaKind)}
-              className="mt-3 w-full max-w-full text-sm text-muted-foreground"
-              disabled={uploading}
-            />
-            <div className={cn(dashInsetButtonRow, "mt-4")}>
-              <Button type="button" variant="secondary" size="sm" onClick={() => void onPickFile()} disabled={uploading}>
-                {uploading ? "Uploading…" : "Upload"}
-              </Button>
+
+            <div className="mt-5 space-y-2">
+              <label className={dashLabel} htmlFor="es-media-kind">
+                Media type
+              </label>
+              <select
+                id="es-media-kind"
+                className={cn(
+                  dashSelectCn,
+                  (errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType) && "border-destructive"
+                )}
+                aria-invalid={Boolean(errors.mediaKind ?? errors.mediaUrl ?? errors.mediaType)}
+                {...form.register("mediaKind")}
+              >
+                <option value="none">None</option>
+                <option value="audio">Audio</option>
+                <option value="video">Video</option>
+              </select>
             </div>
-            {uploadMsg ? <p className="mt-2 text-xs text-muted-foreground">{uploadMsg}</p> : null}
-          </div>
 
-          <div className="space-y-2">
-            <label className={dashLabel} htmlFor="es-media-url">
-              Media URL <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <input
-              id="es-media-url"
-              className={dashInputCn(Boolean(errors.mediaUrl))}
-              aria-invalid={Boolean(errors.mediaUrl)}
-              {...form.register("mediaUrl")}
-            />
+            {trimmedMediaUrl ? (
+              <div className="mt-5 space-y-2">
+                <label className={dashLabel} htmlFor="es-media-url-readonly">
+                  Media URL <span className="text-muted-foreground">(read-only)</span>
+                </label>
+                <input
+                  id="es-media-url-readonly"
+                  readOnly
+                  className={cn(dashInputCn(), "cursor-default bg-muted/40")}
+                  {...form.register("mediaUrl")}
+                />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {apiKindLabel ? (
+                    <p className="text-xs text-muted-foreground">
+                      Stored as <span className="font-medium text-foreground">{apiKindLabel}</span> (follows media type
+                      above)
+                    </p>
+                  ) : null}
+                  <a
+                    href={trimmedMediaUrl}
+                    className={cn(dashPrimaryLink, "text-xs")}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open media
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-5 text-sm text-muted-foreground">No media attached.</p>
+            )}
+
+            <div className="mt-5 space-y-2">
+              <label className={dashLabel} htmlFor="es-media-file">
+                Replace with file
+              </label>
+              <input
+                id="es-media-file"
+                ref={fileRef}
+                type="file"
+                accept={fileAcceptForMediaKind(mediaKind)}
+                className="w-full max-w-full text-sm text-muted-foreground"
+                disabled={uploading || mediaKind === "none"}
+              />
+              <p className="text-xs text-muted-foreground">
+                {mediaKind === "none"
+                  ? "Set media type to Audio or Video to enable file replacement."
+                  : "Upload runs when you save; you can clear the file input afterward if you change your mind."}
+              </p>
+            </div>
+
+            {trimmedMediaUrl ? (
+              <div className={cn(dashInsetButtonRow, "mt-4")}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    form.setValue("mediaUrl", "");
+                    form.setValue("mediaType", "");
+                    form.setValue("mediaKind", "none");
+                    if (fileRef.current) {
+                      fileRef.current.value = "";
+                    }
+                  }}
+                >
+                  Remove media
+                </Button>
+              </div>
+            ) : null}
+
             {errors.mediaUrl?.message ? (
-              <p className="text-sm text-destructive">{errors.mediaUrl.message}</p>
+              <p className="mt-3 text-sm text-destructive">{errors.mediaUrl.message}</p>
             ) : null}
-          </div>
-          <div className="space-y-2">
-            <label className={dashLabel} htmlFor="es-media-type">
-              MIME type <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <input
-              id="es-media-type"
-              className={dashInputCn(Boolean(errors.mediaType))}
-              aria-invalid={Boolean(errors.mediaType)}
-              {...form.register("mediaType")}
-            />
             {errors.mediaType?.message ? (
-              <p className="text-sm text-destructive">{errors.mediaType.message}</p>
+              <p className="mt-2 text-sm text-destructive">{errors.mediaType.message}</p>
             ) : null}
           </div>
 
+          <input type="hidden" {...form.register("mediaType")} />
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {Object.entries(form.formState.errors).map(([key, err]) =>
             key === "mediaUrl" || key === "mediaType" || !err?.message ? null : (

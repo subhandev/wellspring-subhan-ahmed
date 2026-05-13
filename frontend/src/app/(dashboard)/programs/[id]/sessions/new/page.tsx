@@ -22,7 +22,12 @@ import {
   dashSectionCard,
   dashSelectCn
 } from "@/lib/dashboardUi";
-import { fileAcceptForMediaKind, sessionMediaTypeForApi, type MediaKind } from "@/lib/mediaKind";
+import {
+  fileAcceptForMediaKind,
+  fileMediaKindMismatchMessage,
+  sessionMediaTypeForApi,
+  type MediaKind
+} from "@/lib/mediaKind";
 import { missingMediaSourceMessage, refineSessionMedia, sessionMediaShape } from "@/lib/sessionFormSchema";
 import { presignAndPutFile } from "@/lib/presignUpload";
 import { cn } from "@/lib/utils";
@@ -47,7 +52,6 @@ export default function NewSessionPage() {
   const router = useRouter();
   const programId = typeof params.id === "string" ? params.id : "";
   const [error, setError] = useState<string | null>(null);
-  const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const form = useForm<Form>({
@@ -68,36 +72,17 @@ export default function NewSessionPage() {
     formState: { errors }
   } = form;
 
-  async function onPickFile() {
-    setUploadMsg(null);
-    const file = fileRef.current?.files?.[0];
-    if (!file) {
-      return;
-    }
-    setUploading(true);
-    try {
-      const result = await presignAndPutFile(file);
-      if (!result.ok) {
-        setUploadMsg(result.message);
-        return;
-      }
-      form.setValue("mediaUrl", result.publicUrl);
-      form.setValue("mediaType", result.contentType);
-      if (result.contentType.startsWith("audio/")) {
-        form.setValue("mediaKind", "audio");
-      } else if (result.contentType.startsWith("video/")) {
-        form.setValue("mediaKind", "video");
-      }
-      setUploadMsg("Uploaded — URL will be saved when you create the session.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
   async function onSubmit(data: Form) {
     setError(null);
     form.clearErrors();
     const pendingFile = fileRef.current?.files?.[0];
+    if (pendingFile && data.mediaKind !== "none") {
+      const mismatch = fileMediaKindMismatchMessage(data.mediaKind, pendingFile);
+      if (mismatch) {
+        form.setError("mediaUrl", { type: "manual", message: mismatch });
+        return;
+      }
+    }
     const missingMedia = missingMediaSourceMessage(data.mediaKind, data.mediaUrl, Boolean(pendingFile));
     if (missingMedia) {
       form.setError("mediaUrl", { type: "manual", message: missingMedia });
@@ -106,12 +91,10 @@ export default function NewSessionPage() {
     let mediaUploadedInSubmit: { url: string; type: string; kind: Form["mediaKind"] } | null = null;
     if (pendingFile && !data.mediaUrl?.trim()) {
       setUploading(true);
-      setUploadMsg(null);
       try {
         const uploadResult = await presignAndPutFile(pendingFile);
         if (!uploadResult.ok) {
           setError(uploadResult.message);
-          setUploadMsg(uploadResult.message);
           return;
         }
         const nextKind =
@@ -248,19 +231,17 @@ export default function NewSessionPage() {
           <div className={dashInsetCard}>
             <p className="text-sm font-medium text-foreground">Media file</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Choose a file; use Upload to preview, or submit — create uploads if a file is still selected.
+              Set media type to Audio or Video, then choose a file. It uploads to storage when you click Create session
+              (or is skipped if you clear the selection first).
             </p>
             <input
               ref={fileRef}
               type="file"
               accept={fileAcceptForMediaKind(mediaKind)}
               className="mt-3 w-full max-w-full text-sm text-muted-foreground"
-              disabled={uploading}
+              disabled={uploading || mediaKind === "none"}
             />
             <div className={cn(dashInsetButtonRow, "mt-4")}>
-              <Button type="button" variant="secondary" size="sm" onClick={() => void onPickFile()} disabled={uploading}>
-                {uploading ? "Uploading…" : "Upload"}
-              </Button>
               {form.watch("mediaUrl") ? (
                 <Button
                   type="button"
@@ -269,20 +250,18 @@ export default function NewSessionPage() {
                   onClick={() => {
                     form.setValue("mediaUrl", "");
                     form.setValue("mediaType", "");
-                    setUploadMsg(null);
                     if (fileRef.current) {
                       fileRef.current.value = "";
                     }
                   }}
                 >
-                  Clear media
+                  Clear staged media
                 </Button>
               ) : null}
             </div>
             {form.watch("mediaUrl") ? (
               <p className="mt-3 break-all text-xs text-muted-foreground">{form.watch("mediaUrl")}</p>
             ) : null}
-            {uploadMsg ? <p className="mt-2 text-xs text-muted-foreground">{uploadMsg}</p> : null}
             {errors.mediaUrl?.message ? (
               <p className="mt-2 text-sm text-destructive">{errors.mediaUrl.message}</p>
             ) : null}

@@ -28,6 +28,7 @@ type SessionDetail = {
   instructorName?: string;
   tags?: string[];
   mediaUrl?: string | null;
+  mediaType?: "AUDIO" | "VIDEO" | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -92,6 +93,8 @@ export default function SessionDetailPage() {
 
   const tags = session.tags?.length ? session.tags.join(", ") : "—";
   const mediaUrl = session.mediaUrl?.trim();
+  const mediaTypeLabel =
+    session.mediaType === "AUDIO" ? "Audio" : session.mediaType === "VIDEO" ? "Video" : null;
   const resolvedProgramId = session.programId ?? programId;
   const durationLabel =
     typeof session.durationSeconds === "number"
@@ -147,17 +150,25 @@ export default function SessionDetailPage() {
           </div>
           <div className="grid gap-1 py-4 sm:grid-cols-[160px_1fr] sm:gap-4">
             <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Media</dt>
-            <dd className="font-medium text-foreground">
+            <dd className="space-y-2 font-medium text-foreground">
               {mediaUrl ? (
-                <a
-                  href={mediaUrl}
-                  className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open media
-                  <ArrowRight className="size-3.5 shrink-0" aria-hidden />
-                </a>
+                <>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <a
+                      href={mediaUrl}
+                      className={cn(dashPrimaryLink, "inline-flex items-center gap-1")}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open media
+                      <ArrowRight className="size-3.5 shrink-0" aria-hidden />
+                    </a>
+                    {mediaTypeLabel ? (
+                      <span className="text-xs font-normal text-muted-foreground">({mediaTypeLabel})</span>
+                    ) : null}
+                  </div>
+                  <p className="break-all text-xs font-normal text-muted-foreground">{mediaUrl}</p>
+                </>
               ) : (
                 "—"
               )}
@@ -167,7 +178,7 @@ export default function SessionDetailPage() {
             <dt className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">Program</dt>
             <dd className="font-medium text-foreground">
               {resolvedProgramId ? (
-                <Link href={`/programs/${resolvedProgramId}`} className={dashPrimaryLink}>
+                <Link href={`/programs/${resolvedProgramId}/edit`} className={dashPrimaryLink}>
                   View program
                 </Link>
               ) : (

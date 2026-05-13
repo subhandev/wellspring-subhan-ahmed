@@ -1,3 +1,5 @@
+import { inferFileContentType } from "./inferFileContentType";
+
 export type MediaKind = "none" | "audio" | "video";
 
 /** API + DB enum for session media (see Prisma `SessionMediaType`). */
@@ -43,4 +45,22 @@ export function fileAcceptForMediaKind(kind: MediaKind): string {
     return "video/*";
   }
   return "audio/*,video/*";
+}
+
+/** When a file is chosen, ensure its (inferred) MIME matches the selected session media kind. */
+export function fileMediaKindMismatchMessage(kind: MediaKind, file: File): string | null {
+  if (kind === "none") {
+    return null;
+  }
+  const ct = inferFileContentType(file);
+  if (ct === "application/octet-stream") {
+    return "Could not tell if this file is audio or video. Use a clear extension (.mp3, .mp4, …) or set the media type to match the file.";
+  }
+  if (kind === "audio" && !ct.startsWith("audio/")) {
+    return "This file does not look like audio. Set media type to Video, or choose an audio file.";
+  }
+  if (kind === "video" && !ct.startsWith("video/")) {
+    return "This file does not look like video. Set media type to Audio, or choose a video file.";
+  }
+  return null;
 }
