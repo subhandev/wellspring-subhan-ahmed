@@ -173,31 +173,41 @@ export async function reorderSessions(
     }
   }
 
-  await prisma.$transaction(async (tx) => {
-    const offset = 1_000_000;
-    for (let i = 0; i < body.orderedSessionIds.length; i++) {
-      const sid = body.orderedSessionIds[i];
-      await tx.session.updateMany({
-        where: {
-          id: sid,
-          tenantId: tenantId as string,
-          programId: body.programId
-        },
-        data: { position: offset + i }
-      });
-    }
-    for (let i = 0; i < body.orderedSessionIds.length; i++) {
-      const sid = body.orderedSessionIds[i];
-      await tx.session.updateMany({
-        where: {
-          id: sid,
-          tenantId: tenantId as string,
-          programId: body.programId
-        },
-        data: { position: i }
-      });
-    }
-  });
+  const tenant = tenantId as string;
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw(
+        Prisma.sql`SELECT id FROM "Session" WHERE "tenantId" = ${tenant} AND "programId" = ${body.programId} ORDER BY id FOR UPDATE`
+      );
+
+      const offset = 1_000_000;
+      for (let i = 0; i < body.orderedSessionIds.length; i++) {
+        const sid = body.orderedSessionIds[i];
+        await tx.session.updateMany({
+          where: {
+            id: sid,
+            tenantId: tenant,
+            programId: body.programId
+          },
+          data: { position: offset + i }
+        });
+      }
+      for (let i = 0; i < body.orderedSessionIds.length; i++) {
+        const sid = body.orderedSessionIds[i];
+        await tx.session.updateMany({
+          where: {
+            id: sid,
+            tenantId: tenant,
+            programId: body.programId
+          },
+          data: { position: i }
+        });
+      }
+    });
+  } catch (err) {
+    throwIfSessionPositionConflict(err);
+    throw err;
+  }
 
   await appendAuditLog({
     tenantId,

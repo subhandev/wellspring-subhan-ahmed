@@ -1,0 +1,5 @@
+# Session reorder concurrency fix (implementation notes)
+
+- **Backend:** `reorderSessions` now runs `SELECT id FROM "Session" WHERE tenantId + programId ORDER BY id FOR UPDATE` inside the same Prisma transaction before the two-phase position bump. Serializes concurrent reorders on the same program so `@@unique([programId, position])` no longer sees duplicate temp positions. Wrapped transaction in try/catch and reused `throwIfSessionPositionConflict` so any residual P2002 maps to 409, not 500.
+- **Tests:** `backend/tests/sessions-reorder-concurrency.test.ts` — `Promise.all` two valid reorders; both 200; final list matches one permutation.
+- **Frontend:** `SessionList` — `pendingOrderedIdsRef` + single flush worker; coalesces rapid drags; `savingDepthRef` + requeue tail so “Saving…” does not flicker off while another save is queued; `lastSyncedItemsRef` for revert on failure; apply server `sessions` only when UI id order already matches response (avoids overwriting a newer optimistic order with a stale response).

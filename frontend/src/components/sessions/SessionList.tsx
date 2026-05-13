@@ -127,12 +127,29 @@ export function SessionList({
   /** When set, local row order is ahead of `initialSessions` until reorder API finishes. */
   const pendingOrderSigRef = useRef<string | null>(null);
 
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  /** Last order confirmed by the server; used to revert UI on failed persist. */
+  const lastSyncedItemsRef = useRef<SessionRow[]>(sortSessionsByPosition(initialSessions));
+
+  /** Latest full id list to POST; coalesces rapid drags into sequential saves. */
+  const pendingOrderedIdsRef = useRef<string[] | null>(null);
+  const flushRunningRef = useRef(false);
+  const savingDepthRef = useRef(0);
+
   const multisetKey = useMemo(
     () => [...initialSessions.map((s) => s.id)].sort().join("|"),
     [initialSessions]
   );
 
   const parentOrderSig = useMemo(() => sessionOrderSignature(initialSessions), [initialSessions]);
+
+  useEffect(() => {
+    lastSyncedItemsRef.current = sortSessionsByPosition(initialSessions);
+  }, [multisetKey, initialSessions]);
 
   useEffect(() => {
     setItems((prev) => {
@@ -166,33 +183,78 @@ export function SessionList({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  async function persistOrder(nextIds: string[]): Promise<boolean> {
-    setSaving(true);
+  async function executeReorderRequest(nextIds: string[]): Promise<boolean> {
     setError(null);
-    try {
-      const res = await apiFetch("/sessions/reorder", {
-        method: "POST",
-        body: JSON.stringify({
-          programId,
-          orderedSessionIds: nextIds
-        })
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(readApiErrorMessage(body, "Reorder failed"));
-        return false;
-      }
-      const data = body as { sessions?: SessionRow[] };
-      if (Array.isArray(data.sessions)) {
-        const next = sortSessionsByPosition(data.sessions);
-        setItems(next);
-        onSessionsChanged?.(next);
-      }
-      pendingOrderSigRef.current = null;
-      return true;
-    } finally {
-      setSaving(false);
+    const res = await apiFetch("/sessions/reorder", {
+      method: "POST",
+      body: JSON.stringify({
+        programId,
+        orderedSessionIds: nextIds
+      })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(readApiErrorMessage(body, "Reorder failed"));
+      return false;
     }
+    const data = body as { sessions?: SessionRow[] };
+    if (!Array.isArray(data.sessions)) {
+      setError("Reorder failed");
+      return false;
+    }
+    const next = sortSessionsByPosition(data.sessions);
+    lastSyncedItemsRef.current = next;
+    const uiSig = sessionOrderSignature(itemsRef.current);
+    const responseSig = sessionOrderSignature(next);
+    if (uiSig === responseSig) {
+      setItems(next);
+      onSessionsChanged?.(next);
+    }
+    if (!pendingOrderedIdsRef.current) {
+      pendingOrderSigRef.current = null;
+    }
+    return true;
+  }
+
+  async function flushPersistQueue(): Promise<void> {
+    if (flushRunningRef.current) {
+      return;
+    }
+    flushRunningRef.current = true;
+    savingDepthRef.current += 1;
+    if (savingDepthRef.current === 1) {
+      setSaving(true);
+    }
+    try {
+      while (pendingOrderedIdsRef.current) {
+        const ids = pendingOrderedIdsRef.current;
+        pendingOrderedIdsRef.current = null;
+        const ok = await executeReorderRequest(ids);
+        if (!ok) {
+          const restored = sortSessionsByPosition(lastSyncedItemsRef.current);
+          setItems(restored);
+          onSessionsChanged?.(restored);
+          pendingOrderedIdsRef.current = null;
+          pendingOrderSigRef.current = null;
+          break;
+        }
+      }
+    } finally {
+      flushRunningRef.current = false;
+      savingDepthRef.current -= 1;
+      const requeue = Boolean(pendingOrderedIdsRef.current);
+      if (savingDepthRef.current === 0 && !requeue) {
+        setSaving(false);
+      }
+      if (requeue) {
+        void flushPersistQueue();
+      }
+    }
+  }
+
+  function requestPersistOrder(nextIds: string[]) {
+    pendingOrderedIdsRef.current = nextIds;
+    void flushPersistQueue();
   }
 
   function onDragEnd(ev: DragEndEvent) {
@@ -205,17 +267,10 @@ export function SessionList({
     if (oldIndex < 0 || newIndex < 0) {
       return;
     }
-    const previous = items;
     const reordered = arrayMove(items, oldIndex, newIndex);
     pendingOrderSigRef.current = sessionOrderSignature(reordered);
     setItems(reordered);
-    void (async () => {
-      const ok = await persistOrder(reordered.map((s) => s.id));
-      if (!ok) {
-        pendingOrderSigRef.current = null;
-        setItems(previous);
-      }
-    })();
+    requestPersistOrder(reordered.map((s) => s.id));
   }
 
   async function onConfirmDeleteSession() {
