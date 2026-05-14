@@ -6,6 +6,8 @@ export const AUDIT_LIST_MAX = 500;
 
 export const AUDIT_ACTION_FILTERS: { value: string; label: string }[] = [
   { value: "", label: "All actions" },
+  { value: "auth.signed_up", label: "Auth signed up" },
+  { value: "auth.password_reset", label: "Auth password reset" },
   { value: "auth.logged_out", label: "Auth logged out" },
   { value: "program.created", label: "Program created" },
   { value: "program.updated", label: "Program updated" },
