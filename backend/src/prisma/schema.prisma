@@ -22,7 +22,6 @@ enum AuditLogAction {
   session_reordered @map("session.reordered")
   sessions_imported @map("sessions.imported")
   media_presigned @map("media.presigned")
-  media_relay_uploaded @map("media.relay_uploaded")
 }
 
 enum SessionImportKeyStatus {

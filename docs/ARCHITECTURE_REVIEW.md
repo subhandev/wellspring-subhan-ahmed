@@ -32,7 +32,7 @@ Each import sends a **`clientImportId`** (job-level idempotency) and each CSV ro
 
 ## S3 upload flow
 
-**Security:** Pre-signed **PUT** URLs are minted only after authentication; **object keys** are server-generated under **`tenants/{tenantId}/media/`** with a random prefix—clients cannot pick arbitrary keys into another tenant’s namespace. **Expiry** is enforced via env vars with **min/max** clamps. **Pre-signed GET** reuses the same key parsing rules. **Relay** uploads require **`Content-Length`** and validate **`X-Wellspring-S3-Key`** against the tenant prefix so relay cannot become a confused-deputy write into someone else’s prefix. **Audit** rows record presign and relay for traceability.
+**Security:** Pre-signed **PUT** URLs are minted only after authentication; **object keys** are server-generated under **`tenants/{tenantId}/media/`** with a random prefix—clients cannot pick arbitrary keys into another tenant’s namespace. **Expiry** is enforced via env vars with **min/max** clamps. **Pre-signed GET** reuses the same key parsing rules. **Audit** rows record **`media.presigned`** when an upload URL is issued.
 
 **Evolution for very large files:** Move to **S3 multipart upload** with a small server-orchestrated state machine (or presigned part URLs), **lifecycle policies** for abandoned uploads, and **bucket policies** mirroring the **`tenants/*`** prefix as defense in depth beyond application checks.
 

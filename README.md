@@ -13,6 +13,15 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 
 **Wiring:** Set **`NEXT_PUBLIC_API_URL`** on the frontend to the API origin (HTTPS, **no trailing slash**). On the API, set **`CORS_ORIGIN`** to a comma-separated list of allowed admin origins (must include the Vercel URL in production). Redeploy the admin after changing `NEXT_PUBLIC_API_URL`.
 
+## Credentials (seeded demo)
+
+After `pnpm db:seed` from `backend/`, sign in to the admin with either account (same password for both):
+
+| Email | Password |
+|-------|----------|
+| `nora.chen@wellspring.example` | `Password123!` |
+| `marcus.ortiz@wellspring.example` | `Password123!` |
+
 ## Documentation
 
 - Brief and rubric: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
@@ -31,9 +40,11 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 ## Prerequisites
 
 - Node.js **20+** and **pnpm 9+** (see `packageManager` in each `package.json`; e.g. `corepack prepare pnpm@9.15.0 --activate` after `corepack enable`)
-- PostgreSQL **14+** for local API development
+- PostgreSQL **15+** for local API development (migrations use enum `DROP VALUE`)
 
 ## Local setup
+
+> **Monorepo:** The repo is **two sibling pnpm packages** (`backend/`, `frontend/`) with **no root `package.json`**.
 
 ```bash
 cd backend && pnpm install
@@ -57,7 +68,7 @@ cd ../frontend && pnpm install
    pnpm db:seed
    ```
 
-   Seeded accounts (same password for both): **`nora.chen@wellspring.example`** and **`marcus.ortiz@wellspring.example`** — **`Password123!`**
+   Use the demo accounts under **Credentials** (above).
 
 ## Run and test
 
@@ -75,7 +86,7 @@ cd backend && pnpm test
 cd frontend && pnpm test
 ```
 
-Integration tests under `backend/tests/`; several names include **`rejects cross-tenant`** (rubric grep).
+Integration tests under `backend/tests/` cover cross-tenant access rejection and idempotent bulk import behaviour (several test names include `rejects cross-tenant` for rubric grep).
 
 ## Package scripts
 
@@ -98,8 +109,7 @@ Protected routes: **`Authorization: Bearer <jwt>`**.
 
 ## S3 session media
 
-1. `POST /v1/uploads/presign` → browser `PUT` to the signed URL (`Content-Type` must match the presign).
-2. If `PUT` fails (e.g. CORS), `POST /v1/uploads/relay` with body + `X-Wellspring-S3-Key` + matching `Content-Type`.
+`POST /v1/uploads/presign` → browser `PUT` to the signed URL (`Content-Type` must match the presign).
 
 Set `AWS_REGION` (must match bucket), credentials, `S3_BUCKET` in `backend/.env`. Optional: `S3_PUBLIC_BASE_URL`, `S3_ENDPOINT`. Bucket CORS must allow `PUT` (and `GET`/`HEAD` for playback) from your admin origins; include both `http://localhost:3000` and `http://127.0.0.1:3000` in dev if needed. IAM needs `s3:PutObject` on `tenants/*` (and `GetObject` if the same principal reads objects). Details stay in `.env.example` and [`docs/CODE_SUMMARY.md`](docs/CODE_SUMMARY.md).
 
@@ -126,5 +136,5 @@ Point **`NEXT_PUBLIC_API_URL`** at the public Railway API origin, then redeploy 
 |------|------|
 | `backend/` | API, Prisma, seed, Jest, OpenAPI, Railway config |
 | `frontend/` | Next.js admin |
-| `docs/` | Requirements, code summary, architecture review |
-| `ai-history/` | Raw AI exports |
+| `docs/` | `REQUIREMENTS.md`, `CODE_SUMMARY.md`, `ARCHITECTURE_REVIEW.md` |
+| `ai-history/` | Raw AI session exports (Cursor, Claude) — chronological, unedited |

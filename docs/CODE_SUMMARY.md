@@ -46,11 +46,11 @@ Module-by-module tour for a new hire on day 1. This aligns with the **Breakthrou
 
 ## `backend/src/modules/uploads/`
 
-**What it does:** **Presigned PUT** for uploads, **presigned GET** for playback, and an optional **relay** `PutObject` path when browsers cannot PUT to S3 directly. Keys are always under **`tenants/{tenantId}/media/`**; relay validates **`X-Wellspring-S3-Key`** against that prefix.
+**What it does:** **Presigned PUT** for uploads and **presigned GET** for playback. Object keys are always under **`tenants/{tenantId}/media/`**; the server generates keys (clients cannot choose arbitrary prefixes).
 
 **Design choice:** Upload URLs are **time-limited** (`PRESIGN_EXPIRES_SECONDS`, capped in env validation) and **never accept a client-chosen bucket key** for PUT; the server generates the object key.
 
-**Non-obvious:** Presign and relay call **`appendAuditLog`** (`media.presigned`, `media.relay_uploaded`). Image MIME types are allowed in addition to audio/video for flexibility.
+**Non-obvious:** Presign calls **`appendAuditLog`** with **`media.presigned`**. Image MIME types are allowed in addition to audio/video for flexibility.
 
 ---
 
@@ -86,7 +86,7 @@ Module-by-module tour for a new hire on day 1. This aligns with the **Breakthrou
 
 ## `backend/tests/`
 
-**What it does:** Jest + Supertest against **`createApp()`**; [`setup.ts`](../backend/tests/setup.ts) loads env defaults. Multiple tests include **`rejects cross-tenant`** in the name (programs, sessions, import, uploads, media URL) to match reviewer greps.
+**What it does:** Jest + Supertest against **`createApp()`**; [`setup.ts`](../backend/tests/setup.ts) loads env defaults. Multiple tests include **`rejects cross-tenant`** in the name (programs, sessions, import, uploads presign-get, media URL) to match reviewer greps.
 
 **Design choice:** DB-backed suites skip when **`DATABASE_URL`** is unset; keep local `.env` populated for full runs.
 
@@ -96,7 +96,7 @@ Module-by-module tour for a new hire on day 1. This aligns with the **Breakthrou
 
 ## `frontend/` (Next.js admin)
 
-**What it does:** App Router: **`(auth)/`** signup, login, forgot/reset password; **`(dashboard)/`** program list/create/edit, session list with **@dnd-kit** reorder, session create/edit with **presigned upload** (and relay when needed), CSV import with row feedback, audit viewer with date/action filters. [`DashboardGate`](../frontend/src/components/DashboardGate.tsx) holds the JWT (currently **`localStorage`**); [`lib/api.ts`](../frontend/src/lib/api.ts) attaches Bearer tokens.
+**What it does:** App Router: **`(auth)/`** signup, login, forgot/reset password; **`(dashboard)/`** program list/create/edit, session list with **@dnd-kit** reorder, session create/edit with **presigned S3 upload**, CSV import with row feedback, audit viewer with date/action filters. [`DashboardGate`](../frontend/src/components/DashboardGate.tsx) holds the JWT (currently **`localStorage`**); [`lib/api.ts`](../frontend/src/lib/api.ts) attaches Bearer tokens.
 
 **Design choice:** **React Hook Form + Zod** on all major forms; Tailwind + shared UI primitives.
 
