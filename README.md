@@ -13,8 +13,6 @@ Multi-tenant admin CMS for wellness creators: **Express + PostgreSQL (Prisma)** 
 | API (Railway)  | [https://wellspring-subhan-ahmed-production.up.railway.app](https://wellspring-subhan-ahmed-production.up.railway.app) |
 
 
-**Wiring:** Set `**NEXT_PUBLIC_API_URL`** on the frontend to the API origin (HTTPS, **no trailing slash**). On the API, set `**CORS_ORIGIN`** to a comma-separated list of allowed admin origins (must include the Vercel URL in production). Redeploy the admin after changing `NEXT_PUBLIC_API_URL`.
-
 ## Credentials (seeded demo)
 
 After `pnpm db:seed` from `backend/`, sign in to the admin with either account (same password for both):
@@ -131,6 +129,8 @@ Service **root directory:** `backend`. Link Postgres `**DATABASE_URL`**. Set `NO
 
 **Admin (Vercel)**  
 Point `**NEXT_PUBLIC_API_URL`** at the public Railway API origin, then redeploy (`pnpm -C frontend deploy:vercel` or Vercel dashboard).
+
+**Wiring:** Set `**NEXT_PUBLIC_API_URL`** on the frontend to the API origin (HTTPS, **no trailing slash**). On the API, set `**CORS_ORIGIN`** to a comma-separated list of allowed admin origins (must include the Vercel URL in production). Redeploy the admin after changing `NEXT_PUBLIC_API_URL`.
 
 ## Layout
 
