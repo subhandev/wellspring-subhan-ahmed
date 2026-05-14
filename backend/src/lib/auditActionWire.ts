@@ -13,8 +13,7 @@ export const AUDIT_ACTION_API_VALUES = [
   "session.deleted",
   "session.reordered",
   "sessions.imported",
-  "media.presigned",
-  "media.relay_uploaded"
+  "media.presigned"
 ] as const;
 
 export type AuditActionApiValue = (typeof AUDIT_ACTION_API_VALUES)[number];
@@ -32,8 +31,7 @@ export const auditActionApiToPrisma: Record<AuditActionApiValue, AuditLogAction>
   "session.deleted": AuditLogAction.session_deleted,
   "session.reordered": AuditLogAction.session_reordered,
   "sessions.imported": AuditLogAction.sessions_imported,
-  "media.presigned": AuditLogAction.media_presigned,
-  "media.relay_uploaded": AuditLogAction.media_relay_uploaded
+  "media.presigned": AuditLogAction.media_presigned
 };
 
 const toApi = new Map<AuditLogAction, AuditActionApiValue>(

@@ -110,6 +110,6 @@ Shared cross-cutting code: `src/middleware/`, `src/lib/` (logger factory, S3 hel
 Persisted values use the Prisma enum **`AuditLogAction`** (e.g. `AuditLogAction.program_created`); the database stores the dotted label (`program.created`) via `@map`. **`GET /v1/audit`** maps back to the same dotted strings for JSON clients. `appendAuditLog` must always use **past-tense** semantics so filters read as completed events:
 
 - API / wire shape: **`<domain>.<past_participle>`** or **`<resource_plural>.<past_participle>`** when the target is a batch or cross-cutting concern (e.g. `sessions.imported`, `media.presigned`).
-- Examples: `program.created`, `program.updated`, `program.deleted`, `session.created`, `session.updated`, `session.deleted`, `session.reordered`, `sessions.imported`, `media.presigned`, `media.relay_uploaded`, `auth.logged_out`, `auth.signed_up`, `auth.password_reset`.
+- Examples: `program.created`, `program.updated`, `program.deleted`, `session.created`, `session.updated`, `session.deleted`, `session.reordered`, `sessions.imported`, `media.presigned`, `auth.logged_out`, `auth.signed_up`, `auth.password_reset`.
 
 Never use imperative or infinitive verbs (`create`, `update`, `presign`) in new code. Add new actions to **`auditActionWire.ts`** (`AUDIT_ACTION_API_VALUES` + `auditActionApiToPrisma`) and the Prisma enum together.

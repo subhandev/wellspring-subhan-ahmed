@@ -30,11 +30,7 @@ export function createCorsMiddleware(env: Env): RequestHandler {
       res.append("Vary", "Origin");
     }
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
-    /** Include custom headers used by multipart-like uploads (`POST /v1/uploads/relay`). */
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Authorization, Content-Type, X-Wellspring-S3-Key"
-    );
+    res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
     if (req.method === "OPTIONS") {
       res.status(204).end();
       return;
